@@ -1,0 +1,2668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blanco Enterprise — Life OS</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#7a4b2b;--gold-dim:#9a775d;--gold-bg:rgba(122,75,43,0.09);
+  --black:#f8f4ee;--surface:#fffdf9;--surface2:#f3e8dc;--surface3:#e9dbc9;
+  --text:#3f2a1d;--text-muted:#7d6858;--text-dim:#b5a394;
+  --border:rgba(122,75,43,0.14);--border-b:rgba(122,75,43,0.34);
+  --green-t:#4caf7d;--red-t:#e05555;--amber-t:#d48c2a;--blue-t:#5b9bd5;
+  --page-bg:radial-gradient(circle at top,#ffffff 0%,#f5ecdf 55%,#eadcc9 100%);
+  --card-grad-start:#fffdf9;--card-grad-end:#f7efe4;
+  --overlay-bg:rgba(64,42,28,0.35);
+  --btn-text:#ffffff;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--page-bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;}
+body.dark{
+  --gold:#d2b08a;--gold-dim:#b39373;--gold-bg:rgba(210,176,138,0.12);
+  --black:#0f0c09;--surface:#17120e;--surface2:#211912;--surface3:#2a2118;
+  --text:#efe4d5;--text-muted:#9d8a75;--text-dim:#5f5042;
+  --border:rgba(210,176,138,0.13);--border-b:rgba(210,176,138,0.35);
+  --page-bg:radial-gradient(circle at top,#1a1410 0%,#0f0c09 48%,#0b0907 100%);
+  --card-grad-start:#19130e;--card-grad-end:#15100c;
+  --overlay-bg:rgba(10,8,6,0.82);
+  --btn-text:#1a120c;
+}
+.app{max-width:1120px;margin:0 auto;padding:1.5rem 1.2rem 6rem;}
+.hdr{margin-bottom:1.8rem;padding-bottom:1.4rem;border-bottom:0.5px solid var(--border);}
+.hdr-top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;}
+.brand{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--gold);line-height:1;letter-spacing:0.12em;}
+.brand-tag{font-size:9px;color:var(--text-muted);letter-spacing:0.22em;text-transform:uppercase;margin-top:2px;}
+.dt-block{text-align:right;}
+.dt-main{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--text-muted);letter-spacing:0.08em;}
+.dt-sub{font-size:10px;color:var(--text-dim);}
+.sync-row{display:flex;align-items:center;gap:6px;margin-top:4px;justify-content:flex-end;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text-dim);flex-shrink:0;}
+.sync-dot.live{background:var(--green-t);}
+.sync-dot.saving{background:var(--amber-t);}
+.sync-dot.err{background:var(--red-t);}
+.sync-label{font-size:9px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;}
+.theme-btn{margin-top:7px;background:transparent;border:0.5px solid var(--border-b);color:var(--gold);border-radius:20px;padding:4px 10px;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;}
+.theme-btn:hover{background:var(--gold-bg);}
+.pills{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{font-size:9px;padding:3px 9px;border-radius:20px;border:0.5px solid var(--border-b);color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;}
+.pill.b{border-color:rgba(91,155,213,0.35);color:var(--blue-t);}
+.pill.g{border-color:rgba(76,175,125,0.35);color:var(--green-t);}
+.nav{display:flex;gap:2px;margin-bottom:1.4rem;background:var(--surface);border-radius:10px;padding:4px;border:0.5px solid var(--border);overflow-x:auto;}
+.nav::-webkit-scrollbar{display:none;}
+.nb{flex:1;min-width:60px;font-family:'Bebas Neue',sans-serif;font-size:0.82rem;letter-spacing:0.05em;color:var(--text-muted);background:none;border:none;border-radius:7px;padding:7px 4px;cursor:pointer;transition:all 0.2s;text-align:center;white-space:nowrap;}
+.nb.on{background:var(--surface3);color:var(--gold);border:0.5px solid var(--border-b);}
+.pnl{display:none;}.pnl.on{display:block;}
+.card{background:linear-gradient(180deg,var(--card-grad-start) 0%,var(--card-grad-end) 100%);border:0.5px solid var(--border);border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:12px;box-shadow:0 8px 30px rgba(0,0,0,0.16);}
+.ct{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--gold);letter-spacing:0.08em;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
+.ct small{font-family:'DM Sans',sans-serif;font-size:10px;color:var(--text-muted);font-weight:400;letter-spacing:0.04em;text-transform:uppercase;}
+input,textarea,select{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;width:100%;outline:none;transition:border-color 0.2s;}
+input:focus,textarea:focus,select:focus{border-color:var(--border-b);}
+textarea{resize:vertical;min-height:68px;line-height:1.6;}
+select option{background:var(--surface2);}
+.fld{margin-bottom:9px;}
+.fld label{display:block;font-size:10px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.09em;}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+.btn{background:var(--gold);color:var(--btn-text);border:none;border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:0.95rem;letter-spacing:0.08em;padding:9px 20px;cursor:pointer;transition:opacity 0.2s,transform 0.1s;display:inline-flex;align-items:center;gap:5px;}
+.btn:hover{opacity:0.84;}.btn:active{transform:scale(0.98);}.btn:disabled{opacity:0.33;cursor:not-allowed;}
+.ghost{background:transparent;border:0.5px solid var(--border-b);color:var(--gold);font-size:0.82rem;padding:7px 15px;}
+.ghost:hover{background:var(--gold-bg);}
+.out{background:var(--surface2);border-radius:8px;padding:1rem 1.2rem;font-size:13px;line-height:1.8;color:var(--text);white-space:pre-wrap;border-left:2px solid var(--gold);}
+.out.dim{color:var(--text-muted);font-style:italic;border-left-color:var(--text-dim);}
+.out.hide{display:none;}
+.mg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+.mg3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.met{background:var(--surface2);border-radius:8px;padding:10px 13px;}
+.ml{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;}
+.mv{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;color:var(--text);letter-spacing:0.04em;line-height:1;}
+.ms{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.bar{height:3px;background:var(--surface3);border-radius:2px;margin-top:6px;overflow:hidden;}
+.bf{height:100%;border-radius:2px;background:var(--gold);transition:width 0.6s ease;}
+.goal-card{background:var(--surface2);border-radius:10px;padding:1rem 1.2rem;margin-bottom:10px;border-left:3px solid var(--gold);}
+.goal-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--text);letter-spacing:0.06em;margin-bottom:4px;}
+.goal-deadline{font-size:11px;color:var(--gold-dim);margin-bottom:6px;}
+.goal-steps{font-size:12px;color:var(--text-muted);line-height:1.8;}
+.countdown{font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:var(--amber-t);letter-spacing:0.06em;}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
+.ci{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:9px 11px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);user-select:none;}
+.ci.done{border-color:rgba(201,168,76,0.45);background:var(--gold-bg);color:var(--text);}
+.ci.done .dot{background:var(--gold);border-color:var(--gold);}
+.dot{width:7px;height:7px;border-radius:50%;border:1px solid var(--text-dim);flex-shrink:0;transition:all 0.2s;}
+.cs{font-size:9px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.12em;margin:11px 0 5px;}
+.sw{display:flex;gap:5px;margin-top:10px;}
+.sd{width:30px;height:30px;border-radius:5px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:10px;color:var(--text-dim);border:0.5px solid var(--border);}
+.sd.hit{background:var(--gold);color:#000;border-color:var(--gold);}
+.sd.miss{background:#1a0f0f;color:#4a2020;border-color:#2a1515;}
+.fi{padding:9px 0 9px 13px;border-left:2px solid var(--border-b);margin-bottom:9px;}
+.fc{font-size:9px;text-transform:uppercase;letter-spacing:0.12em;color:var(--gold-dim);margin-bottom:2px;}
+.ft{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.fd{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.je{background:var(--surface2);border-radius:8px;padding:9px 13px;margin-bottom:7px;border-left:2px solid var(--border);}
+.jd{font-size:10px;color:var(--text-dim);margin-bottom:3px;}
+.jt{font-size:12px;color:var(--text-muted);line-height:1.6;font-style:italic;}
+.lsg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.lsc{background:var(--surface2);border-radius:8px;padding:10px;text-align:center;}
+.lsv{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;margin-bottom:2px;}
+.lsl{font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.09em;}
+.hi{color:var(--green-t);}.mi{color:var(--amber-t);}.lo{color:var(--red-t);}
+.phase-block{border:0.5px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:10px;}
+.phase-block.active-phase{border-color:var(--border-b);background:var(--gold-bg);}
+.phase-num{font-family:'Bebas Neue',sans-serif;font-size:0.75rem;color:var(--gold-dim);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:4px;}
+.phase-title{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:var(--text);letter-spacing:0.06em;margin-bottom:6px;}
+.phase-goal{font-size:12px;color:var(--text-muted);line-height:1.7;}
+.phase-tag{font-size:10px;padding:2px 9px;border-radius:20px;background:var(--gold-bg);color:var(--gold);border:0.5px solid var(--border-b);display:inline-block;margin-bottom:8px;}
+.qb{border-left:2px solid var(--gold);padding:7px 13px;margin:10px 0;font-size:13px;color:var(--text-muted);font-style:italic;line-height:1.7;}
+.note{font-size:11px;color:var(--text-muted);line-height:1.7;}
+.mt{margin-top:10px;}.mt8{margin-top:8px;}
+.trk-head{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
+.estate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.estate-metric{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px;}
+.estate-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;}
+.estate-value{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--text);letter-spacing:0.04em;line-height:1;}
+.estate-sub{font-size:10px;color:var(--text-muted);margin-top:3px;}
+.pillar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.pillar-item{background:var(--surface2);border-radius:8px;padding:9px 11px;}
+.pillar-top{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px;}
+.pillar-name{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;}
+.pillar-pct{font-size:11px;color:var(--gold);}
+.agent-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px;}
+.agent-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;}
+.agent-name{font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.06em;color:var(--text);}
+.agent-role{font-size:10px;color:var(--text-muted);margin-top:2px;}
+.agent-status{font-size:10px;margin-top:6px;color:var(--green-t);text-transform:uppercase;letter-spacing:0.08em;}
+.txn-item{background:var(--surface2);border-radius:8px;padding:9px 12px;margin-bottom:6px;border-left:2px solid var(--border);}
+.txn-item.income{border-left-color:var(--green-t);}
+.txn-item.expense{border-left-color:var(--red-t);}
+.txn-meta{font-size:10px;color:var(--text-dim);margin-bottom:2px;}
+.txn-title{font-size:12px;color:var(--text);}
+.item-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.mini-btn{background:transparent;border:0.5px solid var(--border);color:var(--text-muted);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;}
+.mini-btn:hover{border-color:var(--border-b);color:var(--gold);}
+.q-actions{position:fixed;right:14px;bottom:14px;display:none;flex-direction:column;gap:6px;z-index:99;}
+.qa-btn{border:0.5px solid var(--border-b);background:var(--surface2);color:var(--gold);border-radius:999px;padding:7px 11px;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;}
+@media (max-width:900px){
+  .estate-grid{grid-template-columns:repeat(2,1fr);}
+  .pillar-grid{grid-template-columns:1fr;}
+  .agent-list{grid-template-columns:1fr;}
+  .q-actions{display:flex;}
+}
+/* SCHOOL */
+.mod-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;}
+.mod-tab{font-family:'Bebas Neue',sans-serif;font-size:0.82rem;letter-spacing:0.06em;padding:6px 14px;border-radius:7px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.2s;}
+.mod-tab.on{border-color:var(--border-b);color:var(--gold);background:var(--gold-bg);}
+.mod-panel{display:none;}.mod-panel.on{display:block;}
+.deadline-item{background:var(--surface2);border-radius:8px;padding:10px 13px;margin-bottom:7px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.deadline-left{flex:1;}
+.deadline-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.deadline-mod{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;}
+.deadline-date{font-size:12px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.06em;white-space:nowrap;}
+.deadline-date.urgent{color:var(--red-t);}
+.deadline-date.soon{color:var(--amber-t);}
+.deadline-date.ok{color:var(--green-t);}
+.del-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;}
+.del-btn:hover{color:var(--red-t);}
+.session-item{background:var(--surface2);border-radius:8px;padding:9px 13px;margin-bottom:6px;border-left:2px solid var(--border-b);}
+.session-date{font-size:10px;color:var(--text-dim);margin-bottom:2px;}
+.session-detail{font-size:12px;color:var(--text-muted);}
+.timetable-grid{display:grid;grid-template-columns:50px repeat(5,1fr);gap:2px;font-size:11px;}
+.tg-head{font-family:'Bebas Neue',sans-serif;font-size:0.75rem;color:var(--text-muted);letter-spacing:0.06em;padding:4px;text-align:center;}
+.tg-time{font-size:10px;color:var(--text-dim);padding:4px 4px;display:flex;align-items:center;justify-content:flex-end;}
+.tg-cell{border-radius:4px;padding:4px 5px;min-height:28px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;line-height:1.3;}
+.tg-bm{background:rgba(201,168,76,0.12);color:#C9A84C;}
+.tg-aa{background:rgba(76,175,125,0.12);color:var(--green-t);}
+.tg-en{background:rgba(91,155,213,0.12);color:var(--blue-t);}
+.tg-ec{background:rgba(212,140,42,0.12);color:var(--amber-t);}
+.tg-study{background:rgba(174,109,236,0.12);color:#ae6dec;}
+.tg-empty{background:var(--surface2);}
+.tg-gym{background:rgba(76,175,125,0.18);color:var(--green-t);}
+.tg-biz{background:rgba(174,109,236,0.15);color:#ae6dec;}
+.tg-church{background:rgba(76,175,125,0.1);color:var(--green-t);}
+.tg-sleep{background:rgba(255,255,255,0.03);color:var(--text-dim);}
+.tg-read{background:rgba(201,168,76,0.08);color:var(--gold-dim);}
+.tg-creative{background:rgba(212,140,42,0.1);color:var(--amber-t);}
+.tg-wind{background:rgba(255,255,255,0.03);color:var(--text-dim);}
+.mod-legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.mod-leg{display:flex;align-items:center;gap:5px;font-size:11px;}
+.mod-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.loading-overlay{position:fixed;inset:0;background:var(--overlay-bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;}
+.loading-brand{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold);letter-spacing:0.15em;margin-bottom:8px;}
+.loading-msg{font-size:12px;color:var(--text-muted);letter-spacing:0.1em;}
+.spin{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-brand">BLANCO ENTERPRISE</div>
+  <div class="spin"></div>
+  <div class="loading-msg" id="loadingMsg">Syncing your data...</div>
+</div>
+
+<div class="app">
+<div class="hdr">
+  <div class="hdr-top">
+    <div><div class="brand">BLANCO ENTERPRISE</div><div class="brand-tag">Enterprise Operating System</div></div>
+    <div class="dt-block">
+      <div class="dt-main" id="dtMain"></div>
+      <div class="dt-sub" id="dtSub"></div>
+      <div class="sync-row">
+        <div class="sync-dot" id="syncDot"></div>
+        <div class="sync-label" id="syncLabel">Loading...</div>
+      </div>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">Dark mode</button>
+    </div>
+  </div>
+  <div class="pills">
+    <div class="pill" id="phasePill">Stage 0 — Foundation</div>
+    <div class="pill b">Age 19 → Empire</div>
+    <div class="pill g" id="c63pill">– days to C63</div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nb on" onclick="nav('brief',this)">Brief</button>
+  <button class="nb" onclick="nav('goals',this)">Goals</button>
+  <button class="nb" onclick="nav('roadmap',this)">Roadmap</button>
+  <button class="nb" onclick="nav('life',this)">Life</button>
+  <button class="nb" onclick="nav('tracker',this)">Tracker</button>
+  <button class="nb" onclick="nav('finance',this)">Finance</button>
+  <button class="nb" onclick="nav('agents',this)">Agents</button>
+  <button class="nb" onclick="nav('checkin',this)">Check-In</button>
+  <button class="nb" onclick="nav('journal',this)">Journal</button>
+  <button class="nb" onclick="nav('feed',this)">Feed</button>
+  <button class="nb" onclick="nav('school',this)">School</button>
+  <button class="nb" onclick="nav('gym',this)">Gym</button>
+  <button class="nb" onclick="nav('timetable',this)">Timetable</button>
+</div>
+
+<!-- BRIEF -->
+<div class="pnl on" id="pnl-brief">
+  <div class="card">
+    <div class="ct">ENTERPRISE SNAPSHOT <small>Live operating pulse</small></div>
+    <div class="estate-grid">
+      <div class="estate-metric"><div class="estate-label">Active ventures</div><div class="estate-value">3</div><div class="estate-sub">Uber Eats · DS · Core Brand</div></div>
+      <div class="estate-metric"><div class="estate-label">Uber Eats capital</div><div class="estate-value" id="es-capital">R 0</div><div class="estate-sub">Target: R 3,000</div></div>
+      <div class="estate-metric"><div class="estate-label">DS build score</div><div class="estate-value" id="es-ds-score">0%</div><div class="estate-sub">Products · Ads · Prompts · Swipe</div></div>
+      <div class="estate-metric"><div class="estate-label">Empire branches ready</div><div class="estate-value" id="es-branches">0/6</div><div class="estate-sub">Fashion to Capital rollout</div></div>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Uber Eats capital</div><div class="pillar-pct" id="ep-capital-t">0%</div></div><div class="bar"><div class="bf" id="ep-capital" style="width:0%"></div></div></div>
+      <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Dropshipping build</div><div class="pillar-pct" id="ep-ds-t">0%</div></div><div class="bar"><div class="bf" id="ep-ds" style="width:0%"></div></div></div>
+      <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Discipline systems</div><div class="pillar-pct" id="ep-discipline-t">0%</div></div><div class="bar"><div class="bf" id="ep-discipline" style="width:0%;background:var(--green-t)"></div></div></div>
+      <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Empire structure</div><div class="pillar-pct" id="ep-empire-t">0%</div></div><div class="bar"><div class="bf" id="ep-empire" style="width:0%;background:var(--blue-t)"></div></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">MORNING BRIEF <small>Your orders for today</small></div>
+    <div id="recentActivityBar" style="display:none;background:var(--surface2);border-radius:8px;padding:10px 13px;margin-bottom:12px;border-left:2px solid var(--border-b);">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Last 7 days — auto-loaded into your brief</div>
+      <div id="recentActivityList" style="font-size:12px;color:var(--text-muted);line-height:1.8;"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><label>Business phase</label>
+        <select id="bPhase">
+          <option value="p0">Phase 0 — Waiting for license</option>
+          <option value="p1">Phase 1 — Uber Eats active</option>
+          <option value="p2">Phase 2 — Store live</option>
+          <option value="p3">Phase 3 — Blanco Enterprise launch</option>
+        </select>
+      </div>
+      <div class="fld"><label>Energy today</label>
+        <select id="bEnergy">
+          <option value="high">High — ready to push</option>
+          <option value="med">Medium — steady</option>
+          <option value="low">Low — running on empty</option>
+        </select>
+      </div>
+    </div>
+    <div class="fld"><label>What did you actually complete yesterday?</label><textarea id="bYest" placeholder="Honest account — what got done and what didn't..."></textarea></div>
+    <div class="r2">
+      <div class="fld"><label>Mental & spiritual state right now</label><textarea id="bMind" placeholder="Focused, anxious, grateful, lost..." style="min-height:55px;"></textarea></div>
+      <div class="fld"><label>Blockers today</label><textarea id="bBlock" placeholder="What's in your way..." style="min-height:55px;"></textarea></div>
+    </div>
+    <button class="btn" id="briefBtn" onclick="genBrief()">Generate My Day</button>
+  </div>
+  <div class="card" id="briefCard" style="display:none">
+    <div class="ct">TODAY'S ORDERS <small id="briefDateLabel"></small></div>
+    <div class="out" id="briefOut"></div>
+    <div style="margin-top:10px;display:flex;gap:8px;">
+      <button class="btn ghost" style="font-size:0.78rem;padding:7px 13px;" onclick="saveBriefToLog()">Save to Activity Log</button>
+      <div id="briefSaved" style="display:none;font-size:12px;color:var(--green-t);align-self:center;">Saved.</div>
+    </div>
+  </div>
+  <div class="card" id="briefHistoryCard">
+    <div class="ct">ACTIVITY LOG <small id="briefHistCount">0 days</small></div>
+    <div id="briefHistList"><div class="note">No activity logged yet. Generate your first brief and save it.</div></div>
+  </div>
+</div>
+
+<!-- GOALS -->
+<div class="pnl" id="pnl-goals">
+  <div class="card">
+    <div class="ct">YOUR GOALS <small>Every decision runs through these</small></div>
+    <div class="qb">"Some may call it delusion. That's where I see it." — You, March 2026. Hold that.</div>
+  </div>
+  <div class="goal-card">
+    <div class="goal-title">2021 MERCEDES C63S AMG</div>
+    <div class="goal-deadline">Deadline: 15 August 2027 — <span class="countdown" id="c63days"></span></div>
+    <div class="goal-steps">This car costs roughly R900,000–R1.1M in SA. Atelier Blanco needs to be generating serious, consistent revenue well before August 2027. Path: Uber Eats capital → dropshipping profitability → Atelier Blanco brand revenue → reinvest aggressively → C63.<br><br>Your next milestone toward this goal: R3,000 capital. That is all you need to think about right now.</div>
+    <div class="bar mt8"><div class="bf" id="c63bar" style="width:0%"></div></div>
+  </div>
+  <div class="goal-card" style="border-left-color:var(--blue-t)">
+    <div class="goal-title">80–85KG LEAN BODY</div>
+    <div class="goal-deadline">Current: ~65kg | Target: 80–85kg lean | Timeline: 18–24 months</div>
+    <div class="goal-steps">You need to gain 15–20kg of lean muscle. 18 months of consistent training, eating 1.6–2g protein per kg bodyweight daily, sleeping 7–8 hours, and not skipping sessions when motivation dips.<br><br>Weekly non-negotiable: 5–6 gym sessions. Progressive overload — add weight or reps every week. This body goal and your business goal share the same enemy: inconsistency.</div>
+    <div class="bar mt8"><div class="bf" id="weightbar" style="width:0%;background:var(--blue-t)"></div></div>
+  </div>
+  <div class="goal-card" style="border-left-color:var(--green-t)">
+    <div class="goal-title">GROW IN FAITH</div>
+    <div class="goal-deadline">Ongoing — intentional, not passive</div>
+    <div class="goal-steps">Right now your faith is Sunday church + occasional prayer. That's passive. Daily prayer (morning, 5 minutes minimum). One scripture per week to meditate on. Treat your faith as the foundation of your decision-making — not a Sunday obligation.<br><br>Start with Proverbs. One chapter per day. 31 chapters, 31 days. By April you will have read the entire book of wisdom.</div>
+  </div>
+  <div class="goal-card" style="border-left-color:var(--amber-t)">
+    <div class="goal-title">READ 12 BOOKS THIS YEAR</div>
+    <div class="goal-deadline">0 books in last 6 months → 1 book per month from today</div>
+    <div class="goal-steps">You read zero books in 6 months. Reading is the cheapest form of mentorship. Your next 3 months:<br><br>April: The Lean Startup — Eric Ries<br>May: $100M Offers — Alex Hormozi<br>June: Rich Dad Poor Dad — Robert Kiyosaki<br><br>21:00–22:00 is your reading block. It's already in your schedule. Use it.</div>
+    <div class="bar mt8"><div class="bf" id="bookbar" style="width:0%;background:var(--amber-t)"></div></div>
+  </div>
+  <div class="goal-card" style="border-left-color:var(--red-t)">
+    <div class="goal-title">FIRST APARTMENT</div>
+    <div class="goal-deadline">Target: After the C63 — build financial foundation first</div>
+    <div class="goal-steps">Apartment comes after the car. Property requires deposit, bond qualification, and stable income. By the time Atelier Blanco is generating consistent revenue, your credit profile and income will support a bond application.<br><br>Focus now: build income. The apartment takes care of itself when the money is right.</div>
+  </div>
+  <div class="goal-card" style="border-left-color:var(--text-muted)">
+    <div class="goal-title">HAPPINESS AS AN INDIVIDUAL</div>
+    <div class="goal-deadline">Not a destination — a daily practice</div>
+    <div class="goal-steps">Happiness at 19 building an empire is not about having things. It's about knowing who you are, having clear direction, and finding joy in the process — not just the outcome.<br><br>Daily: one thing you're grateful for (journal). Weekly: one real conversation with someone who matters. Monthly: ask yourself honestly if you're enjoying the journey.</div>
+  </div>
+  <div class="card mt">
+    <div class="ct">UPDATE GOAL PROGRESS</div>
+    <div class="r2">
+      <div class="fld"><label>Books read this year</label><input type="number" id="u-books" placeholder="e.g. 1" min="0" max="12"></div>
+      <div class="fld"><label>Current weight (kg)</label><input type="number" id="u-weight" placeholder="e.g. 67"></div>
+    </div>
+    <button class="btn" onclick="saveGoalProgress()">Update</button>
+    <div id="goalSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:8px;">Synced to cloud.</div>
+  </div>
+</div>
+
+<!-- ROADMAP -->
+<div class="pnl" id="pnl-roadmap">
+  <div class="card"><div class="ct">BLANCO ENTERPRISE ROADMAP <small>UJ Student → Global Empire</small></div><div class="note">This roadmap is sequence-first: earn, build, scale, then institutionalize legacy. Execute each stage fully before forcing the next one.</div></div>
+  <div class="phase-block active-phase"><div class="phase-tag">YOU ARE HERE</div><div class="phase-num">Stage 0 — Right Now</div><div class="phase-title">FOUNDATION CASHFLOW ENGINE (UBER EATS)</div><div class="phase-goal"><strong style="color:var(--text)">Context:</strong> 19-year-old University of Johannesburg student building from zero.<br><br><strong style="color:var(--text)">Primary objective:</strong> Complete bike license, start Uber Eats deliveries, and build your R3,000 share of startup capital.<br><br><strong style="color:var(--text)">Support objective:</strong> Uber Eats also funds upkeep (haircuts, hygiene, gym, clothing, campus transport, school lunch).<br><br><strong style="color:var(--text)">Exit condition:</strong> Bike license active + R3,000 ready for deployment.</div></div>
+  <div class="phase-block"><div class="phase-tag">Next</div><div class="phase-num">Stage 1 — Venture Engine</div><div class="phase-title">AI COMMERCE DROPSHIPPING (50/50 PARTNERSHIP)</div><div class="phase-goal"><strong style="color:var(--text)">Business structure:</strong> Build dropshipping venture with Ntobeko Masemula (50/50 setup).<br><br><strong style="color:var(--text)">Primary objective:</strong> Turn delivery-funded capital into profitable online cashflow.<br><br><strong style="color:var(--text)">Strategic role:</strong> Profits from dropshipping become the first funding stream for Atelier Blanco Fashion House.</div></div>
+  <div class="phase-block"><div class="phase-tag">Year 1–3</div><div class="phase-num">Stage 2 — Core Brand Build</div><div class="phase-title">ATELIER BLANCO (FASHION HOUSE)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Build Atelier Blanco as a luxury fashion house with elegance, sophistication, and opulence.<br><br><strong style="color:var(--text)">Primary objective:</strong> Establish the flagship brand identity, product excellence, and market authority.<br><br><strong style="color:var(--text)">Strategic role:</strong> This is the nucleus that all future branches inherit from.</div></div>
+  <div class="phase-block"><div class="phase-tag">Year 3–5</div><div class="phase-num">Stage 3 — Physical Presence</div><div class="phase-title">ATELIER BLANCO EXPERIENCES (HOSPITALITY & CULTURE)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Create immersive environments where people can live the Atelier Blanco world.<br><br><strong style="color:var(--text)">Offerings:</strong> Concept lounges/cafes, curated pop-up galleries, then boutique hotels or retreats.<br><br><strong style="color:var(--text)">Strategic role:</strong> Converts exclusivity into lived experience and cultural presence.</div></div>
+  <div class="phase-block"><div class="phase-tag">Year 5–7</div><div class="phase-num">Stage 4 — Lifestyle Expansion</div><div class="phase-title">ATELIER BLANCO MAISON (HOME & LIFESTYLE)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Bring Atelier Blanco elegance into living spaces.<br><br><strong style="color:var(--text)">Offerings:</strong> Furniture, home decor, luxury tableware, textiles (throws/bedding), limited-edition art collaborations.<br><br><strong style="color:var(--text)">Strategic role:</strong> Cements Atelier Blanco as a way of life beyond fashion.</div></div>
+  <div class="phase-block"><div class="phase-tag">Year 5–7</div><div class="phase-num">Stage 5 — Cultural Voice</div><div class="phase-title">ATELIER BLANCO JOURNAL (MEDIA & CULTURE)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Become a tastemaker and cultural voice in fashion, art, and lifestyle.<br><br><strong style="color:var(--text)">Offerings:</strong> Print/digital magazine, short films and documentaries on artisanship, legacy, and creativity, plus exclusive digital media content.<br><br><strong style="color:var(--text)">Strategic role:</strong> Positions Atelier Blanco as a cultural curator, not only a brand.</div></div>
+  <div class="phase-block"><div class="phase-tag">Year 7–10</div><div class="phase-num">Stage 6 — Legacy Layer</div><div class="phase-title">ATELIER BLANCO FOUNDATION (PHILANTHROPY & LEGACY)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Give back, empower others, and leave a generational footprint.<br><br><strong style="color:var(--text)">Focus areas:</strong> Scholarships for young designers/creatives, support for African artisans and global representation, community upliftment through craftsmanship.<br><br><strong style="color:var(--text)">Strategic role:</strong> Reinforces care, strength, opportunity, and long-term legacy.</div></div>
+  <div class="phase-block"><div class="phase-tag">Year 10+</div><div class="phase-num">Stage 7 — Wealth Engine</div><div class="phase-title">BLANCO CAPITAL (INVESTMENT ARM)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Build sustainable generational capital from Atelier Blanco wealth.<br><br><strong style="color:var(--text)">Investment areas:</strong> Real estate, startups, and private equity in luxury-adjacent industries.<br><br><strong style="color:var(--text)">Strategic role:</strong> Secures long-term independence, resilience, and empire scalability.</div></div>
+</div>
+
+<!-- LIFE -->
+<div class="pnl" id="pnl-life">
+  <div class="card">
+    <div class="ct">LIFE SCORE <small>Rate yourself 1–10</small></div>
+    <div class="lsg">
+      <div class="lsc"><div class="lsv" id="ls-body">–</div><div class="lsl">Body</div></div>
+      <div class="lsc"><div class="lsv" id="ls-mind">–</div><div class="lsl">Mind</div></div>
+      <div class="lsc"><div class="lsv" id="ls-spirit">–</div><div class="lsl">Spirit</div></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><label>Body (gym, sleep, nutrition)</label><input type="number" min="1" max="10" id="in-body" placeholder="1–10"></div>
+      <div class="fld"><label>Mind (focus, stress, clarity)</label><input type="number" min="1" max="10" id="in-mind" placeholder="1–10"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><label>Spirit (faith, peace, gratitude)</label><input type="number" min="1" max="10" id="in-spirit" placeholder="1–10"></div>
+      <div class="fld"><label>Discipline (did you show up?)</label><input type="number" min="1" max="10" id="in-disc" placeholder="1–10"></div>
+    </div>
+    <div class="fld"><label>What's weighing on you personally today?</label><textarea id="in-personal" placeholder="Relationships, doubts, fears, wins..."></textarea></div>
+    <button class="btn" id="lifeBtn" onclick="genLife()">Get Personal Debrief</button>
+  </div>
+  <div class="card" id="lifeCard" style="display:none"><div class="ct">PERSONAL DEBRIEF</div><div class="out" id="lifeOut"></div></div>
+  <div class="card">
+    <div class="ct">DISCIPLINE WALL</div>
+    <div class="qb">"The man who shows up when he doesn't feel like it is the man who wins. Motivation is a feeling. Discipline is a decision."</div>
+    <div class="note" style="margin-bottom:10px;">Your three known enemies: procrastinating on business tasks, skipping gym, giving up when progress is slow. These are not general weaknesses. They are yours.</div>
+    <div class="fld"><label>Today's discipline intention</label><input type="text" id="discInt" placeholder="e.g. I will not skip my 8:50 Atelier Blanco slot regardless of how I feel..."></div>
+    <button class="btn ghost mt8" onclick="saveDisc()">Lock It In</button>
+    <div id="discSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Locked. Now honour it.</div>
+  </div>
+  <div class="card">
+    <div class="ct">WEEKLY ACCOUNTABILITY</div>
+    <div class="fld"><label>Business — what got done and what didn't</label><textarea id="wkBiz" placeholder="Dropshipping: products validated, capital earned, ads studied... Atelier Blanco: brand bible progress, research done, actions taken..."></textarea></div>
+    <div class="fld"><label>Personal — body, mind, spirit this week</label><textarea id="wkLife" placeholder="Gym sessions, mental state, faith life, relationships..."></textarea></div>
+    <button class="btn" id="acctBtn" onclick="genAcct()">Get Brutally Honest Feedback</button>
+    <div class="out hide mt" id="acctOut"></div>
+  </div>
+</div>
+
+<!-- TRACKER -->
+<div class="pnl" id="pnl-tracker">
+  <div class="card"><div class="ct">NOW <small>Mission-critical this week</small></div>
+    <div class="trk-head">Cashflow + execution</div>
+    <div class="mg">
+      <div class="met"><div class="ml">Uber Eats earned</div><div class="mv" id="t-earn">R0</div><div class="ms">Target: R3,000</div><div class="bar"><div class="bf" id="b-earn" style="width:0%"></div></div></div>
+      <div class="met"><div class="ml">Days to target</div><div class="mv" id="t-days">–</div><div class="ms">At current daily rate</div><div class="bar"><div class="bf" id="b-days" style="width:0%;background:var(--blue-t)"></div></div></div>
+      <div class="met"><div class="ml">Products validated</div><div class="mv" id="t-prod">0</div><div class="ms">Target: 10</div><div class="bar"><div class="bf" id="b-prod" style="width:0%"></div></div></div>
+      <div class="met"><div class="ml">Ads studied</div><div class="mv" id="t-ads">0</div><div class="ms">Target: 50</div><div class="bar"><div class="bf" id="b-ads" style="width:0%"></div></div></div>
+      <div class="met"><div class="ml">Prompts built</div><div class="mv" id="t-prompts">1</div><div class="ms">Target: 6</div><div class="bar"><div class="bf" id="b-prompts" style="width:16%"></div></div></div>
+      <div class="met"><div class="ml">Swipe file size</div><div class="mv" id="t-swipe">0</div><div class="ms">Target: 30</div><div class="bar"><div class="bf" id="b-swipe" style="width:0%;background:var(--amber-t)"></div></div></div>
+    </div>
+  </div>
+
+  <div class="card"><div class="ct">NEXT <small>Brand build checkpoints</small></div>
+    <div class="trk-head">Blanco Enterprise foundation</div>
+    <div class="mg">
+      <div class="met"><div class="ml">Business registered</div><div class="mv" id="t-ab-reg" style="font-size:0.9rem;color:var(--red-t)">No</div><div class="ms">Register with CIPC</div></div>
+      <div class="met"><div class="ml">Social handles secured</div><div class="mv" id="t-ab-social" style="font-size:0.9rem;color:var(--red-t)">No</div><div class="ms">IG · TikTok · All platforms</div></div>
+      <div class="met"><div class="ml">Brand bible written</div><div class="mv" id="t-ab-bible" style="font-size:0.9rem;color:var(--red-t)">No</div><div class="ms">Full brand document</div></div>
+      <div class="met"><div class="ml">Tailor / pattern maker</div><div class="mv" id="t-ab-tailor" style="font-size:0.9rem;color:var(--red-t)">No</div><div class="ms">Found & contracted</div></div>
+      <div class="met"><div class="ml">First sample made</div><div class="mv" id="t-ab-sample" style="font-size:0.9rem;color:var(--red-t)">No</div><div class="ms">Physical garment exists</div></div>
+      <div class="met"><div class="ml">Capital allocated</div><div class="mv" id="t-ab-capital">R0</div><div class="ms">Saved for first garment</div></div>
+    </div>
+    <div class="fld" style="margin-top:4px;"><label>Update Blanco Enterprise milestone</label>
+      <select id="u-ab-milestone">
+        <option value="reg">Business registered</option>
+        <option value="social">Social handles secured</option>
+        <option value="bible">Brand bible written</option>
+        <option value="tailor">Tailor / pattern maker found</option>
+        <option value="sample">First sample made</option>
+      </select>
+    </div>
+    <div class="fld"><label>Capital allocated to Blanco Enterprise (R)</label><input type="number" id="u-ab-capital" placeholder="e.g. 500"></div>
+    <button class="btn" onclick="saveABMilestones()">Update</button>
+    <div id="abSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Synced.</div>
+  </div>
+  <div class="card"><div class="ct">LATER <small>Long-game outcomes</small></div>
+    <div class="trk-head">Personal capacity and timeline pressure</div>
+    <div class="mg3">
+      <div class="met"><div class="ml">Current weight</div><div class="mv" id="t-weight">–</div><div class="ms">Target: 80–85kg</div><div class="bar"><div class="bf" id="b-weight" style="width:0%;background:var(--blue-t)"></div></div></div>
+      <div class="met"><div class="ml">Books read</div><div class="mv" id="t-books">0</div><div class="ms">Target: 12 this year</div><div class="bar"><div class="bf" id="b-books" style="width:0%;background:var(--amber-t)"></div></div></div>
+      <div class="met"><div class="ml">Gym sessions</div><div class="mv" id="t-gym">0</div><div class="ms">This week (target: 6)</div><div class="bar"><div class="bf" id="b-gym" style="width:0%;background:var(--green-t)"></div></div></div>
+    </div>
+    <div class="met"><div class="ml">C63 countdown</div><div class="mv" id="t-c63">–</div><div class="ms">Days until 15 August 2027</div><div class="bar"><div class="bf" id="b-c63" style="width:0%;background:var(--red-t)"></div></div></div>
+  </div>
+  <div class="card"><div class="ct">UPDATE METRICS</div>
+    <div class="r2">
+      <div class="fld"><label>Earnings total (R)</label><input type="number" id="u-earn" placeholder="e.g. 1200"></div>
+      <div class="fld"><label>Daily earn rate (R/day)</label><input type="number" id="u-rate" placeholder="e.g. 250"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><label>Products validated</label><input type="number" id="u-prod" placeholder="e.g. 4"></div>
+      <div class="fld"><label>Ads studied (total)</label><input type="number" id="u-ads" placeholder="e.g. 15"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><label>Prompts built</label><input type="number" id="u-prompts" placeholder="e.g. 3"></div>
+      <div class="fld"><label>Swipe file size</label><input type="number" id="u-swipe" placeholder="e.g. 12"></div>
+    </div>
+    <div class="r2">
+      <div class="fld"><label>Current weight (kg)</label><input type="number" id="u-weight2" placeholder="e.g. 67"></div>
+      <div class="fld"><label>Books read this year</label><input type="number" id="u-books2" placeholder="e.g. 1"></div>
+    </div>
+    <div class="fld"><label>Gym sessions this week</label><input type="number" id="u-gym" placeholder="e.g. 4"></div>
+    <button class="btn mt" onclick="saveMetrics()">Save All</button>
+    <div id="mSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Synced to cloud.</div>
+  </div>
+</div>
+
+<!-- FINANCE -->
+<div class="pnl" id="pnl-finance">
+  <div class="card">
+    <div class="ct">FINANCE HQ <small>Runway · burn · control</small></div>
+    <div class="mg3">
+      <div class="met"><div class="ml">Primary account</div><div class="mv" id="f-primary">R0</div><div class="ms">Day-to-day</div></div>
+      <div class="met"><div class="ml">Business account</div><div class="mv" id="f-business">R0</div><div class="ms">Venture ops</div></div>
+      <div class="met"><div class="ml">Savings account</div><div class="mv" id="f-savings">R0</div><div class="ms">Emergency buffer</div></div>
+    </div>
+    <div class="mg">
+      <div class="met"><div class="ml">Weekly income</div><div class="mv" id="f-income" style="color:var(--green-t)">R0</div><div class="ms">Last 7 days</div></div>
+      <div class="met"><div class="ml">Weekly expenses</div><div class="mv" id="f-expense" style="color:var(--red-t)">R0</div><div class="ms">Last 7 days</div></div>
+      <div class="met"><div class="ml">Net position</div><div class="mv" id="f-net">R0</div><div class="ms">Income - expenses</div></div>
+      <div class="met"><div class="ml">Runway</div><div class="mv" id="f-runway">0 weeks</div><div class="ms">Using current weekly burn</div></div>
+    </div>
+    <div class="r3">
+      <div class="fld"><label>Primary balance (R)</label><input type="number" id="u-f-primary" placeholder="e.g. 2000"></div>
+      <div class="fld"><label>Business balance (R)</label><input type="number" id="u-f-business" placeholder="e.g. 800"></div>
+      <div class="fld"><label>Savings balance (R)</label><input type="number" id="u-f-savings" placeholder="e.g. 1000"></div>
+    </div>
+    <button class="btn" onclick="saveFinanceBalances()">Update Balances</button>
+    <div id="fSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Synced.</div>
+  </div>
+  <div class="card">
+    <div class="ct">LEDGER <small>Last 20 transactions</small></div>
+    <div class="r3">
+      <div class="fld"><label>Type</label><select id="u-f-type"><option value="income">Income</option><option value="expense">Expense</option></select></div>
+      <div class="fld"><label>Amount (R)</label><input type="number" id="u-f-amount" placeholder="e.g. 250"></div>
+      <div class="fld"><label>Source / category</label><input id="u-f-title" placeholder="e.g. Uber Eats payout"></div>
+    </div>
+    <button class="btn ghost" onclick="addFinanceTxn()">Add Transaction</button>
+    <div id="fTxnSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Logged.</div>
+    <div style="margin-top:12px;" id="fTxnList"><div class="note">No transactions logged yet.</div></div>
+  </div>
+</div>
+
+<!-- AGENTS -->
+<div class="pnl" id="pnl-agents">
+  <div class="card">
+    <div class="ct">AGENT CONSOLE <small>Delegate and monitor</small></div>
+    <div class="agent-list">
+      <div class="agent-card"><div class="agent-name">PA</div><div class="agent-role">Daily interface and scheduling</div><div class="agent-status">Online</div></div>
+      <div class="agent-card"><div class="agent-name">Business</div><div class="agent-role">Dropshipping execution + weekly targets</div><div class="agent-status">Online</div></div>
+      <div class="agent-card"><div class="agent-name">Finance</div><div class="agent-role">Cashflow, burn, runway control</div><div class="agent-status">Online</div></div>
+      <div class="agent-card"><div class="agent-name">Academic</div><div class="agent-role">Class protection and study throughput</div><div class="agent-status">Online</div></div>
+      <div class="agent-card"><div class="agent-name">Brand</div><div class="agent-role">Blanco Enterprise standards and identity</div><div class="agent-status">Concept stage</div></div>
+      <div class="agent-card"><div class="agent-name">Intelligence</div><div class="agent-role">Market and opportunity scanning</div><div class="agent-status">Online</div></div>
+    </div>
+    <div class="r3">
+      <div class="fld"><label>Assign to</label><select id="ag-agent"><option value="PA">PA</option><option value="Business">Business</option><option value="Finance">Finance</option><option value="Academic">Academic</option><option value="Brand">Brand</option><option value="Intelligence">Intelligence</option></select></div>
+      <div class="fld"><label>Priority</label><select id="ag-priority"><option value="Urgent">Urgent</option><option value="High">High</option><option value="Normal">Normal</option></select></div>
+      <div class="fld"><label>Task</label><input id="ag-task" placeholder="e.g. Build Store Ops checklist"></div>
+    </div>
+    <button class="btn" onclick="addAgentTask()">Delegate Task</button>
+    <div id="agSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Task assigned.</div>
+  </div>
+  <div class="card">
+    <div class="ct">ACTIVE TASKS</div>
+    <div id="agActive"><div class="note">No active tasks.</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">COMPLETED TASKS</div>
+    <div id="agDone"><div class="note">No completed tasks yet.</div></div>
+  </div>
+</div>
+
+<!-- CHECKIN -->
+<div class="pnl" id="pnl-checkin">
+  <div class="card">
+    <div class="ct">DAILY NON-NEGOTIABLES <small>Tap to mark done</small></div>
+    <div class="cs">Body</div>
+    <div class="cg">
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>Gym 5:30am</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>In bed by 11pm</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>Protein target hit</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>No junk food today</div>
+    </div>
+    <div class="cs">Business</div>
+    <div class="cg">
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>1 product validated</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>5 dropshipping ads studied</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>Dropshipping block (CleanDesk Co.)</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>Prompt / build work</div>
+    </div>
+    <div class="cs">Mind & Spirit</div>
+    <div class="cg">
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>Morning prayer</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>Proverbs chapter</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>Reading (21:00)</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>University study block</div>
+    </div>
+    <div style="display:flex;gap:7px;margin-top:6px;">
+      <button class="btn" style="font-size:0.82rem;padding:8px 16px;" onclick="logStreak()">Log Today</button>
+      <button class="btn ghost" style="font-size:0.82rem;padding:8px 14px;" onclick="clrChecks()">Reset</button>
+    </div>
+    <div style="margin-top:14px;">
+      <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:7px;">7-Day Streak</div>
+      <div class="sw" id="streakRow"></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:7px;" id="streakMsg"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">WEEKLY REVIEW AUTOMATION <small>Auto-generated scoreboard</small></div>
+    <div class="note" style="margin-bottom:10px;">Pulls your latest metrics, streak, gym, study and finance entries to produce a clear weekly debrief with priorities.</div>
+    <button class="btn" onclick="genWeeklyReview()">Generate Weekly Review</button>
+    <div id="wrSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:8px;">Saved to history.</div>
+    <div class="out hide mt" id="wrOut"></div>
+    <div style="margin-top:12px;" id="wrList"><div class="note">No weekly reviews yet.</div></div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="pnl" id="pnl-journal">
+  <div class="card">
+    <div class="ct">DAILY JOURNAL <small>Your private record</small></div>
+    <div class="note" style="margin-bottom:11px;">The man building the empire needs to know himself. Write freely.</div>
+    <div class="fld"><label>Today's entry</label><textarea id="jEntry" placeholder="What's on your mind, what happened, how you feel about where you're going..." style="min-height:110px;"></textarea></div>
+    <div class="r2">
+      <div class="fld"><label>One thing I'm grateful for</label><input id="jGrat" placeholder="Be specific..."></div>
+      <div class="fld"><label>One thing I won't repeat tomorrow</label><input id="jDont" placeholder="Be honest..."></div>
+    </div>
+    <div class="fld"><label>Am I happy today? (1 word)</label><input id="jHappy" placeholder="e.g. grateful, restless, focused..."></div>
+    <button class="btn" onclick="saveJournal()">Save Entry</button>
+    <div id="jSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Synced to cloud.</div>
+  </div>
+  <div class="card">
+    <div class="ct">PAST ENTRIES <small id="jCount">0 entries</small></div>
+    <div id="jList"><div class="note">No entries yet. Start tonight.</div></div>
+  </div>
+</div>
+
+<!-- FEED -->
+<div class="pnl" id="pnl-feed">
+  <div class="card">
+    <div class="ct">WHAT TO CONSUME TODAY <small>Phase 0 — Pre Launch</small></div>
+    <div class="fi"><div class="fc">Product Research</div><div class="ft">TikTok Creative Center — daily non-negotiable</div><div class="fd">ads.tiktok.com/business/creativecenter — best performing filter. One niche. 5 hooks written word for word. Every single day.</div></div>
+    <div class="fi"><div class="fc">Competitor Intelligence</div><div class="ft">Facebook Ad Library — your proof of concept</div><div class="fd">facebook.com/ads/library — search your product. Active ads only. Ads running 30+ days = profitable. Study structure, headline, hook, offer.</div></div>
+    <div class="fi"><div class="fc">Business Education</div><div class="ft">This month: The Lean Startup — Eric Ries</div><div class="fd">Your 21:00 reading slot. 20 pages per night. Write one takeaway per session in your journal.</div></div>
+    <div class="fi"><div class="fc">Faith</div><div class="ft">Proverbs — one chapter daily</div><div class="fd">31 chapters, 31 days. Start tonight. Wisdom is the foundation everything else is built on.</div></div>
+    <div class="fi"><div class="fc">Business Mindset</div><div class="ft">YouTube: Alex Hormozi — "How I would start over with $0"</div><div class="fd">Watch during lunch. Not for motivation — for frameworks. One sentence on how it applies to your dropshipping business specifically.</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">CUSTOM RECOMMENDATION</div>
+    <div class="fld"><label>What are you stuck on or want to learn?</label><textarea id="feedQ" placeholder="e.g. I don't understand how to write a TikTok hook..."></textarea></div>
+    <button class="btn" id="feedBtn" onclick="genFeed()">Get Specific Recommendations</button>
+    <div class="out hide mt" id="feedOut"></div>
+  </div>
+</div>
+<!-- SCHOOL -->
+<div class="pnl" id="pnl-school">
+
+  <!-- MODULE TABS -->
+  <div class="card">
+    <div class="ct">ACADEMIC MONITOR <small>4 modules · Mon–Fri</small></div>
+    <div class="mod-legend">
+      <div class="mod-leg"><div class="mod-dot" style="background:#C9A84C"></div>Business Management</div>
+      <div class="mod-leg"><div class="mod-dot" style="background:var(--green-t)"></div>Applied Accountancy</div>
+      <div class="mod-leg"><div class="mod-dot" style="background:var(--blue-t)"></div>English</div>
+      <div class="mod-leg"><div class="mod-dot" style="background:var(--amber-t)"></div>End-User Computing</div>
+    </div>
+    <div class="mod-tabs">
+      <div class="mod-tab on" onclick="modTab('overview',this)">Overview</div>
+      <div class="mod-tab" onclick="modTab('deadlines',this)">Deadlines</div>
+      <div class="mod-tab" onclick="modTab('sessions',this)">Study Log</div>
+      <div class="mod-tab" onclick="modTab('timetable',this)">Timetable</div>
+      <div class="mod-tab" onclick="modTab('assistant',this)">AI Tutor</div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="mod-panel on" id="mp-overview">
+      <div class="mg" style="margin-bottom:8px;">
+        <div class="met"><div class="ml">Study sessions</div><div class="mv" id="s-total">0</div><div class="ms">This week</div></div>
+        <div class="met"><div class="ml">Deadlines due</div><div class="mv" id="s-due" style="color:var(--amber-t)">0</div><div class="ms">Next 7 days</div></div>
+      </div>
+      <div class="mg" style="margin-bottom:0;">
+        <div class="met"><div class="ml">Hours studied</div><div class="mv" id="s-hours">0h</div><div class="ms">This week</div></div>
+        <div class="met"><div class="ml">Most neglected</div><div class="mv" id="s-neglected" style="font-size:0.9rem;color:var(--red-t)">–</div><div class="ms">Needs attention</div></div>
+      </div>
+    </div>
+
+    <!-- DEADLINES -->
+    <div class="mod-panel" id="mp-deadlines">
+      <div class="r2" style="margin-bottom:8px;">
+        <div class="fld"><label>Assignment / test name</label><input id="dl-name" placeholder="e.g. Business Management Test 1"></div>
+        <div class="fld"><label>Module</label>
+          <select id="dl-mod">
+            <option value="BM">Business Management</option>
+            <option value="AA">Applied Accountancy</option>
+            <option value="EN">English</option>
+            <option value="EC">End-User Computing</option>
+          </select>
+        </div>
+      </div>
+      <div class="r2" style="margin-bottom:10px;">
+        <div class="fld"><label>Due date</label><input type="date" id="dl-date"></div>
+        <div class="fld"><label>Type</label>
+          <select id="dl-type">
+            <option value="Test">Test</option>
+            <option value="Assignment">Assignment</option>
+            <option value="Exam">Exam</option>
+            <option value="Project">Project</option>
+            <option value="Practical">Practical</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" style="font-size:0.82rem;padding:8px 16px;" onclick="addDeadline()">Add Deadline</button>
+      <div style="margin-top:12px;" id="deadlineList"><div class="note">No deadlines added yet.</div></div>
+    </div>
+
+    <!-- STUDY LOG -->
+    <div class="mod-panel" id="mp-sessions">
+      <div class="r2" style="margin-bottom:8px;">
+        <div class="fld"><label>Module studied</label>
+          <select id="ss-mod">
+            <option value="BM">Business Management</option>
+            <option value="AA">Applied Accountancy</option>
+            <option value="EN">English</option>
+            <option value="EC">End-User Computing</option>
+          </select>
+        </div>
+        <div class="fld"><label>Duration (minutes)</label><input type="number" id="ss-dur" placeholder="e.g. 45"></div>
+      </div>
+      <div class="fld"><label>What did you cover?</label><input id="ss-topic" placeholder="e.g. Chapter 3 — Cost accounting, past paper Q1–5..."></div>
+      <button class="btn" style="font-size:0.82rem;padding:8px 16px;" onclick="logSession()">Log Session</button>
+      <div style="margin-top:12px;" id="sessionList"><div class="note">No sessions logged yet.</div></div>
+    </div>
+
+    <!-- TIMETABLE -->
+    <div class="mod-panel" id="mp-timetable">
+      <div class="note" style="margin-bottom:10px;">Your study blocks mapped against your existing university timetable. Study slots pulled from your schedule — pre-class, lunch, and evening blocks.</div>
+      <div class="timetable-grid" id="schoolTimetable"></div>
+    </div>
+
+    <!-- AI TUTOR -->
+    <div class="mod-panel" id="mp-assistant">
+      <div class="fld"><label>Module</label>
+        <select id="at-mod">
+          <option value="Business Management">Business Management</option>
+          <option value="Applied Accountancy">Applied Accountancy</option>
+          <option value="English">English</option>
+          <option value="End-User Computing">End-User Computing</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Upload study material (optional)</label>
+        <div id="at-dropzone" style="border:1px dashed var(--border-b);border-radius:8px;padding:14px;text-align:center;cursor:pointer;background:var(--surface2);transition:border-color 0.2s;" onclick="document.getElementById('at-file').click()" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor='var(--border-b)'" ondrop="handleDrop(event)">
+          <div style="font-size:12px;color:var(--text-muted);">Click to upload or drag and drop</div>
+          <div style="font-size:10px;color:var(--text-dim);margin-top:3px;">PDF · Word (.docx) · PowerPoint (.pptx)</div>
+          <div id="at-filename" style="font-size:12px;color:var(--gold);margin-top:6px;display:none;"></div>
+        </div>
+        <input type="file" id="at-file" accept=".pdf,.docx,.pptx" style="display:none;" onchange="handleFileSelect(event)">
+      </div>
+      <div class="fld"><label>Your question</label><textarea id="at-q" placeholder="e.g. Summarise the key points in this document, or explain fixed vs variable costs, or what does this passage mean..."></textarea></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn" id="atBtn" onclick="askTutor()">Ask Tutor</button>
+        <button class="btn ghost" id="atClearBtn" onclick="clearTutorFile()" style="display:none;font-size:0.78rem;padding:8px 13px;">Remove file</button>
+      </div>
+      <div id="at-filestatus" style="font-size:11px;color:var(--text-muted);margin-top:6px;display:none;"></div>
+      <div class="out hide mt" id="atOut"></div>
+    </div>
+
+  </div><!-- end card -->
+</div><!-- end school panel -->
+
+<!-- GYM -->
+<div class="pnl" id="pnl-gym">
+
+  <div class="card">
+    <div class="ct">WORKOUT PLAN <small>Calisthenics · Build muscle & size · 6 days/week</small></div>
+    <div class="note" style="margin-bottom:12px;">Goal: 65kg → 80–85kg lean. Progressive overload every week — add reps or a harder variation when you hit the top of the rep range. Rest 60–90 seconds between sets for hypertrophy.</div>
+    <div class="gym-tabs">
+      <div class="gym-tab on" onclick="gymTab('plan',this)">Weekly Plan</div>
+      <div class="gym-tab" onclick="gymTab('log',this)">Session Log</div>
+      <div class="gym-tab" onclick="gymTab('nutrition',this)">Nutrition</div>
+      <div class="gym-tab" onclick="gymTab('progress',this)">Progress</div>
+    </div>
+
+    <!-- WEEKLY PLAN -->
+    <div class="gym-panel on" id="gp-plan">
+      <div class="day-block">
+        <div class="day-title"><span class="day-badge" style="background:rgba(201,168,76,0.15);color:var(--gold);">MON</span> Push Day — Chest · Shoulders · Triceps <span class="day-dur">45–60 min</span></div>
+        <table class="ex-table">
+          <tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Rest</th></tr>
+          <tr><td>Wide push-ups</td><td>4</td><td>12–20</td><td>60s</td></tr>
+          <tr><td>Diamond push-ups</td><td>3</td><td>10–15</td><td>60s</td></tr>
+          <tr><td>Pike push-ups</td><td>4</td><td>10–15</td><td>75s</td></tr>
+          <tr><td>Dips (chair/parallel bars)</td><td>4</td><td>12–20</td><td>75s</td></tr>
+          <tr><td>Decline push-ups</td><td>3</td><td>10–15</td><td>60s</td></tr>
+          <tr><td>Pseudo planche lean holds</td><td>3</td><td>20–30s hold</td><td>60s</td></tr>
+        </table>
+        <div class="progression-note">Progression: When you hit the top rep range for all sets — elevate feet higher, slow the tempo to 3-1-3, or move to harder variation.</div>
+      </div>
+
+      <div class="day-block">
+        <div class="day-title"><span class="day-badge" style="background:rgba(76,175,125,0.12);color:var(--green-t);">TUE</span> Pull Day — Back · Biceps · Rear Delts <span class="day-dur">45–60 min</span></div>
+        <table class="ex-table">
+          <tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Rest</th></tr>
+          <tr><td>Pull-ups (full ROM)</td><td>5</td><td>6–12</td><td>90s</td></tr>
+          <tr><td>Chin-ups</td><td>4</td><td>6–12</td><td>90s</td></tr>
+          <tr><td>Australian rows (under table)</td><td>4</td><td>12–15</td><td>60s</td></tr>
+          <tr><td>Scapular pull-ups</td><td>3</td><td>10–15</td><td>60s</td></tr>
+          <tr><td>Towel rows</td><td>3</td><td>12–15</td><td>60s</td></tr>
+          <tr><td>Face pulls with towel</td><td>3</td><td>15–20</td><td>45s</td></tr>
+        </table>
+        <div class="progression-note">Progression: Add archer pull-ups, weighted pull-ups with a backpack, or slow negatives (5-second lowering phase).</div>
+      </div>
+
+      <div class="day-block">
+        <div class="day-title"><span class="day-badge" style="background:rgba(91,155,213,0.12);color:var(--blue-t);">WED</span> Legs Day — Quads · Hamstrings · Glutes · Calves <span class="day-dur">45–60 min</span></div>
+        <table class="ex-table">
+          <tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Rest</th></tr>
+          <tr><td>Bulgarian split squats</td><td>4</td><td>10–15 each</td><td>75s</td></tr>
+          <tr><td>Jump squats</td><td>3</td><td>15–20</td><td>60s</td></tr>
+          <tr><td>Reverse lunges</td><td>3</td><td>12–15 each</td><td>60s</td></tr>
+          <tr><td>Wall sit</td><td>3</td><td>45–60s hold</td><td>60s</td></tr>
+          <tr><td>Glute bridges</td><td>4</td><td>15–20</td><td>45s</td></tr>
+          <tr><td>Single-leg calf raises</td><td>4</td><td>15–20 each</td><td>45s</td></tr>
+          <tr><td>Nordic curls (feet under couch)</td><td>3</td><td>5–10</td><td>90s</td></tr>
+        </table>
+        <div class="progression-note">Progression: Move to pistol squat progressions, add a weighted backpack, or increase Bulgarian split squat depth.</div>
+      </div>
+
+      <div class="day-block">
+        <div class="day-title"><span class="day-badge" style="background:rgba(201,168,76,0.15);color:var(--gold);">THU</span> Push Day 2 — Volume & Chest Focus <span class="day-dur">45–60 min</span></div>
+        <table class="ex-table">
+          <tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Rest</th></tr>
+          <tr><td>Standard push-ups (controlled)</td><td>5</td><td>15–25</td><td>60s</td></tr>
+          <tr><td>Archer push-ups</td><td>4</td><td>8–12 each</td><td>75s</td></tr>
+          <tr><td>Tricep push-ups</td><td>3</td><td>10–15</td><td>60s</td></tr>
+          <tr><td>Dips</td><td>4</td><td>12–20</td><td>75s</td></tr>
+          <tr><td>Elevated pike push-ups</td><td>4</td><td>8–15</td><td>75s</td></tr>
+          <tr><td>Push-up holds (bottom position)</td><td>3</td><td>10–20s hold</td><td>60s</td></tr>
+        </table>
+        <div class="progression-note">Progression: Aim for pseudo planche push-ups and eventually full planche progressions as your foundation builds.</div>
+      </div>
+
+      <div class="day-block">
+        <div class="day-title"><span class="day-badge" style="background:rgba(76,175,125,0.12);color:var(--green-t);">FRI</span> Pull Day 2 — Back Width & Bicep Focus <span class="day-dur">45–60 min</span></div>
+        <table class="ex-table">
+          <tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Rest</th></tr>
+          <tr><td>Wide-grip pull-ups</td><td>5</td><td>6–12</td><td>90s</td></tr>
+          <tr><td>Close-grip chin-ups</td><td>4</td><td>8–12</td><td>90s</td></tr>
+          <tr><td>Commando pull-ups</td><td>3</td><td>6–10 each</td><td>90s</td></tr>
+          <tr><td>Australian rows — wide grip</td><td>4</td><td>12–18</td><td>60s</td></tr>
+          <tr><td>Isometric pull-up hold (top)</td><td>3</td><td>10–20s hold</td><td>60s</td></tr>
+          <tr><td>Dead hangs</td><td>3</td><td>30–60s</td><td>45s</td></tr>
+        </table>
+        <div class="progression-note">Progression: Archer pull-ups, L-sit pull-ups, weighted pull-ups with backpack.</div>
+      </div>
+
+      <div class="day-block">
+        <div class="day-title"><span class="day-badge" style="background:rgba(212,140,42,0.12);color:var(--amber-t);">SAT</span> Full Body + Core — Conditioning & Weak Points <span class="day-dur">50–60 min</span></div>
+        <table class="ex-table">
+          <tr><th>Exercise</th><th>Sets</th><th>Reps</th><th>Rest</th></tr>
+          <tr><td>Burpees</td><td>3</td><td>10–15</td><td>60s</td></tr>
+          <tr><td>Hollow body hold</td><td>4</td><td>20–40s</td><td>45s</td></tr>
+          <tr><td>L-sit hold (on floor)</td><td>3</td><td>10–20s</td><td>60s</td></tr>
+          <tr><td>Plank to push-up</td><td>3</td><td>10–15</td><td>60s</td></tr>
+          <tr><td>Mountain climbers</td><td>3</td><td>20–30 each</td><td>45s</td></tr>
+          <tr><td>Leg raises (lying)</td><td>4</td><td>12–20</td><td>45s</td></tr>
+          <tr><td>Dragon flags (tuck)</td><td>3</td><td>6–10</td><td>75s</td></tr>
+          <tr><td>Bicycle crunches</td><td>3</td><td>20–30 each</td><td>45s</td></tr>
+        </table>
+        <div class="progression-note">Saturday is your weakest link day — identify the exercise you struggle most with during the week and add an extra set of it here.</div>
+      </div>
+
+      <div class="day-block" style="border-left-color:var(--text-dim);opacity:0.6;">
+        <div class="day-title"><span class="day-badge" style="background:var(--surface3);color:var(--text-muted);">SUN</span> Rest & Recovery <span class="day-dur">Active rest</span></div>
+        <div class="progression-note" style="margin-top:6px;">No training. 10–15 minute walk. Light stretching — hip flexors, chest, lats, hamstrings. This is when your muscles actually grow. Do not skip rest.</div>
+      </div>
+
+      <div style="background:var(--surface2);border-radius:8px;padding:10px 13px;margin-top:4px;">
+        <div style="font-size:11px;font-weight:500;color:var(--gold);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">Warm-up — do this before every session (5 min)</div>
+        <div style="font-size:12px;color:var(--text-muted);line-height:1.8;">
+          30s arm circles · 30s leg swings · 30s hip circles · 10 scapular push-ups · 10 bodyweight squats · 30s wrist rotations · 2 min light movement
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSION LOG -->
+    <div class="gym-panel" id="gp-log">
+      <div class="r2" style="margin-bottom:8px;">
+        <div class="fld"><label>Today's workout</label>
+          <select id="gl-day">
+            <option value="Push Day 1 (Mon)">Push Day 1 — Mon</option>
+            <option value="Pull Day 1 (Tue)">Pull Day 1 — Tue</option>
+            <option value="Legs Day (Wed)">Legs Day — Wed</option>
+            <option value="Push Day 2 (Thu)">Push Day 2 — Thu</option>
+            <option value="Pull Day 2 (Fri)">Pull Day 2 — Fri</option>
+            <option value="Full Body + Core (Sat)">Full Body + Core — Sat</option>
+          </select>
+        </div>
+        <div class="fld"><label>Duration (minutes)</label><input type="number" id="gl-dur" placeholder="e.g. 52"></div>
+      </div>
+      <div class="fld"><label>Hardest exercise today</label><input id="gl-hard" placeholder="e.g. Bulgarian split squats — quads were burning"></div>
+      <div class="fld"><label>Progress noted (reps, variation, improvement)</label><input id="gl-prog" placeholder="e.g. Hit 15 pull-ups on set 1 — up from 12 last week"></div>
+      <div class="fld"><label>How did the session feel? (1–10)</label><input type="number" id="gl-feel" min="1" max="10" placeholder="1–10"></div>
+      <button class="btn" style="font-size:0.82rem;padding:8px 16px;" onclick="logGym()">Log Session</button>
+      <div id="glSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:8px;">Synced.</div>
+      <div style="margin-top:14px;" id="gymLogList"><div class="note">No sessions logged yet. Complete your first workout and log it here.</div></div>
+    </div>
+
+    <!-- NUTRITION -->
+    <div class="gym-panel" id="gp-nutrition">
+      <div style="background:var(--surface2);border-radius:8px;padding:12px 14px;margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:500;color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Daily Targets — Based on 65kg, goal 80–85kg</div>
+        <div class="mg3" style="margin-bottom:0;">
+          <div class="met"><div class="ml">Protein</div><div class="mv" style="color:var(--green-t);">104–130g</div><div class="ms">1.6–2g per kg bodyweight</div></div>
+          <div class="met"><div class="ml">Calories</div><div class="mv" style="color:var(--gold);">2,800–3,200</div><div class="ms">Caloric surplus to build</div></div>
+          <div class="met"><div class="ml">Water</div><div class="mv" style="color:var(--blue-t);">3–4L</div><div class="ms">Daily minimum</div></div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.9;">
+        <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.07em;">High protein foods to prioritise</div>
+        Eggs · Chicken breast · Canned tuna · Greek yoghurt · Lentils · Beans · Peanut butter · Cottage cheese · Milk · Beef mince
+        <div style="font-size:11px;font-weight:500;color:var(--text);margin:10px 0 6px;text-transform:uppercase;letter-spacing:0.07em;">Sample day of eating</div>
+        <strong style="color:var(--text-muted);">Breakfast:</strong> 4 eggs + 2 slices whole grain bread + milk<br>
+        <strong style="color:var(--text-muted);">Lunch:</strong> Chicken breast + rice + vegetables<br>
+        <strong style="color:var(--text-muted);">Snack:</strong> Peanut butter on bread + banana<br>
+        <strong style="color:var(--text-muted);">Dinner:</strong> Beef mince + rice or potatoes + vegetables<br>
+        <strong style="color:var(--text-muted);">Before bed:</strong> Greek yoghurt or cottage cheese
+        <div style="font-size:11px;font-weight:500;color:var(--red-t);margin:10px 0 6px;text-transform:uppercase;letter-spacing:0.07em;">Non-negotiable rules</div>
+        Eat within 1 hour of waking. Hit your protein target every single day — this is more important than anything else. Sleep 7–8 hours — muscle is built during sleep, not during training. Do not skip meals. If you cannot afford supplements, whole food protein is sufficient.
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="gym-panel" id="gp-progress">
+      <div class="mg" style="margin-bottom:10px;">
+        <div class="met"><div class="ml">Sessions this week</div><div class="mv" id="g-sessions">0</div><div class="ms">Target: 6</div><div class="bar"><div class="bf" id="gb-sessions" style="width:0%;background:var(--green-t)"></div></div></div>
+        <div class="met"><div class="ml">Total sessions logged</div><div class="mv" id="g-total">0</div><div class="ms">All time</div></div>
+      </div>
+      <div class="met" style="margin-bottom:10px;"><div class="ml">Current weight</div><div class="mv" id="g-weight">–</div><div class="ms">Target: 80–85kg lean</div><div class="bar"><div class="bf" id="gb-weight" style="width:0%;background:var(--blue-t)"></div></div></div>
+      <div class="fld"><label>Update current weight (kg)</label><input type="number" id="gu-weight" placeholder="e.g. 66.5"></div>
+      <button class="btn ghost" style="font-size:0.82rem;padding:7px 14px;" onclick="updateGymWeight()">Update Weight</button>
+      <div id="guSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:8px;">Saved.</div>
+
+      <div style="margin-top:14px;">
+        <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Recent session history</div>
+        <div id="gymProgressList"><div class="note">No sessions logged yet.</div></div>
+      </div>
+    </div>
+
+  </div><!-- end card -->
+</div><!-- end gym panel -->
+
+</div>
+
+<style>
+.gym-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;}
+.gym-tab{font-size:0.76rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;padding:5px 12px;border-radius:7px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.2s;}
+.gym-tab.on{border-color:var(--border-b);color:var(--gold);background:var(--gold-bg);}
+.gym-panel{display:none;}.gym-panel.on{display:block;}
+.day-block{background:var(--surface2);border-radius:9px;padding:11px 13px;margin-bottom:9px;border-left:3px solid var(--gold);}
+.day-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:9px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.day-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;letter-spacing:0.08em;}
+.day-dur{font-size:11px;color:var(--text-muted);margin-left:auto;}
+.ex-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px;}
+.ex-table th{font-size:10px;font-weight:500;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.07em;padding:4px 6px;border-bottom:0.5px solid var(--border);text-align:left;}
+.ex-table td{padding:6px 6px;color:var(--text);border-bottom:0.5px solid var(--border);}
+.ex-table tr:last-child td{border-bottom:none;}
+.ex-table td:first-child{font-weight:500;}
+.ex-table td:not(:first-child){color:var(--text-muted);text-align:center;}
+.progression-note{font-size:11px;color:var(--gold-dim);font-style:italic;line-height:1.6;}
+.gym-log-item{background:var(--surface2);border-radius:8px;padding:9px 13px;margin-bottom:6px;border-left:2px solid var(--border-b);}
+.gym-log-date{font-size:10px;color:var(--text-dim);margin-bottom:3px;}
+.gym-log-detail{font-size:12px;color:var(--text-muted);line-height:1.6;}
+
+/* TIMETABLE TAB */
+.tt-day-tabs{display:flex;gap:3px;margin-bottom:14px;flex-wrap:wrap;}
+.tt-dt{font-size:0.76rem;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;padding:6px 13px;border-radius:7px;border:0.5px solid var(--border);background:var(--surface2);color:var(--text-muted);cursor:pointer;transition:all 0.2s;}
+.tt-dt.on{border-color:var(--border-b);color:var(--gold);background:var(--gold-bg);}
+.tt-panel{display:none;}.tt-panel.on{display:block;}
+.tt-row{display:grid;grid-template-columns:52px 1fr;gap:0;border-bottom:0.5px solid var(--border);}
+.tt-row:last-child{border-bottom:none;}
+.tt-time{font-size:10px;color:var(--text-dim);padding:8px 6px 8px 0;display:flex;align-items:flex-start;justify-content:flex-end;min-width:52px;}
+.tt-cell{padding:7px 10px;font-size:12px;display:flex;flex-direction:column;gap:2px;}
+.tt-label{font-weight:500;color:var(--text);}
+.tt-sub{font-size:11px;color:var(--text-muted);}
+.tt-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:3px;font-weight:500;margin-top:2px;align-self:flex-start;}
+.tag-gym{background:rgba(76,175,125,0.15);color:#27500A;}
+.tag-class{background:rgba(91,155,213,0.12);color:#0C447C;}
+.tag-biz{background:rgba(201,168,76,0.15);color:#633806;}
+.tag-study{background:rgba(174,109,236,0.12);color:#3C3489;}
+.tag-faith{background:rgba(76,175,125,0.1);color:#085041;}
+.tag-read{background:rgba(201,168,76,0.08);color:var(--gold-dim);}
+.tag-creative{background:rgba(212,140,42,0.1);color:#633806;}
+.tag-rest{background:var(--surface3);color:var(--text-dim);}
+.tag-church{background:rgba(76,175,125,0.1);color:#085041;}
+.tag-non{background:rgba(224,85,85,0.1);color:#791F1F;border:0.5px solid rgba(224,85,85,0.2);}
+.tt-legend{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.tt-leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text-muted);}
+.tt-leg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
+</style>
+<!-- TIMETABLE -->
+<div class="pnl" id="pnl-timetable">
+  <div class="card">
+    <div class="ct">WEEKLY TIMETABLE <small>Tweaked & fully allocated</small></div>
+    <div class="tt-legend">
+      <div class="tt-leg"><div class="tt-leg-dot" style="background:#4caf7d"></div>Gym/Faith</div>
+      <div class="tt-leg"><div class="tt-leg-dot" style="background:#378ADD"></div>Class</div>
+      <div class="tt-leg"><div class="tt-leg-dot" style="background:#C9A84C"></div>Dropshipping (CleanDesk Co.)</div>
+      <div class="tt-leg"><div class="tt-leg-dot" style="background:#ae6dec"></div>Study</div>
+      <div class="tt-leg"><div class="tt-leg-dot" style="background:#BA7517"></div>Creative</div>
+      <div class="tt-leg"><div class="tt-leg-dot" style="background:#C9A84C;opacity:0.4"></div>Reading</div>
+      <div class="tt-leg"><div class="tt-leg-dot" style="background:#e05555"></div>Non-negotiable</div>
+    </div>
+    <div class="tt-day-tabs">
+      <div class="tt-dt on" onclick="ttDay('mon',this)">Monday</div>
+      <div class="tt-dt" onclick="ttDay('tue',this)">Tuesday</div>
+      <div class="tt-dt" onclick="ttDay('wed',this)">Wednesday</div>
+      <div class="tt-dt" onclick="ttDay('thu',this)">Thursday</div>
+      <div class="tt-dt" onclick="ttDay('fri',this)">Friday</div>
+      <div class="tt-dt" onclick="ttDay('sat',this)">Saturday</div>
+      <div class="tt-dt" onclick="ttDay('sun',this)">Sunday</div>
+    </div>
+
+    <!-- MONDAY -->
+    <div class="tt-panel on" id="tt-mon">
+      <div class="tt-row"><div class="tt-time">05:30</div><div class="tt-cell"><div class="tt-label">Wake up + Workout</div><div class="tt-sub">Push Day 1 — Chest · Shoulders · Triceps · 1 hour</div><span class="tt-tag tag-gym">Gym · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout, mind is clear</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><div class="tt-sub">Protein-rich breakfast — hit your daily target from the start</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: run 1 product through validator or study TikTok ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:00</div><div class="tt-cell"><div class="tt-label">Arrive / Settle</div><div class="tt-sub">Get to class early, set up, review notes from last session</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:30</div><div class="tt-cell"><div class="tt-label">Pre-class Dropshipping block</div><div class="tt-sub">Dropshipping: product validator · ad research · prompt building — 45 min (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">09:15</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Decompress before first class</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">10:30</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 12:05</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">12:05</div><div class="tt-cell"><div class="tt-label">Lunch</div><div class="tt-sub">High protein meal — chicken, eggs, or beef mince</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">12:30</div><div class="tt-cell"><div class="tt-label">Leisure / Decompress</div><div class="tt-sub">Short break before afternoon class</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Rest, walk campus, recharge</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">14:40</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 15:25</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">15:30</div><div class="tt-cell"><div class="tt-label">Outdoor walk</div><div class="tt-sub">15–20 min walk — clear head after classes</div><span class="tt-tag tag-rest">Recovery</span></div></div>
+      <div class="tt-row"><div class="tt-time">16:00</div><div class="tt-cell"><div class="tt-label">Commute home</div><div class="tt-sub">Dropshipping: validate another product or review ad angles (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">16:30</div><div class="tt-cell"><div class="tt-label">Home / Settle</div><div class="tt-sub">Change, eat snack, protein shake or peanut butter — fuel for evening</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">University study block</div><div class="tt-sub">Review today's lecture notes — Business Management or Accountancy focus</div><span class="tt-tag tag-study">Study · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><div class="tt-sub">High protein meal — hit daily target</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Product Research + Ad Study</div><div class="tt-sub">Dropshipping: run products through validator · study 5 TikTok/Meta ads · add to swipe file · build prompts (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal check-in · Log streak · Tick off non-negotiables · Reflection</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:30</div><div class="tt-cell"><div class="tt-label">Wind down</div><div class="tt-sub">No screens, no business — prepare for sleep</div><span class="tt-tag tag-rest">Wind down</span></div></div>
+      <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><div class="tt-sub">7–8 hours minimum — muscle grows during sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
+    </div>
+
+    <!-- TUESDAY -->
+    <div class="tt-panel" id="tt-tue">
+      <div class="tt-row"><div class="tt-time">05:30</div><div class="tt-cell"><div class="tt-label">Wake up + Workout</div><div class="tt-sub">Pull Day 1 — Back · Biceps · Rear Delts · 1 hour</div><span class="tt-tag tag-gym">Gym · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><div class="tt-sub">Protein-rich breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 5 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:50</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 10:25</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">10:25</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Break between classes</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">11:15</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Rest or light campus walk</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">12:10</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 12:55</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:00</div><div class="tt-cell"><div class="tt-label">Lunch</div><div class="tt-sub">High protein meal</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:30</div><div class="tt-cell"><div class="tt-label">Dropshipping block</div><div class="tt-sub">Dropshipping: validate 1 product · study competitor ads · update swipe file (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">14:30</div><div class="tt-cell"><div class="tt-label">Outdoor walk</div><div class="tt-sub">15–20 min before afternoon class</div><span class="tt-tag tag-rest">Recovery</span></div></div>
+      <div class="tt-row"><div class="tt-time">14:40</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 15:25</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">15:25</div><div class="tt-cell"><div class="tt-label">Outdoor walk</div><div class="tt-sub">Post-class decompression walk</div><span class="tt-tag tag-rest">Recovery</span></div></div>
+      <div class="tt-row"><div class="tt-time">16:00</div><div class="tt-cell"><div class="tt-label">Outdoor walk continues</div><div class="tt-sub">Extended walk — clear head</div><span class="tt-tag tag-rest">Recovery</span></div></div>
+      <div class="tt-row"><div class="tt-time">16:30</div><div class="tt-cell"><div class="tt-label">Commute home</div><div class="tt-sub">Review notes or listen to business podcast</div><span class="tt-tag tag-rest">Commute</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">Home / Settle</div><div class="tt-sub">Snack, protein shake, decompress</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:30</div><div class="tt-cell"><div class="tt-label">University study block</div><div class="tt-sub">English or End-User Computing focus</div><span class="tt-tag tag-study">Study · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><div class="tt-sub">High protein meal</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Ad Script Writing + Prompt Building</div><div class="tt-sub">Dropshipping: write 2 TikTok ad scripts · build or refine 1 prompt · update swipe file (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal · Log streak · Non-negotiables check</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
+    </div>
+
+    <!-- WEDNESDAY -->
+    <div class="tt-panel" id="tt-wed">
+      <div class="tt-row"><div class="tt-time">05:30</div><div class="tt-cell"><div class="tt-label">Wake up + Workout</div><div class="tt-sub">Legs Day — Quads · Hamstrings · Glutes · Calves · 1 hour</div><span class="tt-tag tag-gym">Gym · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 5 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:00</div><div class="tt-cell"><div class="tt-label">Arrive / Settle</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:30</div><div class="tt-cell"><div class="tt-label">Pre-class Dropshipping block</div><div class="tt-sub">Dropshipping: product validator · competitor research · prompt refinement — 45 min (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">09:15</div><div class="tt-cell"><div class="tt-label">Leisure</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">10:30</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 13:00 (long block)</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:00</div><div class="tt-cell"><div class="tt-label">Lunch</div><div class="tt-sub">High protein meal</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:30</div><div class="tt-cell"><div class="tt-label">University study block</div><div class="tt-sub">Review morning lecture · Accountancy or Business Management</div><span class="tt-tag tag-study">Study · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">15:30</div><div class="tt-cell"><div class="tt-label">Outdoor walk</div><div class="tt-sub">15–20 min decompression walk</div><span class="tt-tag tag-rest">Recovery</span></div></div>
+      <div class="tt-row"><div class="tt-time">16:00</div><div class="tt-cell"><div class="tt-label">Commute home</div><span class="tt-tag tag-rest">Commute</span></div></div>
+      <div class="tt-row"><div class="tt-time">16:30</div><div class="tt-cell"><div class="tt-label">Home / Settle</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: TikTok Script Writing + Store Work</div><div class="tt-sub">Dropshipping: write Clean Desk Bundle video scripts · build product page copy · Shopify learning (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Rest — you've earned it after a full study + creative day</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal · Log streak · Non-negotiables check</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
+    </div>
+
+    <!-- THURSDAY -->
+    <div class="tt-panel" id="tt-thu">
+      <div class="tt-row"><div class="tt-time">05:30</div><div class="tt-cell"><div class="tt-label">Wake up + Workout</div><div class="tt-sub">Push Day 2 — Volume & Chest Focus · 1 hour</div><span class="tt-tag tag-gym">Gym · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or review swipe file (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:50</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 10:25</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">10:25</div><div class="tt-cell"><div class="tt-label">Leisure</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">11:20</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 12:55</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:00</div><div class="tt-cell"><div class="tt-label">Lunch</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:00</div><div class="tt-cell"><div class="tt-label">Outdoor walk</div><div class="tt-sub">Post-lunch walk — digest, clear head</div><span class="tt-tag tag-rest">Recovery</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:30</div><div class="tt-cell"><div class="tt-label">Commute home</div><span class="tt-tag tag-rest">Commute</span></div></div>
+      <div class="tt-row"><div class="tt-time">14:00</div><div class="tt-cell"><div class="tt-label">Home / Settle</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">14:30</div><div class="tt-cell"><div class="tt-label">University study block</div><div class="tt-sub">Heaviest study day — review both morning classes. English or EUC focus.</div><span class="tt-tag tag-study">Study · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">16:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Supplier Research + Store Ops</div><div class="tt-sub">Dropshipping: CJ Dropshipping research · compare suppliers · Shopify setup · email sequence review (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">18:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">18:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Rest — heavy study day, you need this</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal · Log streak · Non-negotiables check</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
+    </div>
+
+    <!-- FRIDAY -->
+    <div class="tt-panel" id="tt-fri">
+      <div class="tt-row"><div class="tt-time">05:30</div><div class="tt-cell"><div class="tt-label">Wake up + Workout</div><div class="tt-sub">Pull Day 2 — Back Width & Bicep Focus · 1 hour</div><span class="tt-tag tag-gym">Gym · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 5 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:00</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 09:35</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">09:35</div><div class="tt-cell"><div class="tt-label">Dropshipping study block</div><div class="tt-sub">Dropshipping: product research · Shopify learning · prompt building (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">10:00</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 12:30</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
+      <div class="tt-row"><div class="tt-time">12:30</div><div class="tt-cell"><div class="tt-label">Lunch</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:00</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">End of uni week — decompress</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:30</div><div class="tt-cell"><div class="tt-label">Outdoor walk</div><div class="tt-sub">Post-lunch walk — end of week reset</div><span class="tt-tag tag-rest">Recovery</span></div></div>
+      <div class="tt-row"><div class="tt-time">14:30</div><div class="tt-cell"><div class="tt-label">Dropshipping weekly review</div><div class="tt-sub">Dropshipping: weekly review with Ntobeko · ROAS check · plan next week (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">15:00</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Content Creation + Swipe File</div><div class="tt-sub">Dropshipping: film/script TikTok content · build swipe file · study 10 winning ads · write product copy (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">15:00</div><div class="tt-cell"><div class="tt-label">Commute home</div><span class="tt-tag tag-rest">Commute</span></div></div>
+      <div class="tt-row"><div class="tt-time">15:30</div><div class="tt-cell"><div class="tt-label">Home / Settle</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">Dropshipping evening block</div><div class="tt-sub">Dropshipping: content creation · supplier research · email sequence work (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Dropshipping wrap-up + Ntobeko check-in</div><div class="tt-sub">Dropshipping: final tasks · log weekly progress · Friday P&L review with Ntobeko (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
+    </div>
+
+    <!-- SATURDAY -->
+    <div class="tt-panel" id="tt-sat">
+      <div class="tt-row"><div class="tt-time">05:30</div><div class="tt-cell"><div class="tt-label">Wake up + Workout</div><div class="tt-sub">Full Body + Core — Conditioning & Weak Points · 1 hour</div><span class="tt-tag tag-gym">Gym · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Leisure / Free time</div><div class="tt-sub">Weekend start — no pressure, relax</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:30</div><div class="tt-cell"><div class="tt-label">University study block</div><div class="tt-sub">Catch up on the week's work · Past papers · Weak module focus</div><span class="tt-tag tag-study">Study · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">10:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Weekly Review + Planning</div><div class="tt-sub">Dropshipping: review validator scores · update swipe file · plan next week · Ntobeko check-in · log tracker metrics (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">12:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Afternoon off — enjoy your weekend</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">Dinner prep</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Leisure</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
+    </div>
+
+    <!-- SUNDAY -->
+    <div class="tt-panel" id="tt-sun">
+      <div class="tt-row"><div class="tt-time">05:30</div><div class="tt-cell"><div class="tt-label">Wake up</div><div class="tt-sub">Rest day — no workout</div><span class="tt-tag tag-rest">Rest day</span></div></div>
+      <div class="tt-row"><div class="tt-time">05:45</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">More time today — extend to 15 minutes</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:00</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — unhurried, reflect on it</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Get ready for church</div><span class="tt-tag tag-church">Faith</span></div></div>
+      <div class="tt-row"><div class="tt-time">08:00</div><div class="tt-cell"><div class="tt-label">Church</div><div class="tt-sub">Full service — be present, not distracted</div><span class="tt-tag tag-church">Faith · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">12:00</div><div class="tt-cell"><div class="tt-label">Lunch / Unwind</div><div class="tt-sub">Post-church meal — relax and decompress</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">13:00</div><div class="tt-cell"><div class="tt-label">Leisure / Reading</div><div class="tt-sub">Unstructured afternoon — rest, family, friends</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">14:00</div><div class="tt-cell"><div class="tt-label">Goals review</div><div class="tt-sub">Sunday ritual — read through every goal in the OS. Update weight. Update books read. Ask honestly: am I on track?</div><span class="tt-tag tag-biz">Weekly ritual</span></div></div>
+      <div class="tt-row"><div class="tt-time">15:00</div><div class="tt-cell"><div class="tt-label">Creative — Faith Journalling + Week Reflection</div><div class="tt-sub">Write a short reflection on the week spiritually · What are you grateful for · What do you need God's help with next week · Set one faith intention</div><span class="tt-tag tag-creative">Creative · Faith</span></div></div>
+      <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">Dinner prep</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><span class="tt-tag tag-rest">Routine</span></div></div>
+      <div class="tt-row"><div class="tt-time">20:00</div><div class="tt-cell"><div class="tt-label">Weekly accountability</div><div class="tt-sub">Open Life OS — fill in weekly accountability section · Be honest about the week · Generate feedback</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="q-actions">
+  <button class="qa-btn" onclick="quickAction('income')">+ income</button>
+  <button class="qa-btn" onclick="quickAction('gym')">+ gym</button>
+  <button class="qa-btn" onclick="quickAction('task')">+ task</button>
+  <button class="qa-btn" onclick="quickAction('journal')">+ journal</button>
+</div>
+
+<script>
+// ── CLOUD STORAGE (SUPABASE) ───────────────────────────────────
+const SUPABASE_URL = "https://romytadgdnpphqzlseaa.supabase.co";
+const SUPABASE_KEY = "sb_publishable_7iHGtagMI5CSQA7IxbOHag_ut7Y9OGi";
+const DATA_TABLE = "Tshego's Estate Data";
+const DATA_TABLE_PATH = encodeURIComponent(DATA_TABLE).replace(/'/g, "%27");
+const USER_ID = "tshego-estate-data";
+
+let syncEnabled = false;
+let cloudLoaded = false;
+let cloudState = {};
+let lastCloudUpdatedAt = null;
+let saveTimer = null;
+let pollTimer = null;
+let isSyncing = false;
+
+const SB_HEADERS = {
+  apikey: SUPABASE_KEY,
+  Authorization: `Bearer ${SUPABASE_KEY}`
+};
+
+function withTimeout(promise, ms){
+  return Promise.race([promise, new Promise((_,rej)=>setTimeout(()=>rej(new Error("timeout")),ms))]);
+}
+
+function localGet(key){
+  const raw = localStorage.getItem(key);
+  if (raw == null) return null;
+  try { return JSON.parse(raw); } catch (e) { return raw; }
+}
+
+function localSet(key, val){
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+}
+
+async function ensureSyncReady(){
+  if (syncEnabled) return true;
+  try{
+    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=updated_at&limit=1`;
+    const res = await withTimeout(fetch(url, { headers: SB_HEADERS }), 7000);
+    if (!res.ok) throw new Error(`Supabase ${res.status}`);
+    syncEnabled = true;
+    return true;
+  }catch(e){
+    syncEnabled = false;
+    return false;
+  }
+}
+
+async function pullCloudState(){
+  if (!(await ensureSyncReady())) return false;
+  try{
+    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=data,updated_at&limit=1`;
+    const res = await withTimeout(fetch(url, { headers: SB_HEADERS }), 7000);
+    if (!res.ok) throw new Error(`Pull failed ${res.status}`);
+    const rows = await res.json();
+    if (rows && rows.length){
+      cloudState = (rows[0].data && typeof rows[0].data === "object") ? rows[0].data : {};
+      lastCloudUpdatedAt = rows[0].updated_at || null;
+    }
+    cloudLoaded = true;
+    return true;
+  }catch(e){
+    return false;
+  }
+}
+
+async function pushCloudState(){
+  if (!(await ensureSyncReady())) return false;
+  if (isSyncing) return false;
+  isSyncing = true;
+  setSyncStatus("saving");
+  try{
+    const body = { data: cloudState, updated_at: new Date().toISOString() };
+    const patchUrl = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}`;
+    const patchRes = await withTimeout(fetch(patchUrl, {
+      method: "PATCH",
+      headers: { ...SB_HEADERS, "Content-Type": "application/json", Prefer: "return=representation" },
+      body: JSON.stringify(body)
+    }), 7000);
+    if (!patchRes.ok) throw new Error(`Patch failed ${patchRes.status}`);
+    const patched = await patchRes.json();
+    if (!patched || patched.length === 0){
+      const postRes = await withTimeout(fetch(`${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}`, {
+        method: "POST",
+        headers: { ...SB_HEADERS, "Content-Type": "application/json", Prefer: "return=representation" },
+        body: JSON.stringify({ user_id: USER_ID, ...body })
+      }), 7000);
+      if (!postRes.ok) throw new Error(`Insert failed ${postRes.status}`);
+      const inserted = await postRes.json();
+      if (inserted && inserted[0]) lastCloudUpdatedAt = inserted[0].updated_at || null;
+    } else {
+      lastCloudUpdatedAt = patched[0].updated_at || null;
+    }
+    setSyncStatus("live");
+    return true;
+  }catch(e){
+    setSyncStatus("err");
+    return false;
+  }finally{
+    isSyncing = false;
+  }
+}
+
+function scheduleCloudPush(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { pushCloudState(); }, 700);
+}
+
+async function cGet(key){
+  if (!cloudLoaded) await pullCloudState();
+  if (Object.prototype.hasOwnProperty.call(cloudState, key)) return cloudState[key];
+  return localGet(key);
+}
+
+async function cSet(key,val){
+  cloudState[key] = val;
+  localSet(key, val);
+  scheduleCloudPush();
+  return true;
+}
+
+async function refreshFromCloudIfChanged(){
+  if (!syncEnabled || isSyncing) return;
+  try{
+    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=data,updated_at&limit=1`;
+    const res = await fetch(url, { headers: SB_HEADERS });
+    if (!res.ok) return;
+    const rows = await res.json();
+    if (!rows || !rows.length) return;
+    const changed = rows[0].updated_at && rows[0].updated_at !== lastCloudUpdatedAt;
+    if (!changed) return;
+    cloudState = (rows[0].data && typeof rows[0].data === "object") ? rows[0].data : {};
+    lastCloudUpdatedAt = rows[0].updated_at || null;
+    Object.keys(cloudState).forEach(k => localSet(k, cloudState[k]));
+    await Promise.all([
+      safeLoad(loadMetrics), safeLoad(loadStreak), safeLoad(loadJournal),
+      safeLoad(loadDeadlines), safeLoad(loadSessions), safeLoad(loadGym),
+      safeLoad(loadBriefHistory), safeLoad(loadABMilestones), safeLoad(loadFinance),
+      safeLoad(loadAgentTasks), safeLoad(loadWeeklyReviews)
+    ]);
+    setSyncStatus("live");
+  }catch(e){}
+}
+
+function startCloudPolling(){
+  clearInterval(pollTimer);
+  pollTimer = setInterval(refreshFromCloudIfChanged, 12000);
+}
+
+function setSyncStatus(state){
+  const dot=document.getElementById("syncDot");
+  const lbl=document.getElementById("syncLabel");
+  if(state==="live"){dot.className="sync-dot live";lbl.textContent="Synced";}
+  else if(state==="saving"){dot.className="sync-dot saving";lbl.textContent="Saving...";}
+  else if(state==="err"){dot.className="sync-dot err";lbl.textContent="Sync error";}
+  else{dot.className="sync-dot";lbl.textContent="Loading...";}
+}
+
+// ── THEME ───────────────────────────────────────────────────────
+const THEME_KEY="be_theme";
+function applyTheme(theme){
+  const mode=theme==="dark"?"dark":"light";
+  document.body.classList.remove("light","dark");
+  document.body.classList.add(mode);
+  const btn=document.getElementById("themeBtn");
+  if(btn)btn.textContent=mode==="dark"?"Light mode":"Dark mode";
+  try{localStorage.setItem(THEME_KEY,mode);}catch(e){}
+}
+function initTheme(){
+  let mode="light";
+  try{mode=localStorage.getItem(THEME_KEY)||"light";}catch(e){}
+  applyTheme(mode);
+}
+function toggleTheme(){
+  const dark=document.body.classList.contains("dark");
+  applyTheme(dark?"light":"dark");
+}
+
+// ── CLAUDE API ─────────────────────────────────────────────────
+const SYS=`You are the ruthless personal PA, life mentor, and accountability partner for Blanco — a 19-year-old entrepreneur in Johannesburg, South Africa, building Blanco Enterprise into a global empire through Atelier Blanco.
+
+FULL PROFILE:
+- Age: 19, turning 20 on 15 August 2026. Location: Johannesburg, South Africa
+- University student, Mon–Fri. Wakes 5:30am, sleeps 11pm
+- Current phase: Phase 0 — waiting for bike license to start Uber Eats deliveries
+- Capital target: R3,000 to launch dropshipping store
+- Current weight: ~65kg | Body goal: 80–85kg lean
+- Books read in last 6 months: 0
+- Faith: Church + occasional prayer — wants to grow intentionally
+- Known discipline weak points: procrastinating on business tasks, skipping gym, giving up when progress is slow
+
+FIXED DAILY TIMETABLE (use this to avoid clashes when giving briefs):
+MON: 05:30 Gym/Push Day 1 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:30 Pre-class Dropshipping block | 09:15 Leisure | 10:30–12:05 Class | 12:05 Lunch | 14:40–15:25 Class | 15:30 Walk | 16:00 Commute | 17:00 Study | 19:00 Dinner | 19:30 Creative — Dropshipping (product research+ads) | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+TUE: 05:30 Gym/Pull Day 1 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:50–10:25 Class | 10:25 Leisure | 12:10–12:55 Class | 13:00 Lunch | 13:30 Dropshipping block | 14:30 Walk | 14:40–15:25 Class | 16:30 Commute | 17:30 Study | 19:00 Dinner | 19:30 Creative — Dropshipping (ad scripts+prompts) | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+WED: 05:30 Gym/Legs Day (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:30 Pre-class Dropshipping block | 09:15 Leisure | 10:30–13:00 Class (long block) | 13:00 Lunch | 13:30 Study | 15:30 Walk | 16:00 Commute | 17:00 Creative — Dropshipping (TikTok scripts+store work) | 19:00 Dinner | 19:30 Leisure | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+THU: 05:30 Gym/Push Day 2 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:50–10:25 Class | 10:25 Leisure | 11:20–12:55 Class | 13:00 Lunch+Walk | 13:30 Commute | 14:30 Study | 16:30 Creative — Dropshipping (supplier research+store ops) | 18:00 Dinner | 18:30 Leisure | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+FRI: 05:30 Gym/Pull Day 2 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:00–09:35 Class | 09:35 Dropshipping block | 10:00–12:30 Class | 12:30 Lunch | 13:00 Leisure | 13:30 Walk | 14:30 Dropshipping weekly review | 15:00 Creative — Dropshipping (content creation+swipe file) | 17:00 Dropshipping evening block | 19:00 Dinner | 19:30 Dropshipping wrap-up+Ntobeko check-in | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+SAT: 05:30 Gym/Full Body+Core (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 08:30 Study block | 10:30 Creative — Dropshipping weekly review+planning | 12:30 Leisure | 17:00 Dinner prep | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+SUN: 05:30 Wake (rest day) | 05:45 Prayer (15 min) | 06:00 Proverbs | 08:00 Church | 12:00 Lunch | 14:00 Goals review | 15:00 Creative (Faith journalling+Week reflection) | 17:00 Dinner prep | 20:00 Weekly accountability | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+
+DAILY NON-NEGOTIABLES (always reference these in briefs):
+Gym 05:30–06:30 · Morning prayer 06:30 · Proverbs chapter 06:45 · Shower/Breakfast 07:00 · Dropshipping block (commute+pre-class or scheduled slot) — CleanDesk Co. tasks only · University study block · Protein target daily · 1 dropshipping product validated · 5 dropshipping ads studied · Reading 21:00 (30–60 min) · Journal+streak log 22:00 · Sleep by 23:00
+
+LIFE GOALS: Own a 2021 Mercedes C63S AMG by 21st birthday (15 Aug 2027). Build Atelier Blanco into a multi-million rand empire. Financial freedom. 80–85kg lean body. Buy property after C63. Travel the world. Grow in faith. Read 12 books this year. Be happy as an individual.
+
+BUSINESS STRUCTURE — THREE COMPLETELY SEPARATE ENTITIES:
+1. UBER EATS — delivery work done to generate R3,000 capital only. Has nothing to do with Atelier Blanco.
+2. DROPSHIPPING (CleanDesk Co.) — e-commerce business run with Ntobeko to generate capital to fund Atelier Blanco. Has nothing to do with Atelier Blanco. Current focus: Clean Desk Bundle (cable management kit + XL desk mat), USA/Canada/UK market, CJ Dropshipping. Partner: Ntobeko Masemula, 50/50 split.
+3. ATELIER BLANCO — the empire. Completely separate from everything above. A luxury creative house built on the philosophy of "Luxury in Silence." 6 branches: Maison (fashion house — the core and starting point), Home & Lifestyle, Experiences & Interiors, Media & Culture, Foundation (philanthropy), Capital (investment arm). First entry point: Collector's Edition capsule — 10 sample garments to create market desire, followed by pre-order programme. Current status: conceptual — no samples made yet, no business registered, no social handles secured.
+
+CAPITAL FLOW: Uber Eats → funds dropshipping launch → dropshipping profits → fund Atelier Blanco launch. These are stepping stones only. Atelier Blanco is the destination.
+
+YOUR STYLE: Ruthless, direct, zero fluff. Concrete actions only. Short sentences. Always reference the actual timetable when giving daily briefs — tell him exactly WHEN to do each task based on his real schedule that day. Never suggest actions that clash with his class times. Factor in the whole person — body, mind, spirit. Call out excuses.`;
+
+async function claude(p){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYS,messages:[{role:"user",content:p}]})});
+  const d=await r.json();
+  return d.content?.map(b=>b.text||"").join("")||"Connection failed.";
+}
+
+// ── BRIEF ──────────────────────────────────────────────────────
+let currentBriefText = "";
+let currentBriefDate = "";
+let metricsCache = {};
+let atelierCache = {};
+
+function renderEnterpriseSnapshot(){
+  const m=metricsCache||{};
+  const a=atelierCache||{};
+  const earn=m.earn||0,prod=m.prod||0,ads=m.ads||0,prompts=m.prompts||1,swipe=m.swipe||0,gym=m.gym||0,books=m.books||0,weight=m.weight||0;
+  const atelierDone=[a.reg,a.social,a.bible,a.tailor,a.sample].filter(Boolean).length;
+  const atelierTotal=(a.capital||0)>0?6:5;
+
+  const capPct=Math.min(100,Math.max(0,Math.round((earn/3000)*100)));
+  const dsPct=Math.min(100,Math.max(0,Math.round((((prod/10)+(ads/50)+(prompts/6)+(swipe/30))/4)*100)));
+  const weightPct=weight?Math.min(100,Math.max(0,((weight-65)/20)*100)):0;
+  const disciplinePct=Math.min(100,Math.max(0,Math.round((((gym/6)+(books/12)+(weightPct/100))/3)*100)));
+  const empirePct=Math.min(100,Math.max(0,Math.round((atelierDone/6)*100)));
+
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  const bar=(id,pct)=>{const el=document.getElementById(id);if(el)el.style.width=Math.min(100,Math.max(0,pct))+"%";};
+
+  set("es-capital","R "+earn.toLocaleString());
+  set("es-ds-score",dsPct+"%");
+  set("es-branches",atelierDone+"/"+atelierTotal);
+
+  set("ep-capital-t",capPct+"%"); bar("ep-capital",capPct);
+  set("ep-ds-t",dsPct+"%"); bar("ep-ds",dsPct);
+  set("ep-discipline-t",disciplinePct+"%"); bar("ep-discipline",disciplinePct);
+  set("ep-empire-t",empirePct+"%"); bar("ep-empire",empirePct);
+}
+
+async function loadBriefHistory(){
+  const history=(await cGet("ab_briefs"))||[];
+  renderBriefHistory(history);
+  renderRecentActivity(history);
+}
+
+function renderBriefHistory(history){
+  const count=document.getElementById("briefHistCount");
+  const list=document.getElementById("briefHistList");
+  if(count)count.textContent=history.length+" days";
+  if(!history.length){
+    if(list)list.innerHTML='<div class="note">No activity logged yet. Generate your first brief and save it.</div>';
+    return;
+  }
+  if(list)list.innerHTML=history.slice(0,10).map((h,idx)=>`
+    <div style="background:var(--surface2);border-radius:8px;padding:9px 13px;margin-bottom:7px;border-left:2px solid var(--border-b);">
+      <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;display:flex;justify-content:space-between;">
+        <span style="font-weight:500;color:var(--text);">${h.date}</span>
+        <span>${h.day}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.6;white-space:pre-wrap;">${h.summary||h.brief.substring(0,300)+"..."}</div>
+      <div class="item-actions">
+        <button class="mini-btn" onclick="editBriefLog('${String(h.ts??idx)}')">Edit</button>
+        <button class="mini-btn" onclick="deleteBriefLog('${String(h.ts??idx)}')">Delete</button>
+      </div>
+    </div>`).join("");
+}
+
+async function editBriefLog(key){
+  const history=(await cGet("ab_briefs"))||[];
+  const idx=history.findIndex((h,i)=>String(h.ts??i)===String(key));
+  if(idx<0)return;
+  const row=history[idx];
+  const completed=prompt("Edit completed tasks:",row.completed||"");
+  if(completed===null)return;
+  const summary=prompt("Edit summary:",row.summary||"");
+  if(summary===null)return;
+  row.completed=completed.trim();
+  row.summary=summary.trim();
+  setSyncStatus("saving");
+  await cSet("ab_briefs",history);
+  setSyncStatus("live");
+  renderBriefHistory(history);
+  renderRecentActivity(history);
+}
+
+async function deleteBriefLog(key){
+  if(!confirm("Delete this activity log entry?"))return;
+  const history=(await cGet("ab_briefs"))||[];
+  const next=history.filter((h,i)=>String(h.ts??i)!==String(key));
+  setSyncStatus("saving");
+  await cSet("ab_briefs",next);
+  setSyncStatus("live");
+  renderBriefHistory(next);
+  renderRecentActivity(next);
+}
+
+function renderRecentActivity(history){
+  const bar=document.getElementById("recentActivityBar");
+  const list=document.getElementById("recentActivityList");
+  if(!history||!history.length){if(bar)bar.style.display="none";return;}
+  if(bar)bar.style.display="block";
+  if(list)list.innerHTML=history.slice(0,7).map(h=>`<div><strong style="color:var(--text);">${h.date} (${h.day}):</strong> ${h.completed||"No tasks logged"}</div>`).join("");
+}
+
+function buildHistoryContext(history){
+  if(!history||!history.length)return"No prior activity logged.";
+  return history.slice(0,7).map(h=>`${h.date} (${h.day}): ${h.completed||"No tasks logged"}`).join("\n");
+}
+
+async function genBrief(){
+  const phase=document.getElementById("bPhase").value;
+  const energy=document.getElementById("bEnergy").value;
+  const yest=document.getElementById("bYest").value||"Not provided";
+  const mind=document.getElementById("bMind").value||"Not shared";
+  const block=document.getElementById("bBlock").value||"None";
+  const btn=document.getElementById("briefBtn");
+  btn.disabled=true;btn.textContent="Generating...";
+  document.getElementById("briefCard").style.display="block";
+  const out=document.getElementById("briefOut");
+  out.textContent="Building your orders...";out.className="out dim";
+
+  const history=(await cGet("ab_briefs"))||[];
+  const histCtx=buildHistoryContext(history);
+  const today=new Date();
+  const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const todayStr=`${days[today.getDay()]} ${today.getDate()} ${months[today.getMonth()]}`;
+  currentBriefDate=todayStr;
+  const dateLabel=document.getElementById("briefDateLabel");
+  if(dateLabel)dateLabel.textContent=todayStr;
+
+const pm={p0:"Phase 0 — waiting for bike license",p1:"Phase 1 — Uber Eats active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
+
+  const prompt=`Daily brief for ${todayStr}. Phase: ${pm[phase]} | Energy: ${energy}
+Yesterday completed: ${yest} | Mental/spiritual: ${mind} | Blockers: ${block}
+
+ACTIVITY HISTORY — last 7 days (use this to avoid repeating tasks already done):
+${histCtx}
+
+Using the activity history above, ensure today's brief assigns NEW tasks that build on what has already been completed. Do not repeat a specific action that was done in the last 3 days unless it is a genuine daily non-negotiable (gym, prayer, Proverbs). Rotate which products get validated, which ad angles get studied, which prompts get built.
+
+Format EXACTLY:
+ASSESSMENT: [2 sentences max. Honest assessment based on recent activity pattern — are they progressing or stagnating?]
+
+BUSINESS (top 3 — must be different from last 3 days):
+1. [Specific NEW action + exact timetable slot + duration]
+2. [Specific NEW action + exact timetable slot + duration]
+3. [Specific NEW action + exact timetable slot + duration]
+
+BODY: [One specific action toward 80-85kg today]
+MIND: [One mental/clarity action today]
+SPIRIT: [One specific faith action today]
+
+CONSUME TODAY: [One exact resource — rotate weekly, do not repeat what was assigned in last 3 days]
+WATCH OUT FOR: [His most likely sabotage point today]
+C63 REMINDER: [One sentence connecting today to the C63 goal — make it hit]`;
+
+  try{
+    const res=await claude(prompt);
+    out.textContent=res;out.className="out";
+    currentBriefText=res;
+    document.getElementById("briefSaved").style.display="none";
+  }catch(e){out.textContent="Connection failed.";}
+  btn.disabled=false;btn.textContent="Generate My Day";
+}
+
+async function saveBriefToLog(){
+  if(!currentBriefText)return;
+  const today=new Date();
+  const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const yest=document.getElementById("bYest").value||"";
+  setSyncStatus("saving");
+  const history=(await cGet("ab_briefs"))||[];
+  const exists=history.findIndex(h=>h.date===currentBriefDate);
+  const entry={
+    date:currentBriefDate,
+    day:days[today.getDay()],
+    brief:currentBriefText,
+    completed:`Yesterday (${yest})`,
+    ts:Date.now()
+  };
+  if(exists>=0)history[exists]=entry;
+  else history.unshift(entry);
+  if(history.length>30)history.pop();
+  await cSet("ab_briefs",history);
+  setSyncStatus("live");
+  renderBriefHistory(history);
+  renderRecentActivity(history);
+  const s=document.getElementById("briefSaved");
+  s.style.display="block";setTimeout(()=>s.style.display="none",2500);
+}
+
+// ── LIFE ───────────────────────────────────────────────────────
+async function genLife(){
+  const body=document.getElementById("in-body").value;
+  const mind=document.getElementById("in-mind").value;
+  const spirit=document.getElementById("in-spirit").value;
+  const disc=document.getElementById("in-disc").value;
+  const personal=document.getElementById("in-personal").value||"Nothing shared";
+  if(!body||!mind||!spirit||!disc){alert("Score all four areas.");return;}
+  const sc=v=>parseInt(v)>=7?"hi":parseInt(v)>=4?"mi":"lo";
+  document.getElementById("ls-body").textContent=body; document.getElementById("ls-body").className="lsv "+sc(body);
+  document.getElementById("ls-mind").textContent=mind; document.getElementById("ls-mind").className="lsv "+sc(mind);
+  document.getElementById("ls-spirit").textContent=spirit; document.getElementById("ls-spirit").className="lsv "+sc(spirit);
+  const btn=document.getElementById("lifeBtn");btn.disabled=true;btn.textContent="Reading you...";
+  document.getElementById("lifeCard").style.display="block";
+  const out=document.getElementById("lifeOut");out.textContent="Analysing...";out.className="out dim";
+  const prompt=`Life check-in: Body ${body}/10 | Mind ${mind}/10 | Spirit ${spirit}/10 | Discipline ${disc}/10. Weighing on him: ${personal}. Personal debrief — address scores, inner state, one action for body/mind/spirit. Connect to C63 and empire goals. Direct but human. Max 180 words. No bullets. Speak directly.`;
+  try{const res=await claude(prompt);out.textContent=res;out.className="out";}
+  catch(e){out.textContent="Connection failed.";}
+  btn.disabled=false;btn.textContent="Get Personal Debrief";
+}
+
+async function genAcct(){
+  const biz=document.getElementById("wkBiz").value||"Not provided";
+  const life=document.getElementById("wkLife").value||"Not provided";
+  const btn=document.getElementById("acctBtn");btn.disabled=true;btn.textContent="Reading...";
+  const out=document.getElementById("acctOut");out.classList.remove("hide");out.textContent="Processing...";out.className="out dim";
+  const prompt=`Weekly check-in. Business: ${biz}. Personal (body/mind/spirit): ${life}. Full debrief — what business + personal performance says, where they're connected, one non-negotiable change each for business and personal next week. Reference C63 by 21, 80-85kg, reading habit, faith. Max 200 words. Direct.`;
+  try{const res=await claude(prompt);out.textContent=res;out.className="out";}
+  catch(e){out.textContent="Connection failed.";}
+  btn.disabled=false;btn.textContent="Get Brutally Honest Feedback";
+}
+
+async function genFeed(){
+  const q=document.getElementById("feedQ").value;
+  if(!q.trim())return;
+  const btn=document.getElementById("feedBtn");btn.disabled=true;btn.textContent="Finding...";
+  const out=document.getElementById("feedOut");out.classList.remove("hide");out.textContent="Searching...";out.className="out dim";
+  const prompt=`Stuck on or wants to learn: "${q}". Give 3 specific learning recommendations. Each: exact resource, why it matters for Atelier Blanco or personal goals, what to do with what he learns. Specific only. 2-3 sentences each. Numbered.`;
+  try{const res=await claude(prompt);out.textContent=res;out.className="out";}
+  catch(e){out.textContent="Connection failed.";}
+  btn.disabled=false;btn.textContent="Get Specific Recommendations";
+}
+
+// ── DISCIPLINE ─────────────────────────────────────────────────
+async function saveDisc(){
+  const v=document.getElementById("discInt").value;
+  if(!v.trim())return;
+  setSyncStatus("saving");
+  await cSet("ab_disc",{text:v,date:new Date().toDateString()});
+  setSyncStatus("live");
+  const s=document.getElementById("discSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2500);
+}
+
+// ── METRICS ────────────────────────────────────────────────────
+async function saveMetrics(){
+  const g=id=>document.getElementById(id).value;
+  setSyncStatus("saving");
+  const d=(await cGet("ab_metrics"))||{};
+  const fields=[["u-earn","earn"],["u-rate","rate"],["u-prod","prod"],["u-ads","ads"],["u-prompts","prompts"],["u-swipe","swipe"],["u-weight2","weight"],["u-books2","books"],["u-gym","gym"]];
+  fields.forEach(([id,key])=>{if(g(id))d[key]=parseFloat(g(id));});
+  await cSet("ab_metrics",d);
+  setSyncStatus("live");
+  renderMetrics(d);
+  fields.forEach(([id])=>document.getElementById(id).value="");
+  const s=document.getElementById("mSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2000);
+}
+
+async function saveGoalProgress(){
+  const books=document.getElementById("u-books").value;
+  const weight=document.getElementById("u-weight").value;
+  setSyncStatus("saving");
+  const d=(await cGet("ab_metrics"))||{};
+  if(books)d.books=parseInt(books);
+  if(weight)d.weight=parseFloat(weight);
+  await cSet("ab_metrics",d);
+  setSyncStatus("live");
+  renderMetrics(d);
+  document.getElementById("u-books").value="";document.getElementById("u-weight").value="";
+  const s=document.getElementById("goalSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2000);
+}
+
+async function loadMetrics(){
+  const d=(await cGet("ab_metrics"))||{};
+  renderMetrics(d);
+}
+
+function renderMetrics(d){
+  metricsCache=d||{};
+  const earn=d.earn||0,rate=d.rate||0,prod=d.prod||0,ads=d.ads||0,prompts=d.prompts||1,swipe=d.swipe||0,weight=d.weight||0,books=d.books||0,gym=d.gym||0;
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  const bar=(id,pct,max=100)=>{const el=document.getElementById(id);if(el)el.style.width=Math.min(100,Math.max(0,pct))+"%";};
+  set("t-earn","R"+earn.toLocaleString());set("t-prod",prod);set("t-ads",ads);set("t-prompts",prompts);set("t-swipe",swipe);
+  set("t-weight",weight?weight+"kg":"–");set("t-books",books);set("t-gym",gym);
+  bar("b-earn",(earn/3000)*100);bar("b-prod",(prod/10)*100);bar("b-ads",(ads/50)*100);
+  bar("b-prompts",(prompts/6)*100);bar("b-swipe",(swipe/30)*100);
+  bar("b-weight",weight?((weight-65)/20)*100:0);bar("b-books",(books/12)*100);bar("b-gym",(gym/6)*100);
+  bar("bookbar",(books/12)*100);bar("weightbar",weight?((weight-65)/20)*100:0);
+  if(rate>0){const rem=3000-earn;const days=rem>0?Math.ceil(rem/rate):0;set("t-days",days>0?days+"d":"Done ✓");bar("b-days",days>0?100-Math.min(100,(days/30)*100):100);}
+  const pill=document.getElementById("phasePill");if(pill)pill.textContent=earn>=3000?"Stage 1 — Uber Eats Active":"Stage 0 — Foundation";
+  renderEnterpriseSnapshot();
+  renderFinanceFromMetrics();
+}
+
+// ── FINANCE HQ ───────────────────────────────────────────────────
+let financeCache={primary:0,business:0,savings:0,txns:[]};
+let agentTasksCache=[];
+
+function calcFinance(f){
+  const txns=(f.txns||[]).filter(t=>Date.now()-(t.ts||0)<=7*24*60*60*1000);
+  const income=txns.filter(t=>t.type==="income").reduce((a,t)=>a+(t.amount||0),0);
+  const expense=txns.filter(t=>t.type==="expense").reduce((a,t)=>a+(t.amount||0),0);
+  const net=income-expense;
+  const total=(f.primary||0)+(f.business||0)+(f.savings||0);
+  const burn=Math.max(0,expense-income);
+  const runway=burn>0?Math.floor(total/burn):0;
+  return{income,expense,net,total,runway};
+}
+
+function renderFinance(f){
+  financeCache=f||{primary:0,business:0,savings:0,txns:[]};
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set("f-primary","R"+(financeCache.primary||0).toLocaleString());
+  set("f-business","R"+(financeCache.business||0).toLocaleString());
+  set("f-savings","R"+(financeCache.savings||0).toLocaleString());
+  const c=calcFinance(financeCache);
+  set("f-income","R"+c.income.toLocaleString());
+  set("f-expense","R"+c.expense.toLocaleString());
+  set("f-net","R"+c.net.toLocaleString());
+  set("f-runway",c.runway>0?c.runway+" weeks":"Stable");
+
+  const list=document.getElementById("fTxnList");
+  if(list){
+    const txns=(financeCache.txns||[]).slice(0,20);
+    if(!txns.length)list.innerHTML='<div class="note">No transactions logged yet.</div>';
+    else list.innerHTML=txns.map((t,idx)=>`<div class="txn-item ${t.type}">
+      <div class="txn-meta">${new Date(t.ts).toLocaleDateString("en-ZA")} · ${t.type.toUpperCase()}</div>
+      <div class="txn-title">${t.title||"Untitled"} · R${(t.amount||0).toLocaleString()}</div>
+      <div class="item-actions">
+        <button class="mini-btn" onclick="editFinanceTxn('${String(t.id??t.ts??idx)}')">Edit</button>
+        <button class="mini-btn" onclick="deleteFinanceTxn('${String(t.id??t.ts??idx)}')">Delete</button>
+      </div>
+    </div>`).join("");
+  }
+}
+
+function renderFinanceFromMetrics(){
+  if(!financeCache || !document.getElementById("f-income"))return;
+  renderFinance(financeCache);
+}
+
+async function loadFinance(){
+  const f=(await cGet("ab_finance"))||{primary:0,business:0,savings:0,txns:[]};
+  renderFinance(f);
+}
+
+async function saveFinanceBalances(){
+  const f=(await cGet("ab_finance"))||{primary:0,business:0,savings:0,txns:[]};
+  const p=document.getElementById("u-f-primary").value;
+  const b=document.getElementById("u-f-business").value;
+  const s=document.getElementById("u-f-savings").value;
+  if(p)f.primary=parseFloat(p);
+  if(b)f.business=parseFloat(b);
+  if(s)f.savings=parseFloat(s);
+  setSyncStatus("saving");
+  await cSet("ab_finance",f);
+  setSyncStatus("live");
+  renderFinance(f);
+  ["u-f-primary","u-f-business","u-f-savings"].forEach(id=>document.getElementById(id).value="");
+  const msg=document.getElementById("fSaved");if(msg){msg.style.display="block";setTimeout(()=>msg.style.display="none",2000);}
+}
+
+async function addFinanceTxn(){
+  const type=document.getElementById("u-f-type").value;
+  const amount=parseFloat(document.getElementById("u-f-amount").value||"0");
+  const title=(document.getElementById("u-f-title").value||"").trim();
+  if(!amount||!title){alert("Enter amount and source/category.");return;}
+  const f=(await cGet("ab_finance"))||{primary:0,business:0,savings:0,txns:[]};
+  f.txns=f.txns||[];
+  const id=Date.now();
+  f.txns.unshift({id,type,amount,title,ts:id});
+  if(f.txns.length>120)f.txns.pop();
+  setSyncStatus("saving");
+  await cSet("ab_finance",f);
+  setSyncStatus("live");
+  renderFinance(f);
+  ["u-f-amount","u-f-title"].forEach(id=>document.getElementById(id).value="");
+  const msg=document.getElementById("fTxnSaved");if(msg){msg.style.display="block";setTimeout(()=>msg.style.display="none",2000);}
+}
+
+async function editFinanceTxn(key){
+  const f=(await cGet("ab_finance"))||{primary:0,business:0,savings:0,txns:[]};
+  f.txns=f.txns||[];
+  const idx=f.txns.findIndex((t,i)=>String(t.id??t.ts??i)===String(key));
+  if(idx<0)return;
+  const row=f.txns[idx];
+  const title=prompt("Edit title:",row.title||"");
+  if(title===null)return;
+  const amountInput=prompt("Edit amount:",String(row.amount||0));
+  if(amountInput===null)return;
+  const amount=parseFloat(amountInput);
+  if(!amount){alert("Amount must be greater than 0.");return;}
+  const typeInput=prompt("Type: income or expense",row.type||"expense");
+  if(typeInput===null)return;
+  const type=String(typeInput).toLowerCase()==="income"?"income":"expense";
+  row.title=title.trim()||"Untitled";
+  row.amount=amount;
+  row.type=type;
+  setSyncStatus("saving");
+  await cSet("ab_finance",f);
+  setSyncStatus("live");
+  renderFinance(f);
+}
+
+async function deleteFinanceTxn(key){
+  if(!confirm("Delete this transaction?"))return;
+  const f=(await cGet("ab_finance"))||{primary:0,business:0,savings:0,txns:[]};
+  f.txns=(f.txns||[]).filter((t,i)=>String(t.id??t.ts??i)!==String(key));
+  setSyncStatus("saving");
+  await cSet("ab_finance",f);
+  setSyncStatus("live");
+  renderFinance(f);
+}
+
+// ── AGENT CONSOLE ────────────────────────────────────────────────
+function renderAgentTasks(tasks){
+  agentTasksCache=tasks||[];
+  const active=document.getElementById("agActive");
+  const done=document.getElementById("agDone");
+  const mk=(t)=>`<div class="txn-item">
+    <div class="txn-meta">${t.agent} · ${t.priority} · ${new Date(t.ts).toLocaleDateString("en-ZA")}</div>
+    <div class="txn-title">${t.task}</div>
+    <div class="item-actions">
+      ${t.done?"" : `<button class="mini-btn" onclick="toggleAgentTask(${t.id})">Mark done</button>`}
+      <button class="mini-btn" onclick="editAgentTask(${t.id})">Edit</button>
+      <button class="mini-btn" onclick="deleteAgentTask(${t.id})">Delete</button>
+    </div>
+  </div>`;
+  const activeList=agentTasksCache.filter(t=>!t.done);
+  const doneList=agentTasksCache.filter(t=>t.done).slice(0,20);
+  if(active)active.innerHTML=activeList.length?activeList.map(mk).join(""):'<div class="note">No active tasks.</div>';
+  if(done)done.innerHTML=doneList.length?doneList.map(mk).join(""):'<div class="note">No completed tasks yet.</div>';
+}
+
+async function loadAgentTasks(){
+  const tasks=(await cGet("ab_agent_tasks"))||[];
+  renderAgentTasks(tasks);
+}
+
+async function addAgentTask(){
+  const agent=document.getElementById("ag-agent").value;
+  const priority=document.getElementById("ag-priority").value;
+  const task=(document.getElementById("ag-task").value||"").trim();
+  if(!task){alert("Enter a task description.");return;}
+  const tasks=(await cGet("ab_agent_tasks"))||[];
+  tasks.unshift({id:Date.now(),agent,priority,task,done:false,ts:Date.now()});
+  setSyncStatus("saving");
+  await cSet("ab_agent_tasks",tasks);
+  setSyncStatus("live");
+  renderAgentTasks(tasks);
+  document.getElementById("ag-task").value="";
+  const s=document.getElementById("agSaved");if(s){s.style.display="block";setTimeout(()=>s.style.display="none",2000);}
+}
+
+async function toggleAgentTask(id){
+  const tasks=(await cGet("ab_agent_tasks"))||[];
+  const row=tasks.find(t=>t.id===id);
+  if(!row)return;
+  row.done=true;
+  setSyncStatus("saving");
+  await cSet("ab_agent_tasks",tasks);
+  setSyncStatus("live");
+  renderAgentTasks(tasks);
+}
+
+async function editAgentTask(id){
+  const tasks=(await cGet("ab_agent_tasks"))||[];
+  const row=tasks.find(t=>t.id===id);
+  if(!row)return;
+  const task=prompt("Edit task:",row.task||"");
+  if(task===null)return;
+  const priority=prompt("Priority (High/Medium/Low):",row.priority||"Medium");
+  if(priority===null)return;
+  const agent=prompt("Agent (Research/Execution/Creative/Ops):",row.agent||"Execution");
+  if(agent===null)return;
+  row.task=task.trim()||row.task;
+  row.priority=priority.trim()||row.priority;
+  row.agent=agent.trim()||row.agent;
+  setSyncStatus("saving");
+  await cSet("ab_agent_tasks",tasks);
+  setSyncStatus("live");
+  renderAgentTasks(tasks);
+}
+
+async function deleteAgentTask(id){
+  if(!confirm("Delete this task?"))return;
+  const tasks=(await cGet("ab_agent_tasks"))||[];
+  const next=tasks.filter(t=>t.id!==id);
+  setSyncStatus("saving");
+  await cSet("ab_agent_tasks",next);
+  setSyncStatus("live");
+  renderAgentTasks(next);
+}
+
+// ── WEEKLY REVIEW AUTOMATION ─────────────────────────────────────
+function buildWeeklyReview(payload){
+  const {m,streak,journal,gym,sessions,deadlines,finance}=payload;
+  const streakHits=(streak||[]).filter(s=>s.hit).length;
+  const gymWeek=(gym?.sessions||[]).filter(s=>s.ts&&Date.now()-s.ts<=7*24*60*60*1000).length;
+  const studyWeek=(sessions||[]).filter(s=>new Date(s.id)>=new Date(Date.now()-7*24*60*60*1000)).reduce((a,s)=>a+(s.dur||0),0);
+  const dueSoon=(deadlines||[]).filter(d=>{const diff=Math.ceil((new Date(d.date)-new Date())/(1000*60*60*24));return diff>=0&&diff<=7;}).length;
+  const f=calcFinance(finance||{});
+  const dsPct=Math.round((((m.prod||0)/10)+((m.ads||0)/50)+((m.prompts||1)/6)+((m.swipe||0)/30))/4*100);
+  const lines=[
+    `Weekly review (${new Date().toLocaleDateString("en-ZA")}):`,
+    `- Cashflow: R${(m.earn||0).toLocaleString()} toward R3,000 (${Math.round(((m.earn||0)/3000)*100)}%).`,
+    `- DS build score: ${Math.max(0,Math.min(100,dsPct))}% (products ${(m.prod||0)}/10, ads ${(m.ads||0)}/50, prompts ${(m.prompts||1)}/6, swipe ${(m.swipe||0)}/30).`,
+    `- Discipline: ${streakHits}/${(streak||[]).length||7} streak hits, gym ${gymWeek}/6, books ${(m.books||0)}/12, study ${Math.round(studyWeek/60)}h.`,
+    `- Finance: income R${f.income.toLocaleString()}, expenses R${f.expense.toLocaleString()}, net R${f.net.toLocaleString()}, runway ${f.runway>0?f.runway+" weeks":"stable"}.`,
+    `- Risk flags: ${dueSoon} academic deadlines in next 7 days, journal entries this week ${(journal||[]).filter((_,i)=>i<7).length}.`,
+    `Top 3 priorities next week:`,
+    `1) Hit Uber Eats target pace daily and close the R3,000 gap.`,
+    `2) Complete DS validator/ads/prompt targets before adding new ideas.`,
+    `3) Protect sleep, study blocks, and gym consistency as non-negotiables.`
+  ];
+  return lines.join("\n");
+}
+
+async function genWeeklyReview(){
+  const out=document.getElementById("wrOut");
+  out.classList.remove("hide");
+  out.className="out dim";
+  out.textContent="Generating weekly review...";
+  const [m,streak,journal,gym,sessions,deadlines,finance,reviews]=await Promise.all([
+    cGet("ab_metrics"),cGet("ab_streak"),cGet("ab_journal"),cGet("ab_gym"),cGet("ab_sessions"),cGet("ab_deadlines"),cGet("ab_finance"),cGet("ab_weekly_reviews")
+  ]);
+  const summary=buildWeeklyReview({
+    m:m||{},streak:streak||[],journal:journal||[],gym:gym||{sessions:[]},sessions:sessions||[],deadlines:deadlines||[],finance:finance||{primary:0,business:0,savings:0,txns:[]}
+  });
+  out.className="out";
+  out.textContent=summary;
+  const all=reviews||[];
+  all.unshift({id:Date.now(),ts:Date.now(),summary});
+  if(all.length>12)all.pop();
+  await cSet("ab_weekly_reviews",all);
+  renderWeeklyReviews(all);
+  const s=document.getElementById("wrSaved");if(s){s.style.display="block";setTimeout(()=>s.style.display="none",2000);}
+}
+
+function renderWeeklyReviews(reviews){
+  const list=document.getElementById("wrList");
+  if(!list)return;
+  if(!reviews||!reviews.length){list.innerHTML='<div class="note">No weekly reviews yet.</div>';return;}
+  list.innerHTML=reviews.slice(0,6).map(r=>`<div class="txn-item">
+    <div class="txn-meta">${new Date(r.ts).toLocaleDateString("en-ZA")}</div>
+    <div class="txn-title" style="white-space:pre-wrap;">${r.summary.substring(0,240)}${r.summary.length>240?"...":""}</div>
+    <div class="item-actions">
+      <button class="mini-btn" onclick="editWeeklyReview(${r.id})">Edit</button>
+      <button class="mini-btn" onclick="deleteWeeklyReview(${r.id})">Delete</button>
+    </div>
+  </div>`).join("");
+}
+
+async function editWeeklyReview(id){
+  const reviews=(await cGet("ab_weekly_reviews"))||[];
+  const row=reviews.find(r=>r.id===id);
+  if(!row)return;
+  const summary=prompt("Edit weekly review summary:",row.summary||"");
+  if(summary===null)return;
+  row.summary=summary.trim()||row.summary;
+  setSyncStatus("saving");
+  await cSet("ab_weekly_reviews",reviews);
+  setSyncStatus("live");
+  renderWeeklyReviews(reviews);
+}
+
+async function deleteWeeklyReview(id){
+  if(!confirm("Delete this weekly review?"))return;
+  const reviews=(await cGet("ab_weekly_reviews"))||[];
+  const next=reviews.filter(r=>r.id!==id);
+  setSyncStatus("saving");
+  await cSet("ab_weekly_reviews",next);
+  setSyncStatus("live");
+  renderWeeklyReviews(next);
+}
+
+async function loadWeeklyReviews(){
+  const reviews=(await cGet("ab_weekly_reviews"))||[];
+  renderWeeklyReviews(reviews);
+}
+
+function quickAction(type){
+  if(type==="income"){nav("finance");document.getElementById("u-f-type").value="income";document.getElementById("u-f-amount").focus();}
+  if(type==="gym"){nav("gym");document.getElementById("gl-dur").focus();}
+  if(type==="task"){nav("agents");document.getElementById("ag-task").focus();}
+  if(type==="journal"){nav("journal");document.getElementById("jEntry").focus();}
+}
+
+// ── CHECKIN / STREAK ───────────────────────────────────────────
+function tick(el){el.classList.toggle("done");}
+function clrChecks(){document.querySelectorAll(".ci").forEach(i=>i.classList.remove("done"));}
+
+async function logStreak(){
+  const items=document.querySelectorAll(".ci");
+  const done=[...items].filter(i=>i.classList.contains("done")).length;
+  const hit=done>=Math.ceil(items.length*0.75);
+  setSyncStatus("saving");
+  const streak=(await cGet("ab_streak"))||[];
+  streak.push({date:new Date().toDateString(),hit,score:done+"/"+items.length});
+  if(streak.length>7)streak.shift();
+  await cSet("ab_streak",streak);
+  setSyncStatus("live");
+  renderStreak(streak);clrChecks();
+}
+
+async function loadStreak(){
+  const streak=(await cGet("ab_streak"))||[];
+  renderStreak(streak);
+}
+
+function renderStreak(streak){
+  const labels=["M","T","W","T","F","S","S"];
+  const row=document.getElementById("streakRow");row.innerHTML="";
+  for(let i=0;i<7;i++){
+    const d=document.createElement("div");d.className="sd";
+    if(streak[i]){d.classList.add(streak[i].hit?"hit":"miss");d.textContent=streak[i].hit?"✓":"✗";d.title=streak[i].score||"";}
+    else d.textContent=labels[i];
+    row.appendChild(d);
+  }
+  const hits=streak.filter(s=>s.hit).length;
+  const msg=document.getElementById("streakMsg");
+  if(streak.length>0){
+    if(hits===streak.length)msg.textContent="Perfect week. Don't break it.";
+    else if(hits===0)msg.textContent="Zero days hit. This is a choice you keep making.";
+    else msg.textContent=hits+"/"+streak.length+" days hit this week.";
+  }
+}
+
+// ── JOURNAL ────────────────────────────────────────────────────
+async function saveJournal(){
+  const text=document.getElementById("jEntry").value;
+  const grat=document.getElementById("jGrat").value;
+  const dont=document.getElementById("jDont").value;
+  const happy=document.getElementById("jHappy").value;
+  if(!text.trim())return;
+  setSyncStatus("saving");
+  const entries=(await cGet("ab_journal"))||[];
+  const id=Date.now();
+  entries.unshift({id,ts:id,date:new Date().toLocaleDateString("en-ZA",{weekday:"short",day:"numeric",month:"short"}),text,grat,dont,happy});
+  if(entries.length>30)entries.pop();
+  await cSet("ab_journal",entries);
+  setSyncStatus("live");
+  ["jEntry","jGrat","jDont","jHappy"].forEach(id=>document.getElementById(id).value="");
+  const s=document.getElementById("jSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2500);
+  renderJournal(entries);
+}
+
+async function loadJournal(){
+  const entries=(await cGet("ab_journal"))||[];
+  renderJournal(entries);
+}
+
+function renderJournal(entries){
+  document.getElementById("jCount").textContent=entries.length+" entries";
+  const list=document.getElementById("jList");
+  if(!entries.length){list.innerHTML='<div class="note">No entries yet. Start tonight.</div>';return;}
+  list.innerHTML=entries.slice(0,6).map((e,idx)=>`
+    <div class="je">
+      <div class="jd">${e.date}${e.happy?' · '+e.happy:''}${e.grat?' · Grateful: '+e.grat:''}</div>
+      <div class="jt">${e.text.substring(0,200)}${e.text.length>200?"...":""}</div>
+      ${e.dont?`<div style="font-size:11px;color:var(--red-t);margin-top:4px;">Won't repeat: ${e.dont}</div>`:""}
+      <div class="item-actions">
+        <button class="mini-btn" onclick="editJournalEntry('${String(e.id??e.ts??idx)}')">Edit</button>
+        <button class="mini-btn" onclick="deleteJournalEntry('${String(e.id??e.ts??idx)}')">Delete</button>
+      </div>
+    </div>`).join("");
+}
+
+async function editJournalEntry(key){
+  const entries=(await cGet("ab_journal"))||[];
+  const idx=entries.findIndex((e,i)=>String(e.id??e.ts??i)===String(key));
+  if(idx<0)return;
+  const row=entries[idx];
+  const text=prompt("Edit entry:",row.text||"");
+  if(text===null)return;
+  const grat=prompt("Grateful for:",row.grat||"");
+  if(grat===null)return;
+  const dont=prompt("Won't repeat:",row.dont||"");
+  if(dont===null)return;
+  const happy=prompt("Made you happy:",row.happy||"");
+  if(happy===null)return;
+  row.text=text.trim();
+  row.grat=grat.trim();
+  row.dont=dont.trim();
+  row.happy=happy.trim();
+  setSyncStatus("saving");
+  await cSet("ab_journal",entries);
+  setSyncStatus("live");
+  renderJournal(entries);
+}
+
+async function deleteJournalEntry(key){
+  if(!confirm("Delete this journal entry?"))return;
+  const entries=(await cGet("ab_journal"))||[];
+  const next=entries.filter((e,i)=>String(e.id??e.ts??i)!==String(key));
+  setSyncStatus("saving");
+  await cSet("ab_journal",next);
+  setSyncStatus("live");
+  renderJournal(next);
+}
+
+// ── NAV ────────────────────────────────────────────────────────
+function nav(name,el){
+  document.querySelectorAll(".pnl").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  document.getElementById("pnl-"+name).classList.add("on");
+  if(el)el.classList.add("on");
+  else{
+    const btn=[...document.querySelectorAll(".nb")].find(b=>b.getAttribute("onclick")===`nav('${name}',this)`);
+    if(btn)btn.classList.add("on");
+  }
+}
+
+// ── DATE / COUNTDOWN ──────────────────────────────────────────
+function setDate(){
+  const d=new Date();
+  const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  document.getElementById("dtMain").textContent=days[d.getDay()].toUpperCase();
+  document.getElementById("dtSub").textContent=d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();
+  const c63=new Date("2027-08-15");const now=new Date();
+  const diff=Math.ceil((c63-now)/(1000*60*60*24));
+  const pill=document.getElementById("c63pill");if(pill)pill.textContent=diff+" days to C63";
+  const cc=document.getElementById("c63days");if(cc)cc.textContent=diff+" days remaining";
+  const cb=document.getElementById("c63bar");if(cb)cb.style.width=Math.min(100,Math.max(0,((521-diff)/521)*100))+"%";
+  const tc=document.getElementById("t-c63");if(tc)tc.textContent=diff>0?diff+"d":"Goal date passed";
+  const bc=document.getElementById("b-c63");if(bc)bc.style.width=Math.min(100,Math.max(0,((521-diff)/521)*100))+"%";
+}
+
+// ── SCHOOL ─────────────────────────────────────────────────────
+const MOD_NAMES={BM:"Business Management",AA:"Applied Accountancy",EN:"English",EC:"End-User Computing"};
+const MOD_CLASS={BM:"tg-bm",AA:"tg-aa",EN:"tg-en",EC:"tg-ec"};
+
+function modTab(name,el){
+  document.querySelectorAll(".mod-panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".mod-tab").forEach(b=>b.classList.remove("on"));
+  document.getElementById("mp-"+name).classList.add("on");
+  el.classList.add("on");
+  if(name==="timetable")buildTimetable();
+  if(name==="overview")updateOverview();
+}
+
+async function addDeadline(){
+  const name=document.getElementById("dl-name").value.trim();
+  const mod=document.getElementById("dl-mod").value;
+  const date=document.getElementById("dl-date").value;
+  const type=document.getElementById("dl-type").value;
+  if(!name||!date){alert("Fill in name and date.");return;}
+  setSyncStatus("saving");
+  const dl=(await cGet("ab_deadlines"))||[];
+  dl.push({id:Date.now(),name,mod,date,type});
+  dl.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  await cSet("ab_deadlines",dl);
+  setSyncStatus("live");
+  document.getElementById("dl-name").value="";
+  document.getElementById("dl-date").value="";
+  renderDeadlines(dl);
+  updateOverview();
+}
+
+async function deleteDeadline(id){
+  setSyncStatus("saving");
+  let dl=(await cGet("ab_deadlines"))||[];
+  dl=dl.filter(d=>d.id!==id);
+  await cSet("ab_deadlines",dl);
+  setSyncStatus("live");
+  renderDeadlines(dl);
+  updateOverview();
+}
+
+async function editDeadline(id){
+  const dl=(await cGet("ab_deadlines"))||[];
+  const row=dl.find(d=>d.id===id);
+  if(!row)return;
+  const name=prompt("Edit deadline name:",row.name||"");
+  if(name===null)return;
+  const date=prompt("Edit date (YYYY-MM-DD):",row.date||"");
+  if(date===null)return;
+  const type=prompt("Type (Task/Quiz/Test/Exam/Assignment):",row.type||"Task");
+  if(type===null)return;
+  row.name=name.trim()||row.name;
+  row.date=date.trim()||row.date;
+  row.type=type.trim()||row.type;
+  setSyncStatus("saving");
+  await cSet("ab_deadlines",dl);
+  setSyncStatus("live");
+  renderDeadlines(dl);
+  updateOverview();
+}
+
+async function loadDeadlines(){
+  const dl=(await cGet("ab_deadlines"))||[];
+  renderDeadlines(dl);
+}
+
+function renderDeadlines(dl){
+  const list=document.getElementById("deadlineList");
+  if(!dl.length){list.innerHTML='<div class="note">No deadlines yet. Add your first one above.</div>';return;}
+  const today=new Date();today.setHours(0,0,0,0);
+  list.innerHTML=dl.map(d=>{
+    const due=new Date(d.date);const diff=Math.ceil((due-today)/(1000*60*60*24));
+    const cls=diff<=3?"urgent":diff<=7?"soon":"ok";
+    const label=diff<0?"Overdue":diff===0?"Today":diff===1?"Tomorrow":diff+" days";
+    return`<div class="deadline-item">
+      <div class="deadline-left">
+        <div class="deadline-title">${d.type} — ${d.name}</div>
+        <div class="deadline-mod">${MOD_NAMES[d.mod]}</div>
+      </div>
+      <div class="deadline-date ${cls}">${label}</div>
+      <button class="mini-btn" onclick="editDeadline(${d.id})">Edit</button>
+      <button class="del-btn" onclick="deleteDeadline(${d.id})">✕</button>
+    </div>`;
+  }).join("");
+}
+
+async function logSession(){
+  const mod=document.getElementById("ss-mod").value;
+  const dur=parseInt(document.getElementById("ss-dur").value)||0;
+  const topic=document.getElementById("ss-topic").value.trim();
+  if(!dur||!topic){alert("Fill in duration and topic.");return;}
+  setSyncStatus("saving");
+  const sessions=(await cGet("ab_sessions"))||[];
+  sessions.unshift({id:Date.now(),mod,dur,topic,date:new Date().toLocaleDateString("en-ZA",{weekday:"short",day:"numeric",month:"short"})});
+  if(sessions.length>50)sessions.pop();
+  await cSet("ab_sessions",sessions);
+  setSyncStatus("live");
+  document.getElementById("ss-dur").value="";
+  document.getElementById("ss-topic").value="";
+  renderSessions(sessions);
+  updateOverview();
+}
+
+async function loadSessions(){
+  const sessions=(await cGet("ab_sessions"))||[];
+  renderSessions(sessions);
+  updateOverview();
+}
+
+function renderSessions(sessions){
+  const list=document.getElementById("sessionList");
+  if(!sessions.length){list.innerHTML='<div class="note">No sessions logged yet. Log your first study session above.</div>';return;}
+  list.innerHTML=sessions.slice(0,10).map(s=>`
+    <div class="session-item">
+      <div class="session-date">${s.date} · ${MOD_NAMES[s.mod]} · ${s.dur} min</div>
+      <div class="session-detail">${s.topic}</div>
+      <div class="item-actions">
+        <button class="mini-btn" onclick="editStudySession(${s.id})">Edit</button>
+        <button class="mini-btn" onclick="deleteStudySession(${s.id})">Delete</button>
+      </div>
+    </div>`).join("");
+}
+
+async function editStudySession(id){
+  const sessions=(await cGet("ab_sessions"))||[];
+  const row=sessions.find(s=>s.id===id);
+  if(!row)return;
+  const topic=prompt("Edit topic:",row.topic||"");
+  if(topic===null)return;
+  const durInput=prompt("Edit duration (minutes):",String(row.dur||0));
+  if(durInput===null)return;
+  const dur=parseInt(durInput);
+  if(!dur){alert("Duration must be greater than 0.");return;}
+  const mod=prompt("Module (BM/AA/EN/EC):",row.mod||"BM");
+  if(mod===null)return;
+  row.topic=topic.trim()||row.topic;
+  row.dur=dur;
+  row.mod=["BM","AA","EN","EC"].includes(mod.toUpperCase())?mod.toUpperCase():row.mod;
+  setSyncStatus("saving");
+  await cSet("ab_sessions",sessions);
+  setSyncStatus("live");
+  renderSessions(sessions);
+  updateOverview();
+}
+
+async function deleteStudySession(id){
+  if(!confirm("Delete this study session?"))return;
+  const sessions=(await cGet("ab_sessions"))||[];
+  const next=sessions.filter(s=>s.id!==id);
+  setSyncStatus("saving");
+  await cSet("ab_sessions",next);
+  setSyncStatus("live");
+  renderSessions(next);
+  updateOverview();
+}
+
+async function updateOverview(){
+  const sessions=(await cGet("ab_sessions"))||[];
+  const dl=(await cGet("ab_deadlines"))||[];
+  const today=new Date();today.setHours(0,0,0,0);
+  const weekAgo=new Date(today);weekAgo.setDate(weekAgo.getDate()-7);
+  const thisWeek=sessions.filter(s=>new Date(s.id)>=weekAgo);
+  const totalSessions=thisWeek.length;
+  const totalHours=Math.round(thisWeek.reduce((a,s)=>a+s.dur,0)/60*10)/10;
+  const dueSoon=dl.filter(d=>{const diff=Math.ceil((new Date(d.date)-today)/(1000*60*60*24));return diff>=0&&diff<=7;}).length;
+  const modCounts={BM:0,AA:0,EN:0,EC:0};
+  thisWeek.forEach(s=>modCounts[s.mod]=(modCounts[s.mod]||0)+s.dur);
+  const minMod=Object.entries(modCounts).sort((a,b)=>a[1]-b[1])[0];
+  const neglected=minMod[1]===0?MOD_NAMES[minMod[0]]:MOD_NAMES[minMod[0]];
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set("s-total",totalSessions);
+  set("s-hours",totalHours+"h");
+  set("s-due",dueSoon);
+  set("s-neglected",neglected.split(" ")[0]);
+}
+
+let tutorFileData=null;
+let tutorFileType=null;
+let tutorFileName=null;
+
+function handleFileSelect(e){
+  const file=e.target.files[0];
+  if(file)processFile(file);
+}
+
+function handleDrop(e){
+  e.preventDefault();
+  document.getElementById("at-dropzone").style.borderColor="var(--border-b)";
+  const file=e.dataTransfer.files[0];
+  if(file)processFile(file);
+}
+
+function processFile(file){
+  const name=file.name.toLowerCase();
+  if(!name.endsWith(".pdf")&&!name.endsWith(".docx")&&!name.endsWith(".pptx")){
+    alert("Only PDF, Word (.docx), and PowerPoint (.pptx) files are supported.");return;
+  }
+  tutorFileName=file.name;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const base64=e.target.result.split(",")[1];
+    tutorFileData=base64;
+    if(name.endsWith(".pdf"))tutorFileType="application/pdf";
+    else if(name.endsWith(".docx"))tutorFileType="application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    else tutorFileType="application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    const fn=document.getElementById("at-filename");
+    fn.textContent=file.name;fn.style.display="block";
+    document.getElementById("atClearBtn").style.display="inline-flex";
+    const fs=document.getElementById("at-filestatus");
+    fs.textContent="File loaded — ask your question below.";fs.style.display="block";fs.style.color="var(--green-t)";
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearTutorFile(){
+  tutorFileData=null;tutorFileType=null;tutorFileName=null;
+  document.getElementById("at-file").value="";
+  document.getElementById("at-filename").style.display="none";
+  document.getElementById("atClearBtn").style.display="none";
+  document.getElementById("at-filestatus").style.display="none";
+}
+
+async function askTutor(){
+  const mod=document.getElementById("at-mod").value;
+  const q=document.getElementById("at-q").value.trim();
+  if(!q){alert("Type your question first.");return;}
+  const btn=document.getElementById("atBtn");btn.disabled=true;btn.textContent="Thinking...";
+  const out=document.getElementById("atOut");out.classList.remove("hide");out.textContent="Working through it...";out.className="out dim";
+
+  const systemPrompt=`You are a patient, clear tutor helping a 19-year-old South African university student with ${mod}. He is keeping up with his studies but wants more structure and depth. Answer clearly and directly. Use examples where helpful. If it is a concept, explain it simply then give a practical example. If it is exam technique, give a step-by-step method. If it is a calculation, show the full working. Keep answers under 300 words. Speak directly to him — not like a textbook.`;
+
+  let messageContent;
+
+  if(tutorFileData&&tutorFileType){
+    const fs=document.getElementById("at-filestatus");
+    fs.textContent="Reading your document...";fs.style.display="block";fs.style.color="var(--amber-t)";
+    if(tutorFileType==="application/pdf"){
+      messageContent=[
+        {type:"document",source:{type:"base64",media_type:"application/pdf",data:tutorFileData}},
+        {type:"text",text:`Based on this document, answer the following question about ${mod}:\n\n${q}`}
+      ];
+    } else {
+      messageContent=[
+        {type:"text",text:`I have uploaded a ${tutorFileName} file for ${mod}. Unfortunately I cannot read this file format directly — please copy and paste the relevant text from your document into the question box and I will help you with it. Your question was: ${q}`}
+      ];
+    }
+  } else {
+    messageContent=[{type:"text",text:`Question about ${mod}: ${q}`}];
+  }
+
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:systemPrompt,
+        messages:[{role:"user",content:messageContent}]
+      })
+    });
+    const d=await r.json();
+    const res=d.content?.map(b=>b.text||"").join("")||"Connection failed.";
+    out.textContent=res;out.className="out";
+    const fs=document.getElementById("at-filestatus");
+    if(tutorFileData&&tutorFileType==="application/pdf"){
+      fs.textContent="Document analysed — ask another question or upload a new file.";
+      fs.style.color="var(--green-t)";
+    }
+  }catch(e){out.textContent="Connection failed.";}
+  btn.disabled=false;btn.textContent="Ask Tutor";
+}
+
+function buildTimetable(){
+  const DAYS=["Mon","Tue","Wed","Thu","Fri"];
+  const SLOTS=[
+    {t:"08:50",cells:["study-BM","uni","study-AA","uni","uni"]},
+    {t:"09:30",cells:["leisure","uni","leisure","uni","study-EC"]},
+    {t:"10:30",cells:["uni","leisure","uni","uni","uni"]},
+    {t:"11:00",cells:["uni","leisure","uni","uni","uni"]},
+    {t:"12:30",cells:["study-EN","lunch","study-BM","lunch","lunch"]},
+    {t:"13:00",cells:["study-EN","study-AA","study-EC","walk","study-EN"]},
+    {t:"13:30",cells:["study-BM","study-AA","study-BM","commute","study-AA"]},
+    {t:"17:00",cells:["study-BM","study-EC","study-AA","study-BM","study-EC"]},
+    {t:"17:30",cells:["study-EC","study-EN","study-AA","study-EN","leisure"]},
+    {t:"19:30",cells:["biz","biz","leisure","leisure","biz"]},
+    {t:"21:00",cells:["read","read","read","read","read"]},
+  ];
+  const CELL_MAP={
+    "study-BM":{cls:"tg-bm",label:"BM Study"},
+    "study-AA":{cls:"tg-aa",label:"AA Study"},
+    "study-EN":{cls:"tg-en",label:"ENG Study"},
+    "study-EC":{cls:"tg-ec",label:"EUC Study"},
+    "uni":{cls:"tg-empty",label:"Class"},
+    "leisure":{cls:"tg-empty",label:""},
+    "lunch":{cls:"tg-empty",label:"Lunch"},
+    "walk":{cls:"tg-empty",label:"Walk"},
+    "commute":{cls:"tg-empty",label:"Commute"},
+    "biz":{cls:"tg-study",label:"Biz"},
+    "read":{cls:"tg-empty",label:"Read"},
+  };
+  const g=document.getElementById("schoolTimetable");
+  g.innerHTML="";
+  const corner=document.createElement("div");corner.className="tg-head";g.appendChild(corner);
+  DAYS.forEach(d=>{const h=document.createElement("div");h.className="tg-head";h.textContent=d;g.appendChild(h);});
+  SLOTS.forEach(slot=>{
+    const tc=document.createElement("div");tc.className="tg-time";tc.textContent=slot.t;g.appendChild(tc);
+    slot.cells.forEach(c=>{
+      const cell=document.createElement("div");
+      const map=CELL_MAP[c]||{cls:"tg-empty",label:c};
+      cell.className="tg-cell "+(map.cls||"tg-empty");
+      cell.textContent=map.label;
+      g.appendChild(cell);
+    });
+  });
+}
+
+// ── GYM ────────────────────────────────────────────────────────
+function gymTab(name,el){
+  document.querySelectorAll(".gym-panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".gym-tab").forEach(b=>b.classList.remove("on"));
+  document.getElementById("gp-"+name).classList.add("on");
+  el.classList.add("on");
+  if(name==="progress")loadGymProgress();
+}
+
+async function logGym(){
+  const day=document.getElementById("gl-day").value;
+  const dur=parseInt(document.getElementById("gl-dur").value)||0;
+  const hard=document.getElementById("gl-hard").value.trim();
+  const prog=document.getElementById("gl-prog").value.trim();
+  const feel=parseInt(document.getElementById("gl-feel").value)||0;
+  if(!dur){alert("Enter session duration.");return;}
+  setSyncStatus("saving");
+  const data=(await cGet("ab_gym"))||{sessions:[],weight:0};
+  if(!data.sessions)data.sessions=[];
+  data.sessions.unshift({
+    day,dur,hard,prog,feel,
+    date:new Date().toLocaleDateString("en-ZA",{weekday:"short",day:"numeric",month:"short"}),
+    ts:Date.now()
+  });
+  if(data.sessions.length>60)data.sessions.pop();
+  await cSet("ab_gym",data);
+  setSyncStatus("live");
+  ["gl-dur","gl-hard","gl-prog","gl-feel"].forEach(id=>document.getElementById(id).value="");
+  const s=document.getElementById("glSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2500);
+  renderGymLog(data.sessions);
+  updateGymOverview(data);
+  await syncGymCountMetric(data);
+}
+
+function renderGymLog(sessions){
+  const list=document.getElementById("gymLogList");
+  if(!sessions||!sessions.length){list.innerHTML='<div class="note">No sessions logged yet.</div>';return;}
+  list.innerHTML=sessions.slice(0,8).map(s=>`
+    <div class="gym-log-item">
+      <div class="gym-log-date">${s.date} · ${s.day} · ${s.dur} min · Feel: ${s.feel}/10</div>
+      ${s.prog?`<div class="gym-log-detail" style="color:var(--green-t);font-style:italic;">${s.prog}</div>`:""}
+      ${s.hard?`<div class="gym-log-detail">Hardest: ${s.hard}</div>`:""}
+      <div class="item-actions">
+        <button class="mini-btn" onclick="editGymSession(${s.ts})">Edit</button>
+        <button class="mini-btn" onclick="deleteGymSession(${s.ts})">Delete</button>
+      </div>
+    </div>`).join("");
+}
+
+async function updateGymWeight(){
+  const w=parseFloat(document.getElementById("gu-weight").value);
+  if(!w){alert("Enter your weight.");return;}
+  setSyncStatus("saving");
+  const data=(await cGet("ab_gym"))||{sessions:[],weight:0};
+  data.weight=w;
+  await cSet("ab_gym",data);
+  const m=(await cGet("ab_metrics"))||{};
+  m.weight=w;
+  await cSet("ab_metrics",m);
+  setSyncStatus("live");
+  renderMetrics(m);
+  updateGymOverview(data);
+  document.getElementById("gu-weight").value="";
+  const s=document.getElementById("guSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2000);
+}
+
+async function loadGymProgress(){
+  const data=(await cGet("ab_gym"))||{sessions:[],weight:0};
+  updateGymOverview(data);
+  renderGymProgressList(data.sessions);
+}
+
+function updateGymOverview(data){
+  const sessions=data.sessions||[];
+  const weekAgo=Date.now()-7*24*60*60*1000;
+  const thisWeek=sessions.filter(s=>s.ts&&s.ts>=weekAgo).length;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  const bar=(id,p)=>{const el=document.getElementById(id);if(el)el.style.width=Math.min(100,p)+"%";};
+  set("g-sessions",thisWeek);set("g-total",sessions.length);
+  bar("gb-sessions",(thisWeek/6)*100);
+  const w=data.weight||0;
+  set("g-weight",w?w+"kg":"–");
+  bar("gb-weight",w?((w-65)/20)*100:0);
+}
+
+function renderGymProgressList(sessions){
+  const list=document.getElementById("gymProgressList");
+  if(!sessions||!sessions.length){list.innerHTML='<div class="note">No sessions logged yet.</div>';return;}
+  list.innerHTML=sessions.slice(0,10).map(s=>`
+    <div class="gym-log-item">
+      <div class="gym-log-date">${s.date} · ${s.day} · ${s.dur} min</div>
+      ${s.prog?`<div class="gym-log-detail" style="color:var(--green-t);">${s.prog}</div>`:""}
+      <div class="item-actions">
+        <button class="mini-btn" onclick="editGymSession(${s.ts})">Edit</button>
+        <button class="mini-btn" onclick="deleteGymSession(${s.ts})">Delete</button>
+      </div>
+    </div>`).join("");
+}
+
+async function syncGymCountMetric(data){
+  const m=(await cGet("ab_metrics"))||{};
+  const weekAgo=Date.now()-7*24*60*60*1000;
+  m.gym=(data.sessions||[]).filter(s=>s.ts&&s.ts>=weekAgo).length;
+  await cSet("ab_metrics",m);
+  renderMetrics(m);
+}
+
+async function editGymSession(ts){
+  const data=(await cGet("ab_gym"))||{sessions:[],weight:0};
+  const row=(data.sessions||[]).find(s=>s.ts===ts);
+  if(!row)return;
+  const day=prompt("Day (Push/Pull/Legs/Cardio/Rest):",row.day||"Push");
+  if(day===null)return;
+  const durInput=prompt("Duration (minutes):",String(row.dur||0));
+  if(durInput===null)return;
+  const dur=parseInt(durInput);
+  if(!dur){alert("Duration must be greater than 0.");return;}
+  const hard=prompt("Hardest set:",row.hard||"");
+  if(hard===null)return;
+  const prog=prompt("Progress note:",row.prog||"");
+  if(prog===null)return;
+  const feelInput=prompt("Feel score (1-10):",String(row.feel||0));
+  if(feelInput===null)return;
+  const feel=Math.max(1,Math.min(10,parseInt(feelInput)||0));
+  row.day=day.trim()||row.day;
+  row.dur=dur;
+  row.hard=hard.trim();
+  row.prog=prog.trim();
+  row.feel=feel;
+  setSyncStatus("saving");
+  await cSet("ab_gym",data);
+  setSyncStatus("live");
+  renderGymLog(data.sessions);
+  renderGymProgressList(data.sessions);
+  updateGymOverview(data);
+  await syncGymCountMetric(data);
+}
+
+async function deleteGymSession(ts){
+  if(!confirm("Delete this gym session?"))return;
+  const data=(await cGet("ab_gym"))||{sessions:[],weight:0};
+  data.sessions=(data.sessions||[]).filter(s=>s.ts!==ts);
+  setSyncStatus("saving");
+  await cSet("ab_gym",data);
+  setSyncStatus("live");
+  renderGymLog(data.sessions);
+  renderGymProgressList(data.sessions);
+  updateGymOverview(data);
+  await syncGymCountMetric(data);
+}
+
+async function loadGym(){
+  const data=(await cGet("ab_gym"))||{sessions:[],weight:0};
+  renderGymLog(data.sessions);
+  updateGymOverview(data);
+}
+
+// ── TIMETABLE ──────────────────────────────────────────────────
+function ttDay(name,el){
+  document.querySelectorAll(".tt-panel").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".tt-dt").forEach(b=>b.classList.remove("on"));
+  document.getElementById("tt-"+name).classList.add("on");
+  el.classList.add("on");
+}
+
+// ── ATELIER BLANCO MILESTONES ──────────────────────────────────
+async function saveABMilestones(){
+  const milestone=document.getElementById("u-ab-milestone").value;
+  const capital=document.getElementById("u-ab-capital").value;
+  setSyncStatus("saving");
+  const d=(await cGet("ab_atelier"))||{reg:false,social:false,bible:false,tailor:false,sample:false,capital:0};
+  if(milestone)d[milestone]=true;
+  if(capital)d.capital=parseFloat(capital);
+  await cSet("ab_atelier",d);
+  setSyncStatus("live");
+  renderABMilestones(d);
+  document.getElementById("u-ab-capital").value="";
+  const s=document.getElementById("abSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2000);
+}
+
+async function loadABMilestones(){
+  const d=(await cGet("ab_atelier"))||{reg:false,social:false,bible:false,tailor:false,sample:false,capital:0};
+  renderABMilestones(d);
+}
+
+function renderABMilestones(d){
+  atelierCache=d||{};
+  const tick=(id,val)=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=val?"Yes":"No";
+    el.style.color=val?"var(--green-t)":"var(--red-t)";
+  };
+  tick("t-ab-reg",d.reg);
+  tick("t-ab-social",d.social);
+  tick("t-ab-bible",d.bible);
+  tick("t-ab-tailor",d.tailor);
+  tick("t-ab-sample",d.sample);
+  const cap=document.getElementById("t-ab-capital");
+  if(cap)cap.textContent="R"+(d.capital||0).toLocaleString();
+  renderEnterpriseSnapshot();
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+async function safeLoad(fn){try{await fn();}catch(e){}}
+
+async function init(){
+  initTheme();
+  setDate();
+  document.getElementById("loadingMsg").textContent="Syncing your data...";
+  setSyncStatus("saving");
+  await pullCloudState();
+  const TIMEOUT=8000;
+  const timer=setTimeout(()=>{
+    document.getElementById("loadingOverlay").style.display="none";
+    setSyncStatus("err");
+  },TIMEOUT);
+  try{
+    await Promise.all([
+      safeLoad(loadMetrics),
+      safeLoad(loadStreak),
+      safeLoad(loadJournal),
+      safeLoad(loadDeadlines),
+      safeLoad(loadSessions),
+      safeLoad(loadGym),
+      safeLoad(loadBriefHistory),
+      safeLoad(loadABMilestones),
+      safeLoad(loadFinance),
+      safeLoad(loadAgentTasks),
+      safeLoad(loadWeeklyReviews)
+    ]);
+    startCloudPolling();
+    clearTimeout(timer);
+    setSyncStatus(syncEnabled ? "live" : "err");
+  }catch(e){
+    clearTimeout(timer);
+    setSyncStatus("err");
+  }
+  document.getElementById("loadingOverlay").style.display="none";
+}
+init();
+</script>
+</body>
+</html>
