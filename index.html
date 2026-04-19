@@ -18,8 +18,18 @@
   --btn-text:#ffffff;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
+html{scroll-behavior:smooth;color-scheme:light;}
 body{background:var(--page-bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.5;}
+body.light{
+  --gold:#7a4b2b;--gold-dim:#9a775d;--gold-bg:rgba(122,75,43,0.09);
+  --black:#f8f4ee;--surface:#fffdf9;--surface2:#f3e8dc;--surface3:#e9dbc9;
+  --text:#3f2a1d;--text-muted:#7d6858;--text-dim:#b5a394;
+  --border:rgba(122,75,43,0.14);--border-b:rgba(122,75,43,0.34);
+  --page-bg:radial-gradient(circle at top,#ffffff 0%,#f5ecdf 55%,#eadcc9 100%);
+  --card-grad-start:#fffdf9;--card-grad-end:#f7efe4;
+  --overlay-bg:rgba(64,42,28,0.35);
+  --btn-text:#ffffff;
+}
 body.dark{
   --gold:#d2b08a;--gold-dim:#b39373;--gold-bg:rgba(210,176,138,0.12);
   --black:#0f0c09;--surface:#17120e;--surface2:#211912;--surface3:#2a2118;
@@ -29,6 +39,7 @@ body.dark{
   --card-grad-start:#19130e;--card-grad-end:#15100c;
   --overlay-bg:rgba(10,8,6,0.82);
   --btn-text:#1a120c;
+  color-scheme:dark;
 }
 .app{max-width:1120px;margin:0 auto;padding:1.5rem 1.2rem 6rem;}
 .hdr{margin-bottom:1.8rem;padding-bottom:1.4rem;border-bottom:0.5px solid var(--border);}
