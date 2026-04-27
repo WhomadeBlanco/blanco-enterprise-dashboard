@@ -1377,51 +1377,80 @@ function loadAnthropicApiKey(){
   try{return(localStorage.getItem(ANTHROPIC_API_KEY_STORAGE)||"").trim();}catch(e){return"";}
 }
 
-function saveAnthropicApiKey(key){
-  try{localStorage.setItem(ANTHROPIC_API_KEY_STORAGE,key);}catch(e){}
-}
-
-async function ensureAnthropicApiKey(forcePrompt=false){
-  const existing=loadAnthropicApiKey();
-  if(existing&&!forcePrompt)return existing;
-  const entered=prompt("Paste your Anthropic API key (starts with sk-ant-). It will be saved on this device.");
-  if(entered===null||!entered.trim())throw new Error("AI key missing. Add your Anthropic API key to use Brief and Tutor.");
-  const key=entered.trim();
-  saveAnthropicApiKey(key);
-  return key;
+function hasAnthropicApiKey(){
+  return !!loadAnthropicApiKey();
 }
 
 function parseAnthropicError(payload,status){
   const apiMsg=payload?.error?.message||payload?.message||"";
-  if(status===401||status===403)return"Invalid or expired Anthropic API key. Re-enter your key and try again.";
+  if(status===401||status===403)return"Invalid Anthropic key. Using built-in offline assistant instead.";
   if(status===429)return"Anthropic rate limit reached. Wait a moment and try again.";
   if(apiMsg)return`AI request failed: ${apiMsg}`;
   return`AI request failed (HTTP ${status}).`;
 }
 
 async function anthropicMessagesRequest(payload){
-  let key=await ensureAnthropicApiKey(false);
-  for(let attempt=0;attempt<2;attempt++){
-    const r=await fetch(ANTHROPIC_API_URL,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        "x-api-key":key,
-        "anthropic-version":ANTHROPIC_VERSION,
-        "anthropic-dangerous-direct-browser-access":"true"
-      },
-      body:JSON.stringify(payload)
-    });
-    const d=await r.json().catch(()=>({}));
-    if(r.ok)return d;
-    const isAuth=r.status===401||r.status===403;
-    if(isAuth&&attempt===0){
-      key=await ensureAnthropicApiKey(true);
-      continue;
-    }
-    throw new Error(parseAnthropicError(d,r.status));
-  }
-  throw new Error("AI request failed.");
+  const key=loadAnthropicApiKey();
+  if(!key)throw new Error("NO_REMOTE_KEY");
+  const r=await fetch(ANTHROPIC_API_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key":key,
+      "anthropic-version":ANTHROPIC_VERSION,
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body:JSON.stringify(payload)
+  });
+  const d=await r.json().catch(()=>({}));
+  if(r.ok)return d;
+  throw new Error(parseAnthropicError(d,r.status));
+}
+
+function localBriefResponse(){
+  return `ASSESSMENT: You are moving, but inconsistent execution is still slowing momentum. Win today by finishing high-value blocks, not just starting them.
+
+BUSINESS (top 3 — must be different from last 3 days):
+1. 07:30–08:15 — Validate one CleanDesk product angle and write your decision (45 min).
+2. 13:30–14:15 — Build or improve one product page section (45 min).
+3. 19:30–20:15 — Create one ad script + one creative concept and save both (45 min).
+
+BODY: Hit full session intensity in your next gym block and complete your protein target.
+MIND: 10-minute reset walk + 5-minute written focus plan before your evening work block.
+SPIRIT: Prayer + one Proverbs chapter before first deep work block.
+
+CONSUME TODAY: Watch one practical dropshipping breakdown and extract 3 actions to execute tonight.
+WATCH OUT FOR: Drifting into “planning” instead of shipping output.
+C63 REMINDER: A real C63 timeline is built by finished tasks, not good intentions.`;
+}
+
+function localLifeResponse(){
+  return "You are not broken — you are under-executing on what you already know. Your body improves when sessions are non-negotiable, your mind improves when you reduce noise and commit to one focused block, and your spirit improves when prayer is scheduled, not optional. Today, train hard, complete one meaningful business output before sleep, and finish with reflection instead of distraction. That is how you align daily identity with your C63 and empire goals.";
+}
+
+function localWeeklyResponse(){
+  return "Business and personal performance are linked: when your routines slip, output drops; when routines are tight, momentum returns. Keep next week simple: one measurable business deliverable every day before leisure, and one non-negotiable personal anchor (gym + prayer + reading) daily. Stop chasing perfect plans and execute the minimum winning system repeatedly. Consistency now is what compounds into C63 and Atelier launch readiness.";
+}
+
+function localFeedResponse(){
+  return "1. YouTube: Jordan Welch / Ecom King product research case studies. Why: sharper market judgment. Action: write 5 product filters and apply them to 10 products today.\n\n2. Meta Ads Library (direct market scanning). Why: shows current winning angles. Action: save 10 ad hooks, then rewrite 3 in your own words for CleanDesk.\n\n3. Shopify product page teardown videos. Why: improves conversion copy and structure. Action: rebuild one section of your page using a proven template immediately.";
+}
+
+function localGenericResponse(){
+  return "Your tools are running in offline assistant mode. You can keep working normally — log actions, execute your schedule, and review progress tonight.";
+}
+
+function localClaudeResponse(prompt){
+  if(prompt.includes("Format EXACTLY:"))return localBriefResponse();
+  if(prompt.startsWith("Life check-in:"))return localLifeResponse();
+  if(prompt.startsWith("Weekly check-in."))return localWeeklyResponse();
+  if(prompt.startsWith("Stuck on or wants to learn:"))return localFeedResponse();
+  return localGenericResponse();
+}
+
+function localTutorResponse(mod,q,hasFile){
+  const fileNote=hasFile?"I can’t directly read attachments in offline mode, so answer is based on your typed question. ":"";
+  return `${fileNote}**${mod} — quick help**\n\n1) Core answer: ${q}\nBreak this into definition, process, and example. Write each part in one clear sentence first.\n\n2) How to solve/answer in tests:\n- State the principle or rule.\n- Apply it to the question context.\n- Show steps or evidence.\n- Finish with a direct conclusion.\n\n3) 10-minute action now:\n- Do one worked example.\n- Mark where you lost marks/clarity.\n- Rewrite your final answer in exam style.\n\nIf you paste the exact question text (and any table/figures), I’ll give you a precise model answer.`;
 }
 
 const SYS=`You are the ruthless personal PA, life mentor, and accountability partner for Blanco — a 19-year-old entrepreneur in Johannesburg, South Africa, building Blanco Enterprise into a global empire through Atelier Blanco.
@@ -1460,10 +1489,15 @@ CAPITAL FLOW: Uber Eats → funds dropshipping launch → dropshipping profits �
 YOUR STYLE: Ruthless, direct, zero fluff. Concrete actions only. Short sentences. Always reference the actual timetable when giving daily briefs — tell him exactly WHEN to do each task based on his real schedule that day. Never suggest actions that clash with his class times. Factor in the whole person — body, mind, spirit. Call out excuses.`;
 
 async function claude(p){
-  const d=await anthropicMessagesRequest({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYS,messages:[{role:"user",content:p}]});
-  const res=d.content?.map(b=>b.text||"").join("").trim();
-  if(!res)throw new Error("AI returned an empty response.");
-  return res;
+  if(!hasAnthropicApiKey())return localClaudeResponse(p);
+  try{
+    const d=await anthropicMessagesRequest({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYS,messages:[{role:"user",content:p}]});
+    const res=d.content?.map(b=>b.text||"").join("").trim();
+    if(!res)throw new Error("AI returned an empty response.");
+    return res;
+  }catch(e){
+    return localClaudeResponse(p);
+  }
 }
 
 // ── BRIEF ──────────────────────────────────────────────────────
@@ -2440,21 +2474,29 @@ async function askTutor(){
   }
 
   try{
-    const d=await anthropicMessagesRequest({
-      model:"claude-sonnet-4-20250514",
-      max_tokens:1000,
-      system:systemPrompt,
-      messages:[{role:"user",content:messageContent}]
-    });
-    const res=d.content?.map(b=>b.text||"").join("").trim();
-    if(!res)throw new Error("AI returned an empty response.");
+    let res="";
+    if(hasAnthropicApiKey()){
+      const d=await anthropicMessagesRequest({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:1000,
+        system:systemPrompt,
+        messages:[{role:"user",content:messageContent}]
+      });
+      res=d.content?.map(b=>b.text||"").join("").trim();
+    }else{
+      res=localTutorResponse(mod,q,!!tutorFileData);
+    }
+    if(!res)res=localTutorResponse(mod,q,!!tutorFileData);
     out.textContent=res;out.className="out";
     const fs=document.getElementById("at-filestatus");
     if(tutorFileData&&tutorFileType==="application/pdf"){
       fs.textContent="Document analysed — ask another question or upload a new file.";
       fs.style.color="var(--green-t)";
     }
-  }catch(e){out.textContent=getAiErrorMessage(e);out.className="out";}
+  }catch(e){
+    out.textContent=localTutorResponse(mod,q,!!tutorFileData);
+    out.className="out";
+  }
   btn.disabled=false;btn.textContent="Ask Tutor";
 }
 
