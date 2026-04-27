@@ -1363,48 +1363,10 @@ function toggleTheme(){
 }
 
 // ── CLAUDE API ─────────────────────────────────────────────────
-const ANTHROPIC_API_KEY_STORAGE="be_anthropic_api_key";
-const ANTHROPIC_API_URL="https://api.anthropic.com/v1/messages";
-const ANTHROPIC_VERSION="2023-06-01";
-
 function getAiErrorMessage(err){
   if(!err)return"Connection failed.";
   const msg=(err.message||"").trim();
   return msg||"Connection failed.";
-}
-
-function loadAnthropicApiKey(){
-  try{return(localStorage.getItem(ANTHROPIC_API_KEY_STORAGE)||"").trim();}catch(e){return"";}
-}
-
-function hasAnthropicApiKey(){
-  return !!loadAnthropicApiKey();
-}
-
-function parseAnthropicError(payload,status){
-  const apiMsg=payload?.error?.message||payload?.message||"";
-  if(status===401||status===403)return"Invalid Anthropic key. Using built-in offline assistant instead.";
-  if(status===429)return"Anthropic rate limit reached. Wait a moment and try again.";
-  if(apiMsg)return`AI request failed: ${apiMsg}`;
-  return`AI request failed (HTTP ${status}).`;
-}
-
-async function anthropicMessagesRequest(payload){
-  const key=loadAnthropicApiKey();
-  if(!key)throw new Error("NO_REMOTE_KEY");
-  const r=await fetch(ANTHROPIC_API_URL,{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "x-api-key":key,
-      "anthropic-version":ANTHROPIC_VERSION,
-      "anthropic-dangerous-direct-browser-access":"true"
-    },
-    body:JSON.stringify(payload)
-  });
-  const d=await r.json().catch(()=>({}));
-  if(r.ok)return d;
-  throw new Error(parseAnthropicError(d,r.status));
 }
 
 function localBriefResponse(){
@@ -1489,15 +1451,7 @@ CAPITAL FLOW: Uber Eats → funds dropshipping launch → dropshipping profits �
 YOUR STYLE: Ruthless, direct, zero fluff. Concrete actions only. Short sentences. Always reference the actual timetable when giving daily briefs — tell him exactly WHEN to do each task based on his real schedule that day. Never suggest actions that clash with his class times. Factor in the whole person — body, mind, spirit. Call out excuses.`;
 
 async function claude(p){
-  if(!hasAnthropicApiKey())return localClaudeResponse(p);
-  try{
-    const d=await anthropicMessagesRequest({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYS,messages:[{role:"user",content:p}]});
-    const res=d.content?.map(b=>b.text||"").join("").trim();
-    if(!res)throw new Error("AI returned an empty response.");
-    return res;
-  }catch(e){
-    return localClaudeResponse(p);
-  }
+  return localClaudeResponse(p);
 }
 
 // ── BRIEF ──────────────────────────────────────────────────────
@@ -2474,19 +2428,7 @@ async function askTutor(){
   }
 
   try{
-    let res="";
-    if(hasAnthropicApiKey()){
-      const d=await anthropicMessagesRequest({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:1000,
-        system:systemPrompt,
-        messages:[{role:"user",content:messageContent}]
-      });
-      res=d.content?.map(b=>b.text||"").join("").trim();
-    }else{
-      res=localTutorResponse(mod,q,!!tutorFileData);
-    }
-    if(!res)res=localTutorResponse(mod,q,!!tutorFileData);
+    const res=localTutorResponse(mod,q,!!tutorFileData);
     out.textContent=res;out.className="out";
     const fs=document.getElementById("at-filestatus");
     if(tutorFileData&&tutorFileType==="application/pdf"){
