@@ -1363,6 +1363,67 @@ function toggleTheme(){
 }
 
 // ── CLAUDE API ─────────────────────────────────────────────────
+const ANTHROPIC_API_KEY_STORAGE="be_anthropic_api_key";
+const ANTHROPIC_API_URL="https://api.anthropic.com/v1/messages";
+const ANTHROPIC_VERSION="2023-06-01";
+
+function getAiErrorMessage(err){
+  if(!err)return"Connection failed.";
+  const msg=(err.message||"").trim();
+  return msg||"Connection failed.";
+}
+
+function loadAnthropicApiKey(){
+  try{return(localStorage.getItem(ANTHROPIC_API_KEY_STORAGE)||"").trim();}catch(e){return"";}
+}
+
+function saveAnthropicApiKey(key){
+  try{localStorage.setItem(ANTHROPIC_API_KEY_STORAGE,key);}catch(e){}
+}
+
+async function ensureAnthropicApiKey(forcePrompt=false){
+  const existing=loadAnthropicApiKey();
+  if(existing&&!forcePrompt)return existing;
+  const entered=prompt("Paste your Anthropic API key (starts with sk-ant-). It will be saved on this device.");
+  if(entered===null||!entered.trim())throw new Error("AI key missing. Add your Anthropic API key to use Brief and Tutor.");
+  const key=entered.trim();
+  saveAnthropicApiKey(key);
+  return key;
+}
+
+function parseAnthropicError(payload,status){
+  const apiMsg=payload?.error?.message||payload?.message||"";
+  if(status===401||status===403)return"Invalid or expired Anthropic API key. Re-enter your key and try again.";
+  if(status===429)return"Anthropic rate limit reached. Wait a moment and try again.";
+  if(apiMsg)return`AI request failed: ${apiMsg}`;
+  return`AI request failed (HTTP ${status}).`;
+}
+
+async function anthropicMessagesRequest(payload){
+  let key=await ensureAnthropicApiKey(false);
+  for(let attempt=0;attempt<2;attempt++){
+    const r=await fetch(ANTHROPIC_API_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "x-api-key":key,
+        "anthropic-version":ANTHROPIC_VERSION,
+        "anthropic-dangerous-direct-browser-access":"true"
+      },
+      body:JSON.stringify(payload)
+    });
+    const d=await r.json().catch(()=>({}));
+    if(r.ok)return d;
+    const isAuth=r.status===401||r.status===403;
+    if(isAuth&&attempt===0){
+      key=await ensureAnthropicApiKey(true);
+      continue;
+    }
+    throw new Error(parseAnthropicError(d,r.status));
+  }
+  throw new Error("AI request failed.");
+}
+
 const SYS=`You are the ruthless personal PA, life mentor, and accountability partner for Blanco — a 19-year-old entrepreneur in Johannesburg, South Africa, building Blanco Enterprise into a global empire through Atelier Blanco.
 
 FULL PROFILE:
@@ -1399,9 +1460,10 @@ CAPITAL FLOW: Uber Eats → funds dropshipping launch → dropshipping profits �
 YOUR STYLE: Ruthless, direct, zero fluff. Concrete actions only. Short sentences. Always reference the actual timetable when giving daily briefs — tell him exactly WHEN to do each task based on his real schedule that day. Never suggest actions that clash with his class times. Factor in the whole person — body, mind, spirit. Call out excuses.`;
 
 async function claude(p){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYS,messages:[{role:"user",content:p}]})});
-  const d=await r.json();
-  return d.content?.map(b=>b.text||"").join("")||"Connection failed.";
+  const d=await anthropicMessagesRequest({model:"claude-sonnet-4-20250514",max_tokens:1000,system:SYS,messages:[{role:"user",content:p}]});
+  const res=d.content?.map(b=>b.text||"").join("").trim();
+  if(!res)throw new Error("AI returned an empty response.");
+  return res;
 }
 
 // ── BRIEF ──────────────────────────────────────────────────────
@@ -1559,7 +1621,7 @@ C63 REMINDER: [One sentence connecting today to the C63 goal — make it hit]`;
     out.textContent=res;out.className="out";
     currentBriefText=res;
     document.getElementById("briefSaved").style.display="none";
-  }catch(e){out.textContent="Connection failed.";}
+  }catch(e){out.textContent=getAiErrorMessage(e);out.className="out";}
   btn.disabled=false;btn.textContent="Generate My Day";
 }
 
@@ -1606,7 +1668,7 @@ async function genLife(){
   const out=document.getElementById("lifeOut");out.textContent="Analysing...";out.className="out dim";
   const prompt=`Life check-in: Body ${body}/10 | Mind ${mind}/10 | Spirit ${spirit}/10 | Discipline ${disc}/10. Weighing on him: ${personal}. Personal debrief — address scores, inner state, one action for body/mind/spirit. Connect to C63 and empire goals. Direct but human. Max 180 words. No bullets. Speak directly.`;
   try{const res=await claude(prompt);out.textContent=res;out.className="out";}
-  catch(e){out.textContent="Connection failed.";}
+  catch(e){out.textContent=getAiErrorMessage(e);out.className="out";}
   btn.disabled=false;btn.textContent="Get Personal Debrief";
 }
 
@@ -1617,7 +1679,7 @@ async function genAcct(){
   const out=document.getElementById("acctOut");out.classList.remove("hide");out.textContent="Processing...";out.className="out dim";
   const prompt=`Weekly check-in. Business: ${biz}. Personal (body/mind/spirit): ${life}. Full debrief — what business + personal performance says, where they're connected, one non-negotiable change each for business and personal next week. Reference C63 by 21, 80-85kg, reading habit, faith. Max 200 words. Direct.`;
   try{const res=await claude(prompt);out.textContent=res;out.className="out";}
-  catch(e){out.textContent="Connection failed.";}
+  catch(e){out.textContent=getAiErrorMessage(e);out.className="out";}
   btn.disabled=false;btn.textContent="Get Brutally Honest Feedback";
 }
 
@@ -1628,7 +1690,7 @@ async function genFeed(){
   const out=document.getElementById("feedOut");out.classList.remove("hide");out.textContent="Searching...";out.className="out dim";
   const prompt=`Stuck on or wants to learn: "${q}". Give 3 specific learning recommendations. Each: exact resource, why it matters for Atelier Blanco or personal goals, what to do with what he learns. Specific only. 2-3 sentences each. Numbered.`;
   try{const res=await claude(prompt);out.textContent=res;out.className="out";}
-  catch(e){out.textContent="Connection failed.";}
+  catch(e){out.textContent=getAiErrorMessage(e);out.className="out";}
   btn.disabled=false;btn.textContent="Get Specific Recommendations";
 }
 
@@ -2378,25 +2440,21 @@ async function askTutor(){
   }
 
   try{
-    const r=await fetch("https://api.anthropic.com/v1/messages",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        model:"claude-sonnet-4-20250514",
-        max_tokens:1000,
-        system:systemPrompt,
-        messages:[{role:"user",content:messageContent}]
-      })
+    const d=await anthropicMessagesRequest({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:1000,
+      system:systemPrompt,
+      messages:[{role:"user",content:messageContent}]
     });
-    const d=await r.json();
-    const res=d.content?.map(b=>b.text||"").join("")||"Connection failed.";
+    const res=d.content?.map(b=>b.text||"").join("").trim();
+    if(!res)throw new Error("AI returned an empty response.");
     out.textContent=res;out.className="out";
     const fs=document.getElementById("at-filestatus");
     if(tutorFileData&&tutorFileType==="application/pdf"){
       fs.textContent="Document analysed — ask another question or upload a new file.";
       fs.style.color="var(--green-t)";
     }
-  }catch(e){out.textContent="Connection failed.";}
+  }catch(e){out.textContent=getAiErrorMessage(e);out.className="out";}
   btn.disabled=false;btn.textContent="Ask Tutor";
 }
 
