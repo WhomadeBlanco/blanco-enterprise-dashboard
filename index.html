@@ -169,6 +169,10 @@ select option{background:var(--surface2);}
 .agent-name{font-family:'Bebas Neue',sans-serif;font-size:0.9rem;letter-spacing:0.06em;color:var(--text);}
 .agent-role{font-size:10px;color:var(--text-muted);margin-top:2px;}
 .agent-status{font-size:10px;margin-top:6px;color:var(--green-t);text-transform:uppercase;letter-spacing:0.08em;}
+.agent-auto-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;}
+.agent-mini{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;}
+.agent-kpi{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:120px;}
+.agent-kpi strong{font-family:'Bebas Neue',sans-serif;font-size:1rem;line-height:1;color:var(--text);}
 .txn-item{background:var(--surface2);border-radius:8px;padding:9px 12px;margin-bottom:6px;border-left:2px solid var(--border);}
 .txn-item.income{border-left-color:var(--green-t);}
 .txn-item.expense{border-left-color:var(--red-t);}
@@ -688,12 +692,36 @@ select option{background:var(--surface2);}
     <div id="agSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:7px;">Task assigned.</div>
   </div>
   <div class="card">
+    <div class="ct">AUTOPILOT CONTROL <small>Agents run automatically</small></div>
+    <div class="agent-auto-row">
+      <label class="agent-mini"><input type="checkbox" id="agAutoEnabled" onchange="setAgentAutopilotEnabled(this.checked)"> Autopilot enabled</label>
+      <label class="agent-mini">Run interval
+        <select id="agAutoInterval" onchange="setAgentAutopilotInterval(this.value)" style="margin-left:5px;width:auto;display:inline-block;padding:4px 8px;">
+          <option value="15">15 min</option>
+          <option value="30">30 min</option>
+          <option value="60">60 min</option>
+        </select>
+      </label>
+      <button class="btn ghost" style="font-size:0.78rem;padding:7px 12px;" onclick="runAgentAutopilot(true)">Run now</button>
+    </div>
+    <div class="agent-auto-row">
+      <div class="agent-kpi"><span class="agent-mini">Last run</span><strong id="agAutoLast">Never</strong></div>
+      <div class="agent-kpi"><span class="agent-mini">Runs today</span><strong id="agAutoRuns">0</strong></div>
+      <div class="agent-kpi"><span class="agent-mini">Status</span><strong id="agAutoStatus">Idle</strong></div>
+    </div>
+    <div class="note" id="agAutoSummary">Autopilot ready.</div>
+  </div>
+  <div class="card">
     <div class="ct">ACTIVE TASKS</div>
     <div id="agActive"><div class="note">No active tasks.</div></div>
   </div>
   <div class="card">
     <div class="ct">COMPLETED TASKS</div>
     <div id="agDone"><div class="note">No completed tasks yet.</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">AGENT INTELLIGENCE FEED <small>Auto research + advice log</small></div>
+    <div id="agFeedList"><div class="note">No autopilot intelligence yet.</div></div>
   </div>
 </div>
 
@@ -2018,7 +2046,7 @@ function renderAgentTasks(tasks){
   const active=document.getElementById("agActive");
   const done=document.getElementById("agDone");
   const mk=(t)=>`<div class="txn-item">
-    <div class="txn-meta">${t.agent} · ${t.priority} · ${new Date(t.ts).toLocaleDateString("en-ZA")}</div>
+    <div class="txn-meta">${t.agent} · ${t.priority} · ${new Date(t.ts).toLocaleDateString("en-ZA")} · ${t.auto?"AUTO":"MANUAL"}</div>
     <div class="txn-title">${t.task}</div>
     <div class="item-actions">
       ${t.done?"" : `<button class="mini-btn" onclick="toggleAgentTask(${t.id})">Mark done</button>`}
@@ -2090,6 +2118,202 @@ async function deleteAgentTask(id){
   await cSet("ab_agent_tasks",next);
   setSyncStatus("live");
   renderAgentTasks(next);
+}
+
+let agentAutopilotTimer=null;
+let agentAutopilotRunning=false;
+const AGENT_AUTOPILOT_DEFAULT={
+  enabled:true,
+  intervalMin:30,
+  lastRun:0,
+  runsToday:0,
+  lastRunDay:"",
+  status:"Idle",
+  lastSummary:"Autopilot ready."
+};
+
+function renderAgentFeed(feed){
+  const list=document.getElementById("agFeedList");
+  if(!list)return;
+  if(!feed||!feed.length){list.innerHTML='<div class="note">No autopilot intelligence yet.</div>';return;}
+  list.innerHTML=feed.slice(0,10).map(f=>`<div class="txn-item">
+    <div class="txn-meta">${new Date(f.ts).toLocaleString("en-ZA")} · AUTO RUN</div>
+    <div class="txn-title">${f.summary}</div>
+    <div class="note">${(f.lines||[]).join(" · ")}</div>
+  </div>`).join("");
+}
+
+function renderAutopilotState(st){
+  const last=document.getElementById("agAutoLast");
+  const runs=document.getElementById("agAutoRuns");
+  const status=document.getElementById("agAutoStatus");
+  const summary=document.getElementById("agAutoSummary");
+  const enabled=document.getElementById("agAutoEnabled");
+  const interval=document.getElementById("agAutoInterval");
+  if(enabled)enabled.checked=!!st.enabled;
+  if(interval)interval.value=String(st.intervalMin||30);
+  if(last)last.textContent=st.lastRun?new Date(st.lastRun).toLocaleTimeString("en-ZA",{hour:"2-digit",minute:"2-digit"}):"Never";
+  if(runs)runs.textContent=String(st.runsToday||0);
+  if(status)status.textContent=st.status||"Idle";
+  if(summary)summary.textContent=st.lastSummary||"Autopilot ready.";
+}
+
+async function getAgentAutopilotState(){
+  const saved=(await cGet("ab_agent_autopilot"))||{};
+  return {...AGENT_AUTOPILOT_DEFAULT,...saved};
+}
+
+async function saveAgentAutopilotState(st){
+  await cSet("ab_agent_autopilot",st);
+  renderAutopilotState(st);
+}
+
+function restartAgentAutopilotLoop(st){
+  if(agentAutopilotTimer){clearInterval(agentAutopilotTimer);agentAutopilotTimer=null;}
+  if(!st.enabled)return;
+  const ms=Math.max(15,parseInt(st.intervalMin)||30)*60*1000;
+  agentAutopilotTimer=setInterval(()=>{runAgentAutopilot(false);},ms);
+}
+
+function rankPriority(level){
+  if(level==="Urgent")return 3;
+  if(level==="High")return 2;
+  return 1;
+}
+
+function dedupeAgentTasks(existing,candidates){
+  const open=existing.filter(t=>!t.done);
+  const openKeys=new Set(open.map(t=>`${t.agent}|${String(t.task||"").toLowerCase()}`));
+  const out=[];
+  candidates.forEach(c=>{
+    const key=`${c.agent}|${String(c.task||"").toLowerCase()}`;
+    if(openKeys.has(key))return;
+    openKeys.add(key);
+    out.push(c);
+  });
+  return out;
+}
+
+function buildAgentAutopilotOutputs(ctx){
+  const {metrics,finance,deadlines,sessions,cleandeskCtx,cleandeskOps}=ctx;
+  const now=Date.now();
+  const pendingTasks=CLEANDESK_TASKS.filter(t=>!(cleandeskCtx?.done||{})[t.id]).slice(0,3);
+  const dueSoon=(deadlines||[]).filter(d=>{
+    const diff=Math.ceil((new Date(d.date)-new Date())/(1000*60*60*24));
+    return diff>=0&&diff<=7;
+  }).slice(0,2);
+  const latestRoas=(cleandeskOps?.roas||[])[0];
+  const financeStats=calcFinance(finance||{primary:0,business:0,savings:0,txns:[]});
+  const studyWeek=(sessions||[]).filter(s=>new Date(s.id)>=new Date(now-7*24*60*60*1000)).reduce((a,s)=>a+(s.dur||0),0);
+  const items=[];
+  if((metrics?.earn||0)<3000){
+    items.push({agent:"PA",priority:"Urgent",task:`Lock today's non-negotiables and protect 07:30 + 19:30 business blocks to close the R${(3000-(metrics?.earn||0)).toLocaleString()} capital gap.`});
+  }
+  if(pendingTasks.length){
+    items.push({agent:"Business",priority:"High",task:`Execute next CleanDesk blockers: ${pendingTasks.map(t=>t.title).join(" | ")}.`});
+  }
+  if(latestRoas){
+    items.push({agent:"Finance",priority:latestRoas.roas<1.5?"Urgent":"High",task:`ROAS ${latestRoas.roas.toFixed(2)}x on ${latestRoas.week}. Action: ${classifyRoas(latestRoas.roas)}.`});
+  } else {
+    items.push({agent:"Finance",priority:"High",task:"Build first-week ROAS baseline: log spend and revenue daily before scaling any ad."});
+  }
+  if(dueSoon.length){
+    items.push({agent:"Academic",priority:"Urgent",task:`Deadlines due soon: ${dueSoon.map(d=>`${d.type} ${d.name}`).join(" | ")}. Protect study blocks immediately.`});
+  } else {
+    items.push({agent:"Academic",priority:"Normal",task:`Study throughput check: ${Math.round(studyWeek/60)}h this week. Raise low module hours before Friday review.`});
+  }
+  items.push({agent:"Brand",priority:"Normal",task:"Audit every customer-facing line today: keep CleanDesk operations separate from Atelier Blanco identity."});
+  items.push({agent:"Intelligence",priority:"High",task:"Research top 10 active desk setup creatives on TikTok + Meta and extract 3 hook patterns to test next."});
+  const top=items.sort((a,b)=>rankPriority(b.priority)-rankPriority(a.priority)).slice(0,6);
+  const summary=`Auto run: ${top.length} directives generated.`;
+  const lines=[
+    pendingTasks.length?`${pendingTasks.length} CleanDesk blockers still open`:"Checklist flow healthy",
+    dueSoon.length?`${dueSoon.length} academic deadline(s) due in 7 days`:"No urgent academic deadlines",
+    latestRoas?`Latest ROAS ${latestRoas.roas.toFixed(2)}x`:"No ROAS history yet",
+    `7-day net finance: R${financeStats.net.toLocaleString()}`
+  ];
+  return {items:top,summary,lines};
+}
+
+async function setAgentAutopilotEnabled(enabled){
+  const st=await getAgentAutopilotState();
+  st.enabled=!!enabled;
+  st.status=st.enabled?"Idle":"Paused";
+  st.lastSummary=st.enabled?"Autopilot enabled.":"Autopilot paused.";
+  await saveAgentAutopilotState(st);
+  restartAgentAutopilotLoop(st);
+}
+
+async function setAgentAutopilotInterval(minutes){
+  const st=await getAgentAutopilotState();
+  st.intervalMin=Math.max(15,parseInt(minutes)||30);
+  st.lastSummary=`Interval set to ${st.intervalMin} minutes.`;
+  await saveAgentAutopilotState(st);
+  restartAgentAutopilotLoop(st);
+}
+
+async function runAgentAutopilot(manual=false){
+  if(agentAutopilotRunning)return;
+  agentAutopilotRunning=true;
+  try{
+  const st=await getAgentAutopilotState();
+  if(!st.enabled&&!manual){renderAutopilotState(st);return;}
+  st.status="Running";
+  st.lastSummary="Agents are generating tasks and research...";
+  renderAutopilotState(st);
+  const [tasks,deadlines,sessions,metrics,finance,cleandeskCtx,cleandeskOps,feed]=await Promise.all([
+    cGet("ab_agent_tasks"),
+    cGet("ab_deadlines"),
+    cGet("ab_sessions"),
+    cGet("ab_metrics"),
+    cGet("ab_finance"),
+    cGet("ab_cleandesk_ctx"),
+    cGet("ab_cleandesk_ops"),
+    cGet("ab_agent_feed")
+  ]);
+  const out=buildAgentAutopilotOutputs({
+    metrics:metrics||{},
+    finance:finance||{primary:0,business:0,savings:0,txns:[]},
+    deadlines:deadlines||[],
+    sessions:sessions||[],
+    cleandeskCtx:cleandeskCtx||{done:{}},
+    cleandeskOps:cleandeskOps||{roas:[]}
+  });
+  const existing=tasks||[];
+  const generated=out.items.map(i=>({id:Date.now()+Math.floor(Math.random()*10000),agent:i.agent,priority:i.priority,task:i.task,done:false,ts:Date.now(),auto:true}));
+  const add=dedupeAgentTasks(existing,generated);
+  const nextTasks=[...add,...existing].slice(0,200);
+  const nextFeed=[{id:Date.now(),ts:Date.now(),summary:out.summary,lines:out.lines},...(feed||[])].slice(0,30);
+  setSyncStatus("saving");
+  await Promise.all([
+    cSet("ab_agent_tasks",nextTasks),
+    cSet("ab_agent_feed",nextFeed)
+  ]);
+  const today=new Date().toDateString();
+  const sameDay=today===st.lastRunDay;
+  st.lastRun=Date.now();
+  st.lastRunDay=today;
+  st.runsToday=sameDay?(st.runsToday||0)+1:1;
+  st.status=st.enabled?"Idle":"Paused";
+  st.lastSummary=`${out.summary} Added ${add.length} new task(s).`;
+  await saveAgentAutopilotState(st);
+  setSyncStatus("live");
+  renderAgentTasks(nextTasks);
+  renderAgentFeed(nextFeed);
+  } finally {
+    agentAutopilotRunning=false;
+  }
+}
+
+async function loadAgentAutopilot(){
+  const st=await getAgentAutopilotState();
+  renderAutopilotState(st);
+  restartAgentAutopilotLoop(st);
+  const feed=(await cGet("ab_agent_feed"))||[];
+  renderAgentFeed(feed);
+  const last=st.lastRun||0;
+  const stale=Date.now()-last>Math.max(15,parseInt(st.intervalMin)||30)*60*1000;
+  if(st.enabled&&stale)await runAgentAutopilot(false);
 }
 
 // ── WEEKLY REVIEW AUTOMATION ─────────────────────────────────────
@@ -3101,6 +3325,7 @@ async function init(){
       safeLoad(loadCleanDeskOps),
       safeLoad(loadFinance),
       safeLoad(loadAgentTasks),
+      safeLoad(loadAgentAutopilot),
       safeLoad(loadWeeklyReviews)
     ]);
     startCloudPolling();
