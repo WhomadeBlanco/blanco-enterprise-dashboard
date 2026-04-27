@@ -142,6 +142,13 @@ select option{background:var(--surface2);}
 .cd-item small{display:block;color:var(--text-muted);margin-top:3px;font-size:10px;}
 .cd-pill{font-size:9px;padding:2px 8px;border-radius:999px;border:0.5px solid var(--border-b);color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;}
 .cd-pill.done{border-color:rgba(76,175,125,0.35);color:var(--green-t);}
+.cd-badge{font-size:9px;padding:2px 8px;border-radius:999px;border:0.5px solid var(--border);text-transform:uppercase;letter-spacing:0.08em;}
+.cd-badge.good{color:var(--green-t);border-color:rgba(76,175,125,0.35);}
+.cd-badge.warn{color:var(--amber-t);border-color:rgba(212,140,42,0.35);}
+.cd-badge.bad{color:var(--red-t);border-color:rgba(224,85,85,0.35);}
+.cd-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.cd-flow{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:7px;}
+.cd-flow-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
 @media (max-width:900px){
   .cd-grid{grid-template-columns:1fr 1fr;}
   .cd-list{grid-template-columns:1fr;}
@@ -430,6 +437,90 @@ select option{background:var(--surface2);}
       <div class="cd-card"><div class="cd-label">Supplier stack</div><div class="note">Primary: CJ (US warehouse, 3–7 days) · Backup: Spocket after profitability · Safety net: AutoDS at scaling.</div></div>
       <div class="cd-card"><div class="cd-label">Launch quality checks</div><div class="note">Test cable adhesive across surfaces, validate desk mat stitching/quality, film 3 videos minimum, post immediately.</div></div>
     </div>
+  </div>
+  <div class="card">
+    <div class="ct">EMAIL FLOW STATUS <small>15-email machine · pre-launch, abandoned cart, post-purchase</small></div>
+    <div class="cd-grid">
+      <div class="cd-card"><div class="cd-label">Emails completed</div><div class="cd-value" id="cd-email-done">0/15</div></div>
+      <div class="cd-card"><div class="cd-label">Flow readiness</div><div class="cd-value" id="cd-email-status">Not started</div></div>
+      <div class="cd-card"><div class="cd-label">Platform</div><div class="cd-value">Klaviyo (<=500 free)</div></div>
+    </div>
+    <div id="cd-email-flows"></div>
+  </div>
+  <div class="card">
+    <div class="ct">WEEKLY ROAS TRACKER <small>Kill below 1.5x. Scale above 3x.</small></div>
+    <div class="r3">
+      <div class="fld"><label>Week label</label><input id="cd-roas-week" placeholder="e.g. Week 1"></div>
+      <div class="fld"><label>Ad spend (R)</label><input id="cd-roas-spend" type="number" step="0.01" min="0" placeholder="e.g. 500"></div>
+      <div class="fld"><label>Revenue (R)</label><input id="cd-roas-revenue" type="number" step="0.01" min="0" placeholder="e.g. 1400"></div>
+    </div>
+    <button class="btn" onclick="saveRoasEntry()">Log ROAS Week</button>
+    <div class="cd-grid mt8">
+      <div class="cd-card"><div class="cd-label">Latest ROAS</div><div class="cd-value" id="cd-roas-latest">–</div></div>
+      <div class="cd-card"><div class="cd-label">Average ROAS</div><div class="cd-value" id="cd-roas-avg">–</div></div>
+      <div class="cd-card"><div class="cd-label">Current action</div><div class="cd-value" id="cd-roas-action">No data</div></div>
+    </div>
+    <div id="cd-roas-list"><div class="note">No ROAS entries yet.</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">SUPPLIER SCORECARDS <small>CJ sample validation and rank</small></div>
+    <div class="r2">
+      <div class="cd-card">
+        <div class="cd-label">Cable Supplier A</div>
+        <div class="r2">
+          <div class="fld"><label>Quality (1-10)</label><input id="cd-sup-cableA-quality" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Shipping (1-10)</label><input id="cd-sup-cableA-shipping" type="number" min="1" max="10"></div>
+        </div>
+        <div class="r2">
+          <div class="fld"><label>Comms (1-10)</label><input id="cd-sup-cableA-comms" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Cost (1-10)</label><input id="cd-sup-cableA-cost" type="number" min="1" max="10"></div>
+        </div>
+        <div class="fld"><label>Notes</label><input id="cd-sup-cableA-notes" placeholder="Adhesive reliability, defects, etc."></div>
+        <button class="mini-btn" onclick="saveSupplierCard('cableA')">Save</button>
+      </div>
+      <div class="cd-card">
+        <div class="cd-label">Cable Supplier B</div>
+        <div class="r2">
+          <div class="fld"><label>Quality (1-10)</label><input id="cd-sup-cableB-quality" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Shipping (1-10)</label><input id="cd-sup-cableB-shipping" type="number" min="1" max="10"></div>
+        </div>
+        <div class="r2">
+          <div class="fld"><label>Comms (1-10)</label><input id="cd-sup-cableB-comms" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Cost (1-10)</label><input id="cd-sup-cableB-cost" type="number" min="1" max="10"></div>
+        </div>
+        <div class="fld"><label>Notes</label><input id="cd-sup-cableB-notes" placeholder="Adhesive reliability, defects, etc."></div>
+        <button class="mini-btn" onclick="saveSupplierCard('cableB')">Save</button>
+      </div>
+    </div>
+    <div class="r2 mt8">
+      <div class="cd-card">
+        <div class="cd-label">Desk Mat Supplier A</div>
+        <div class="r2">
+          <div class="fld"><label>Quality (1-10)</label><input id="cd-sup-matA-quality" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Shipping (1-10)</label><input id="cd-sup-matA-shipping" type="number" min="1" max="10"></div>
+        </div>
+        <div class="r2">
+          <div class="fld"><label>Comms (1-10)</label><input id="cd-sup-matA-comms" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Cost (1-10)</label><input id="cd-sup-matA-cost" type="number" min="1" max="10"></div>
+        </div>
+        <div class="fld"><label>Notes</label><input id="cd-sup-matA-notes" placeholder="Stitching, anti-slip, packaging, etc."></div>
+        <button class="mini-btn" onclick="saveSupplierCard('matA')">Save</button>
+      </div>
+      <div class="cd-card">
+        <div class="cd-label">Desk Mat Supplier B</div>
+        <div class="r2">
+          <div class="fld"><label>Quality (1-10)</label><input id="cd-sup-matB-quality" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Shipping (1-10)</label><input id="cd-sup-matB-shipping" type="number" min="1" max="10"></div>
+        </div>
+        <div class="r2">
+          <div class="fld"><label>Comms (1-10)</label><input id="cd-sup-matB-comms" type="number" min="1" max="10"></div>
+          <div class="fld"><label>Cost (1-10)</label><input id="cd-sup-matB-cost" type="number" min="1" max="10"></div>
+        </div>
+        <div class="fld"><label>Notes</label><input id="cd-sup-matB-notes" placeholder="Stitching, anti-slip, packaging, etc."></div>
+        <button class="mini-btn" onclick="saveSupplierCard('matB')">Save</button>
+      </div>
+    </div>
+    <div class="mt8 note" id="cd-supplier-summary">No supplier scores saved yet.</div>
   </div>
 </div>
 
@@ -2812,6 +2903,175 @@ async function toggleCleanDeskTask(id){
   renderCleanDeskChecklist(st);
 }
 
+const EMAIL_FLOW_DEF={
+  prelaunch:[false,false,false,false,false],
+  abandoned:[false,false,false,false,false],
+  postpurchase:[false,false,false,false,false]
+};
+
+function defaultSupplier(name){
+  return {name,quality:0,shipping:0,comms:0,cost:0,notes:""};
+}
+
+function defaultCleanDeskOps(){
+  return {
+    email:JSON.parse(JSON.stringify(EMAIL_FLOW_DEF)),
+    roas:[],
+    suppliers:{
+      cableA:defaultSupplier("Cable Supplier A"),
+      cableB:defaultSupplier("Cable Supplier B"),
+      matA:defaultSupplier("Desk Mat Supplier A"),
+      matB:defaultSupplier("Desk Mat Supplier B")
+    }
+  };
+}
+
+async function getCleanDeskOps(){
+  const ops=(await cGet("ab_cleandesk_ops"))||defaultCleanDeskOps();
+  ops.email=ops.email||JSON.parse(JSON.stringify(EMAIL_FLOW_DEF));
+  ops.roas=Array.isArray(ops.roas)?ops.roas:[];
+  ops.suppliers=ops.suppliers||defaultCleanDeskOps().suppliers;
+  return ops;
+}
+
+async function saveCleanDeskOps(ops){
+  setSyncStatus("saving");
+  await cSet("ab_cleandesk_ops",ops);
+  setSyncStatus("live");
+}
+
+function renderEmailFlowStatus(email){
+  const flows=[
+    {key:"prelaunch",name:"Pre-launch"},
+    {key:"abandoned",name:"Abandoned Cart"},
+    {key:"postpurchase",name:"Post-purchase"}
+  ];
+  let done=0,total=0;
+  const container=document.getElementById("cd-email-flows");
+  if(!container)return;
+  container.innerHTML=flows.map(f=>{
+    const arr=(email[f.key]||[false,false,false,false,false]).slice(0,5);
+    const flowDone=arr.filter(Boolean).length;
+    done+=flowDone; total+=arr.length;
+    const badges=arr.map((hit,i)=>`<button class="cd-pill ${hit?"done":""}" onclick="toggleEmailFlowItem('${f.key}',${i})">E${i+1}</button>`).join("");
+    return `<div class="cd-flow"><div class="cd-flow-head"><strong>${f.name}</strong><span class="note">${flowDone}/5 done</span></div><div class="cd-row">${badges}</div></div>`;
+  }).join("");
+  const d=document.getElementById("cd-email-done");if(d)d.textContent=`${done}/${total}`;
+  const s=document.getElementById("cd-email-status");
+  if(s){
+    if(done===0)s.textContent="Not started";
+    else if(done===total)s.textContent="Ready";
+    else if(done>=10)s.textContent="Advanced";
+    else s.textContent="In progress";
+  }
+}
+
+async function toggleEmailFlowItem(flow,index){
+  const ops=await getCleanDeskOps();
+  const arr=(ops.email[flow]||[false,false,false,false,false]).slice(0,5);
+  arr[index]=!arr[index];
+  ops.email[flow]=arr;
+  await saveCleanDeskOps(ops);
+  renderEmailFlowStatus(ops.email);
+}
+
+function classifyRoas(roas){
+  if(roas<1.5)return"Kill ad immediately";
+  if(roas<2)return"Tweak creative / angle";
+  if(roas<3)return"Maintain & optimise";
+  return"Scale aggressively";
+}
+
+function roasBadgeClass(roas){
+  if(roas<1.5)return"bad";
+  if(roas<2)return"warn";
+  return"good";
+}
+
+function renderRoasTracker(roasRows){
+  const rows=roasRows||[];
+  const latest=rows[0];
+  const avg=rows.length?rows.reduce((a,r)=>a+(r.roas||0),0)/rows.length:0;
+  const latestEl=document.getElementById("cd-roas-latest");
+  const avgEl=document.getElementById("cd-roas-avg");
+  const actEl=document.getElementById("cd-roas-action");
+  if(latestEl)latestEl.textContent=latest?`${latest.roas.toFixed(2)}x`:"–";
+  if(avgEl)avgEl.textContent=rows.length?`${avg.toFixed(2)}x`:"–";
+  if(actEl)actEl.textContent=latest?classifyRoas(latest.roas):"No data";
+  const list=document.getElementById("cd-roas-list");
+  if(!list)return;
+  if(!rows.length){list.innerHTML='<div class="note">No ROAS entries yet.</div>';return;}
+  list.innerHTML=rows.slice(0,8).map(r=>`<div class="cd-flow"><div class="cd-flow-head"><strong>${r.week}</strong><span class="cd-badge ${roasBadgeClass(r.roas)}">${r.roas.toFixed(2)}x</span></div><div class="note">Spend: R${r.spend.toLocaleString()} · Revenue: R${r.revenue.toLocaleString()} · Action: ${r.action}</div></div>`).join("");
+}
+
+async function saveRoasEntry(){
+  const week=(document.getElementById("cd-roas-week").value||"").trim()||`Week ${new Date().toLocaleDateString("en-ZA")}`;
+  const spend=parseFloat(document.getElementById("cd-roas-spend").value||"0");
+  const revenue=parseFloat(document.getElementById("cd-roas-revenue").value||"0");
+  if(!(spend>0)){alert("Ad spend must be greater than 0.");return;}
+  if(revenue<0){alert("Revenue cannot be negative.");return;}
+  const roas=revenue/spend;
+  const row={week,spend,revenue,roas,action:classifyRoas(roas),ts:Date.now()};
+  const ops=await getCleanDeskOps();
+  ops.roas.unshift(row);
+  if(ops.roas.length>40)ops.roas.pop();
+  await saveCleanDeskOps(ops);
+  renderRoasTracker(ops.roas);
+  ["cd-roas-week","cd-roas-spend","cd-roas-revenue"].forEach(id=>document.getElementById(id).value="");
+}
+
+function supplierAvg(s){
+  const vals=[s.quality,s.shipping,s.comms,s.cost].map(v=>parseFloat(v)||0).filter(v=>v>0);
+  if(!vals.length)return 0;
+  return vals.reduce((a,v)=>a+v,0)/vals.length;
+}
+
+function fillSupplierInputs(sup){
+  const keys=["cableA","cableB","matA","matB"];
+  keys.forEach(k=>{
+    const s=sup[k]||defaultSupplier(k);
+    const set=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||"";};
+    set(`cd-sup-${k}-quality`,s.quality||"");
+    set(`cd-sup-${k}-shipping`,s.shipping||"");
+    set(`cd-sup-${k}-comms`,s.comms||"");
+    set(`cd-sup-${k}-cost`,s.cost||"");
+    set(`cd-sup-${k}-notes`,s.notes||"");
+  });
+}
+
+function renderSupplierSummary(sup){
+  const keys=["cableA","cableB","matA","matB"];
+  const scored=keys.map(k=>({k,name:(sup[k]?.name)||k,avg:supplierAvg(sup[k]||{})})).filter(x=>x.avg>0).sort((a,b)=>b.avg-a.avg);
+  const out=document.getElementById("cd-supplier-summary");
+  if(!out)return;
+  if(!scored.length){out.textContent="No supplier scores saved yet.";return;}
+  const best=scored[0];
+  out.textContent=`Best current supplier: ${best.name} (${best.avg.toFixed(1)}/10). Keep validating quality consistency before lock-in.`;
+}
+
+async function saveSupplierCard(key){
+  const read=(field)=>parseFloat(document.getElementById(`cd-sup-${key}-${field}`).value||"0");
+  const notes=(document.getElementById(`cd-sup-${key}-notes`).value||"").trim();
+  const ops=await getCleanDeskOps();
+  const current=ops.suppliers[key]||defaultSupplier(key);
+  current.quality=Math.max(0,Math.min(10,read("quality")));
+  current.shipping=Math.max(0,Math.min(10,read("shipping")));
+  current.comms=Math.max(0,Math.min(10,read("comms")));
+  current.cost=Math.max(0,Math.min(10,read("cost")));
+  current.notes=notes;
+  ops.suppliers[key]=current;
+  await saveCleanDeskOps(ops);
+  renderSupplierSummary(ops.suppliers);
+}
+
+async function loadCleanDeskOps(){
+  const ops=await getCleanDeskOps();
+  renderEmailFlowStatus(ops.email);
+  renderRoasTracker(ops.roas);
+  fillSupplierInputs(ops.suppliers);
+  renderSupplierSummary(ops.suppliers);
+}
+
 // ── INIT ───────────────────────────────────────────────────────
 async function safeLoad(fn){try{await fn();}catch(e){}}
 
@@ -2838,6 +3098,7 @@ async function init(){
       safeLoad(loadBriefHistory),
       safeLoad(loadABMilestones),
       safeLoad(loadCleanDeskContext),
+      safeLoad(loadCleanDeskOps),
       safeLoad(loadFinance),
       safeLoad(loadAgentTasks),
       safeLoad(loadWeeklyReviews)
