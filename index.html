@@ -128,6 +128,24 @@ select option{background:var(--surface2);}
 .qb{border-left:2px solid var(--gold);padding:7px 13px;margin:10px 0;font-size:13px;color:var(--text-muted);font-style:italic;line-height:1.7;}
 .note{font-size:11px;color:var(--text-muted);line-height:1.7;}
 .mt{margin-top:10px;}.mt8{margin-top:8px;}
+.cd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.cd-card{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;}
+.cd-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.cd-value{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;color:var(--text);letter-spacing:0.05em;line-height:1.1;}
+.cd-table{width:100%;border-collapse:collapse;font-size:12px;color:var(--text);}
+.cd-table th,.cd-table td{border-bottom:0.5px solid var(--border);padding:7px 6px;text-align:left;vertical-align:top;}
+.cd-table th{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;}
+.cd-list{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.cd-item{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);}
+.cd-item.done{border-color:rgba(76,175,125,0.35);background:rgba(76,175,125,0.1);}
+.cd-item-head{display:flex;justify-content:space-between;gap:8px;align-items:center;}
+.cd-item small{display:block;color:var(--text-muted);margin-top:3px;font-size:10px;}
+.cd-pill{font-size:9px;padding:2px 8px;border-radius:999px;border:0.5px solid var(--border-b);color:var(--gold);text-transform:uppercase;letter-spacing:0.08em;}
+.cd-pill.done{border-color:rgba(76,175,125,0.35);color:var(--green-t);}
+@media (max-width:900px){
+  .cd-grid{grid-template-columns:1fr 1fr;}
+  .cd-list{grid-template-columns:1fr;}
+}
 .trk-head{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;}
 .estate-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
 .estate-metric{background:var(--surface2);border:0.5px solid var(--border);border-radius:10px;padding:10px 12px;}
@@ -372,6 +390,47 @@ select option{background:var(--surface2);}
   <div class="phase-block"><div class="phase-tag">Year 5–7</div><div class="phase-num">Stage 5 — Cultural Voice</div><div class="phase-title">ATELIER BLANCO JOURNAL (MEDIA & CULTURE)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Become a tastemaker and cultural voice in fashion, art, and lifestyle.<br><br><strong style="color:var(--text)">Offerings:</strong> Print/digital magazine, short films and documentaries on artisanship, legacy, and creativity, plus exclusive digital media content.<br><br><strong style="color:var(--text)">Strategic role:</strong> Positions Atelier Blanco as a cultural curator, not only a brand.</div></div>
   <div class="phase-block"><div class="phase-tag">Year 7–10</div><div class="phase-num">Stage 6 — Legacy Layer</div><div class="phase-title">ATELIER BLANCO FOUNDATION (PHILANTHROPY & LEGACY)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Give back, empower others, and leave a generational footprint.<br><br><strong style="color:var(--text)">Focus areas:</strong> Scholarships for young designers/creatives, support for African artisans and global representation, community upliftment through craftsmanship.<br><br><strong style="color:var(--text)">Strategic role:</strong> Reinforces care, strength, opportunity, and long-term legacy.</div></div>
   <div class="phase-block"><div class="phase-tag">Year 10+</div><div class="phase-num">Stage 7 — Wealth Engine</div><div class="phase-title">BLANCO CAPITAL (INVESTMENT ARM)</div><div class="phase-goal"><strong style="color:var(--text)">Vision:</strong> Build sustainable generational capital from Atelier Blanco wealth.<br><br><strong style="color:var(--text)">Investment areas:</strong> Real estate, startups, and private equity in luxury-adjacent industries.<br><br><strong style="color:var(--text)">Strategic role:</strong> Secures long-term independence, resilience, and empire scalability.</div></div>
+  <div class="card">
+    <div class="ct">CLEANDESK CO. INTEGRATION <small>Handoff context embedded into your operating system</small></div>
+    <div class="note" style="margin-bottom:10px;">CleanDesk Co. remains a separate 50/50 venture (Blanco + Ntobeko) used to generate capital for Atelier Blanco. This integration adds execution structure without changing your existing empire roadmap.</div>
+    <div class="cd-grid">
+      <div class="cd-card"><div class="cd-label">Venture structure</div><div class="cd-value">50/50 · Shopify + CJ</div></div>
+      <div class="cd-card"><div class="cd-label">Hero offer</div><div class="cd-value">Clean Desk Bundle</div></div>
+      <div class="cd-card"><div class="cd-label">Startup budget</div><div class="cd-value">R6,000 (R3,000 each)</div></div>
+      <div class="cd-card"><div class="cd-label">Profit target</div><div class="cd-value">$4,000 in 3 months</div></div>
+      <div class="cd-card"><div class="cd-label">Target sales</div><div class="cd-value">100 bundle sales</div></div>
+      <div class="cd-card"><div class="cd-label">Traffic rule</div><div class="cd-value">Organic first, ads after 5k views</div></div>
+    </div>
+    <table class="cd-table">
+      <thead><tr><th>Product</th><th>Sell Price</th><th>Cost</th><th>Profit</th><th>Margin</th></tr></thead>
+      <tbody>
+        <tr><td>Clean Desk Bundle</td><td>$54.99</td><td>~$15</td><td>~$40</td><td>73%</td></tr>
+        <tr><td>Cable Kit (solo)</td><td>$35</td><td>~$8</td><td>~$27</td><td>77%</td></tr>
+        <tr><td>XL Desk Mat (solo)</td><td>$28</td><td>~$7</td><td>~$21</td><td>75%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="ct">CLEANDESK EXECUTION CHECKLIST <small>Synced to cloud like your other modules</small></div>
+    <div class="note" style="margin-bottom:10px;">This checklist mirrors your handoff action plan and tracks what is still pending before launch and scale.</div>
+    <div class="cd-grid">
+      <div class="cd-card"><div class="cd-label">Tasks completed</div><div class="cd-value" id="cd-done">0</div></div>
+      <div class="cd-card"><div class="cd-label">Tasks remaining</div><div class="cd-value" id="cd-left">0</div></div>
+      <div class="cd-card"><div class="cd-label">Execution status</div><div class="cd-value" id="cd-status">Not started</div></div>
+    </div>
+    <div class="cd-list" id="cd-checklist"></div>
+  </div>
+  <div class="card">
+    <div class="ct">CLEANDESK GUARDRAILS <small>Non-negotiables from handoff</small></div>
+    <div class="r2">
+      <div class="cd-card"><div class="cd-label">ROAS rules</div><div class="note">Below 1.5x: kill ad immediately · 1.5–2x: tweak · 2–3x: maintain · 3x+: scale.</div></div>
+      <div class="cd-card"><div class="cd-label">Partnership rules</div><div class="note">No spend above R500 without both partners, weekly Friday number review, 100% reinvestment months 1–3, no ego cuts.</div></div>
+    </div>
+    <div class="r2 mt8">
+      <div class="cd-card"><div class="cd-label">Supplier stack</div><div class="note">Primary: CJ (US warehouse, 3–7 days) · Backup: Spocket after profitability · Safety net: AutoDS at scaling.</div></div>
+      <div class="cd-card"><div class="cd-label">Launch quality checks</div><div class="note">Test cable adhesive across surfaces, validate desk mat stitching/quality, film 3 videos minimum, post immediately.</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- LIFE -->
@@ -2689,6 +2748,70 @@ function renderABMilestones(d){
   renderEnterpriseSnapshot();
 }
 
+// ── CLEANDESK CHECKLIST ───────────────────────────────────────────
+const CLEANDESK_TASKS=[
+  {id:"budget-confirmed",title:"Confirm R3,000 each",group:"This week",desc:"Both partners confirm accessible startup capital."},
+  {id:"store-name-locked",title:"Lock store name",group:"This week",desc:"Required before domain purchase."},
+  {id:"cj-cable-suppliers",title:"Shortlist 2 cable suppliers",group:"This week",desc:"CJ supplier comparison and risks logged."},
+  {id:"cj-mat-suppliers",title:"Shortlist 2 mat suppliers",group:"This week",desc:"CJ supplier comparison and risks logged."},
+  {id:"tiktok-account-live",title:"Create store TikTok",group:"This week",desc:"Brand account live and posting ready."},
+  {id:"shopify-trial-live",title:"Launch Shopify trial",group:"Pre-launch",desc:"Use $1 trial before full subscription."},
+  {id:"domain-bought",title:"Buy domain (Namecheap)",group:"Pre-launch",desc:"Shared ownership and billing confirmed."},
+  {id:"bundle-listing-live",title:"Publish bundle listing",group:"Pre-launch",desc:"Copy, FAQ, guarantee, and SEO loaded."},
+  {id:"payments-connected",title:"Connect Stripe + PayPal",group:"Pre-launch",desc:"Dual payment rails active."},
+  {id:"klaviyo-flows-built",title:"Build 3 Klaviyo flows",group:"Pre-launch",desc:"Pre-launch, abandoned cart, post-purchase."},
+  {id:"samples-ordered",title:"Order product samples",group:"Pre-launch",desc:"Two suppliers each for cable + mat."},
+  {id:"sample-qc-passed",title:"Pass sample quality checks",group:"Samples",desc:"Adhesive, stitching, finish, packaging verified."},
+  {id:"three-videos-posted",title:"Post first 3 TikToks",group:"Samples",desc:"Film and publish immediately."},
+  {id:"organic-5k-proof",title:"Hit 5,000+ organic views",group:"Go-live",desc:"Required before paid ads."},
+  {id:"first-sale",title:"Get first sale",group:"Go-live",desc:"Start weekly P&L + ROAS review cycle."}
+];
+
+function computeCleanDeskStatus(done,total){
+  if(done===0)return"Not started";
+  if(done===total)return"Execution complete";
+  if(done>=Math.ceil(total*0.66))return"Advanced";
+  if(done>=Math.ceil(total*0.33))return"In progress";
+  return"Early execution";
+}
+
+function renderCleanDeskChecklist(state){
+  const box=document.getElementById("cd-checklist");
+  if(!box)return;
+  const doneMap=state?.done||{};
+  const doneCount=CLEANDESK_TASKS.filter(t=>doneMap[t.id]).length;
+  const total=CLEANDESK_TASKS.length;
+  const left=Math.max(0,total-doneCount);
+  const status=computeCleanDeskStatus(doneCount,total);
+  const d=document.getElementById("cd-done");if(d)d.textContent=String(doneCount);
+  const l=document.getElementById("cd-left");if(l)l.textContent=String(left);
+  const s=document.getElementById("cd-status");if(s)s.textContent=status;
+  box.innerHTML=CLEANDESK_TASKS.map(t=>{
+    const hit=!!doneMap[t.id];
+    return `<div class="cd-item ${hit?"done":""}">
+      <div class="cd-item-head">
+        <div><strong>${t.title}</strong><small>${t.group} · ${t.desc}</small></div>
+        <button class="cd-pill ${hit?"done":""}" onclick="toggleCleanDeskTask('${t.id}')">${hit?"Done":"Pending"}</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+async function loadCleanDeskContext(){
+  const st=(await cGet("ab_cleandesk_ctx"))||{done:{}};
+  renderCleanDeskChecklist(st);
+}
+
+async function toggleCleanDeskTask(id){
+  const st=(await cGet("ab_cleandesk_ctx"))||{done:{}};
+  st.done=st.done||{};
+  st.done[id]=!st.done[id];
+  setSyncStatus("saving");
+  await cSet("ab_cleandesk_ctx",st);
+  setSyncStatus("live");
+  renderCleanDeskChecklist(st);
+}
+
 // ── INIT ───────────────────────────────────────────────────────
 async function safeLoad(fn){try{await fn();}catch(e){}}
 
@@ -2714,6 +2837,7 @@ async function init(){
       safeLoad(loadGym),
       safeLoad(loadBriefHistory),
       safeLoad(loadABMilestones),
+      safeLoad(loadCleanDeskContext),
       safeLoad(loadFinance),
       safeLoad(loadAgentTasks),
       safeLoad(loadWeeklyReviews)
