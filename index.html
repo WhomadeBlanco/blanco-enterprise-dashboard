@@ -1789,6 +1789,45 @@ function buildHistoryContext(history){
   return history.slice(0,7).map(h=>`${h.date} (${h.day}): ${h.completed||"No tasks logged"}`).join("\n");
 }
 
+function getTimetableForDay(dayIndex){
+  const tt={
+    0:{name:"SUN",blocks:["05:30 Wake","05:45 Prayer","06:00 Proverbs","08:00 Church","12:00 Lunch","14:00 Goals review","15:00 Creative","17:00 Dinner prep","20:00 Weekly accountability","21:00 Reading","22:00 Reflection","23:00 Sleep"]},
+    1:{name:"MON",blocks:["05:30 Gym/Push","06:30 Prayer","07:00 Breakfast","07:30 Commute+Dropshipping","08:30 Pre-class DS block","10:30 Class","12:05 Lunch","14:40 Class","15:30 Walk","17:00 Study","19:00 Dinner","19:30 Creative — DS","20:30 Atelier Blanco","21:00 Reading"]},
+    2:{name:"TUE",blocks:["05:30 Gym/Pull","06:30 Prayer","07:00 Breakfast","07:30 Commute+Dropshipping","08:50 Class","10:25 Leisure","12:10 Class","13:00 Lunch","13:30 DS block","14:30 Walk","16:30 Commute","17:30 Study","19:00 Dinner","19:30 Creative — DS","20:30 Atelier Blanco","21:00 Reading"]},
+    3:{name:"WED",blocks:["05:30 Gym/Legs","06:30 Prayer","07:00 Breakfast","07:30 Commute+Dropshipping","08:30 Pre-class DS block","10:30 Class","13:00 Lunch","13:30 Study","15:30 Walk","17:00 Creative — DS","19:00 Dinner","20:30 Atelier Blanco","21:00 Reading"]},
+    4:{name:"THU",blocks:["05:30 Gym/Push","06:30 Prayer","07:00 Breakfast","07:30 Commute+Dropshipping","08:50 Class","11:20 Class","13:00 Lunch+Walk","14:30 Study","16:30 Creative — DS","18:00 Dinner","20:30 Atelier Blanco","21:00 Reading"]},
+    5:{name:"FRI",blocks:["05:30 Gym/Pull","06:30 Prayer","07:00 Breakfast","07:30 Commute+Dropshipping","08:00 Class","09:35 DS block","10:00 Class","12:30 Lunch","13:00 Leisure","14:30 DS weekly review","15:00 Creative — DS","17:00 DS evening block","19:00 Dinner","19:30 DS wrap-up","20:30 Atelier Blanco","21:00 Reading"]},
+    6:{name:"SAT",blocks:["05:30 Gym/Full Body","06:30 Prayer","07:00 Breakfast","08:30 Study block","10:30 Creative — DS weekly","12:30 Leisure","17:00 Dinner prep","21:00 Reading"]}
+  };
+  return tt[dayIndex]||{name:"?",blocks:[]};
+}
+
+function getMetricsGaps(metrics){
+  const gaps=[];
+  if((metrics.earn||0)<3000)gaps.push("capital");
+  if((metrics.prod||0)<10)gaps.push("products");
+  if((metrics.ads||0)<50)gaps.push("ads");
+  if((metrics.prompts||1)<6)gaps.push("prompts");
+  if((metrics.swipe||0)<30)gaps.push("swipe");
+  if((metrics.weight||0)<80)gaps.push("weight");
+  if((metrics.books||0)<12)gaps.push("books");
+  if((metrics.gym||0)<6)gaps.push("gym");
+  return gaps.length>0?gaps:["general"];
+}
+
+function extractTasksFromHistory(history){
+  const taskMap={};
+  history.forEach(h=>{
+    const brief=(h.brief||h.completed||"").toLowerCase();
+    if(brief.includes("validate"))taskMap.validate=(taskMap.validate||0)+1;
+    if(brief.includes("ad script")||brief.includes("script"))taskMap.scripts=(taskMap.scripts||0)+1;
+    if(brief.includes("prompt"))taskMap.prompts=(taskMap.prompts||0)+1;
+    if(brief.includes("swipe"))taskMap.swipe=(taskMap.swipe||0)+1;
+    if(brief.includes("supplier"))taskMap.supplier=(taskMap.supplier||0)+1;
+  });
+  return taskMap;
+}
+
 async function genBrief(){
   const phase=document.getElementById("bPhase").value;
   const energy=document.getElementById("bEnergy").value;
@@ -1801,41 +1840,65 @@ async function genBrief(){
   const out=document.getElementById("briefOut");
   out.textContent="Building your orders...";out.className="out dim";
 
-  const history=(await cGet("ab_briefs"))||[];
-  const histCtx=buildHistoryContext(history);
   const today=new Date();
+  const dayIndex=today.getDay();
   const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const todayStr=`${days[today.getDay()]} ${today.getDate()} ${months[today.getMonth()]}`;
+  const todayStr=`${days[dayIndex]} ${today.getDate()} ${months[today.getMonth()]}`;
   currentBriefDate=todayStr;
   const dateLabel=document.getElementById("briefDateLabel");
   if(dateLabel)dateLabel.textContent=todayStr;
 
-const pm={p0:"Phase 0 — capital build",p1:"Phase 1 — capital active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
+  const timetable=getTimetableForDay(dayIndex);
+  const history=(await cGet("ab_briefs"))||[];
+  const metrics=metricsCache||{};
+  const gaps=getMetricsGaps(metrics);
+  const taskHist=extractTasksFromHistory(history.slice(0,7));
+  const histCtx=buildHistoryContext(history);
 
-  const prompt=`Daily brief for ${todayStr}. Phase: ${pm[phase]} | Energy: ${energy}
+  const pm={p0:"Phase 0 — capital build",p1:"Phase 1 — capital active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
+  
+  const timetableStr=timetable.blocks.join(" | ");
+  const gapCtx=gaps.join(", ");
+  const taskHintStr=JSON.stringify(taskHist);
+
+  const prompt=`Daily brief for ${todayStr} (${timetable.name}). Phase: ${pm[phase]} | Energy: ${energy}
 Yesterday completed: ${yest} | Mental/spiritual: ${mind} | Blockers: ${block}
 
-ACTIVITY HISTORY — last 7 days (use this to avoid repeating tasks already done):
+TODAY'S TIMETABLE (allocate tasks to these actual slots):
+${timetableStr}
+
+YOUR PROGRESS GAPS (prioritize these — behind on targets):
+${gapCtx}
+
+RECENT TASK HISTORY (rotate away from these — avoid repetition):
+${taskHintStr}
+
+ACTIVITY HISTORY — last 7 days:
 ${histCtx}
 
-Using the activity history above, ensure today's brief assigns NEW tasks that build on what has already been completed. Do not repeat a specific action that was done in the last 3 days unless it is a genuine daily non-negotiable (gym, prayer, Proverbs). Rotate which products get validated, which ad angles get studied, which prompts get built.
+RULES FOR TODAY'S BRIEF:
+1. Assign EXACTLY 3 specific business actions tied to slots in the timetable above.
+2. Each action must differ from what was logged in last 3 days (use task history to rotate).
+3. Prioritize your progress gaps — pick actions that move the needle on what you're behind on.
+4. DO NOT repeat "validate product" if done in Mon, Tue, Wed already — maybe do "compare suppliers" or "build product page copy" instead.
+5. Times must be real available slots from the timetable.
 
 Format EXACTLY:
-ASSESSMENT: [2 sentences max. Honest assessment based on recent activity pattern — are they progressing or stagnating?]
+ASSESSMENT: [2 sentences. Are you progressing or stagnating based on gaps vs recent activity?]
 
-BUSINESS (top 3 — must be different from last 3 days):
-1. [Specific NEW action + exact timetable slot + duration]
-2. [Specific NEW action + exact timetable slot + duration]
-3. [Specific NEW action + exact timetable slot + duration]
+BUSINESS (top 3 — different from last 3 days, targeting your gaps):
+1. [TIME SLOT] — [Specific action, not repeat] (duration). Why: [which gap this closes]
+2. [TIME SLOT] — [Specific action, not repeat] (duration). Why: [which gap this closes]
+3. [TIME SLOT] — [Specific action, not repeat] (duration). Why: [which gap this closes]
 
-BODY: [One specific action toward 80-85kg today]
-MIND: [One mental/clarity action today]
-SPIRIT: [One specific faith action today]
+BODY: [One action toward 80-85kg today — make it fit your schedule]
+MIND: [One mental/clarity action]
+SPIRIT: [One faith action]
 
-CONSUME TODAY: [One exact resource — rotate weekly, do not repeat what was assigned in last 3 days]
-WATCH OUT FOR: [His most likely sabotage point today]
-C63 REMINDER: [One sentence connecting today to the C63 goal — make it hit]`;
+CONSUME TODAY: [One resource to learn from — rotate, don't repeat last 3 days]
+WATCH OUT FOR: [His likely sabotage for this day of week]
+C63 REMINDER: [One sentence connecting today to C63 — make it sharp]`;
 
   try{
     const res=await claude(prompt);
