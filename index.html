@@ -1849,20 +1849,21 @@ async function genBrief(){
   const dateLabel=document.getElementById("briefDateLabel");
   if(dateLabel)dateLabel.textContent=todayStr;
 
-  const timetable=getTimetableForDay(dayIndex);
-  const history=(await cGet("ab_briefs"))||[];
-  const metrics=metricsCache||{};
-  const gaps=getMetricsGaps(metrics);
-  const taskHist=extractTasksFromHistory(history.slice(0,7));
-  const histCtx=buildHistoryContext(history);
+  try{
+    const timetable=getTimetableForDay(dayIndex);
+    const history=(await cGet("ab_briefs"))||[];
+    const metrics=metricsCache||{};
+    const gaps=getMetricsGaps(metrics);
+    const taskHist=extractTasksFromHistory(history.slice(0,7));
+    const histCtx=buildHistoryContext(history);
 
-  const pm={p0:"Phase 0 — capital build",p1:"Phase 1 — capital active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
-  
-  const timetableStr=timetable.blocks.join(" | ");
-  const gapCtx=gaps.join(", ");
-  const taskHintStr=JSON.stringify(taskHist);
+    const pm={p0:"Phase 0 — capital build",p1:"Phase 1 — capital active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
+    
+    const timetableStr=timetable.blocks.join(" | ");
+    const gapCtx=gaps.join(", ");
+    const taskHintStr=JSON.stringify(taskHist);
 
-  const prompt=`Daily brief for ${todayStr} (${timetable.name}). Phase: ${pm[phase]} | Energy: ${energy}
+    const prompt=`Daily brief for ${todayStr} (${timetable.name}). Phase: ${pm[phase]} | Energy: ${energy}
 Yesterday completed: ${yest} | Mental/spiritual: ${mind} | Blockers: ${block}
 
 TODAY'S TIMETABLE (allocate tasks to these actual slots):
@@ -1900,12 +1901,15 @@ CONSUME TODAY: [One resource to learn from — rotate, don't repeat last 3 days]
 WATCH OUT FOR: [His likely sabotage for this day of week]
 C63 REMINDER: [One sentence connecting today to C63 — make it sharp]`;
 
-  try{
     const res=await claude(prompt);
     out.textContent=res;out.className="out";
     currentBriefText=res;
     document.getElementById("briefSaved").style.display="none";
-  }catch(e){out.textContent=getAiErrorMessage(e);out.className="out";}
+  }catch(e){
+    console.error("genBrief error:",e);
+    out.textContent=getAiErrorMessage(e);
+    out.className="out";
+  }
   btn.disabled=false;btn.textContent="Generate My Day";
 }
 
