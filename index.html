@@ -1844,42 +1844,63 @@ async function genBrief(){
   const today=new Date();
   const dayIndex=today.getDay();
   const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-  const dayName=days[dayIndex];
   const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const todayStr=`${dayName} ${today.getDate()} ${months[today.getMonth()]}`;
+  const todayStr=`${days[dayIndex]} ${today.getDate()} ${months[today.getMonth()]}`;
   currentBriefDate=todayStr;
   const dateLabel=document.getElementById("briefDateLabel");
   if(dateLabel)dateLabel.textContent=todayStr;
 
-  const pm={p0:"Phase 0 — capital build",p1:"Phase 1 — capital active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
-
   try{
+    const timetable=getTimetableForDay(dayIndex);
     const history=(await cGet("ab_briefs"))||[];
+    const metrics=metricsCache||{};
+    const gaps=getMetricsGaps(metrics);
+    const taskHist=extractTasksFromHistory(history.slice(0,7));
     const histCtx=buildHistoryContext(history);
+
+    const pm={p0:"Phase 0 — capital build",p1:"Phase 1 — capital active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
     
-    const prompt=`Daily brief for ${todayStr}. Phase: ${pm[phase]} | Energy: ${energy}
+    const timetableStr=timetable.blocks.join(" | ");
+    const gapCtx=gaps.join(", ");
+    const taskHintStr=JSON.stringify(taskHist);
+
+    const prompt=`Daily brief for ${todayStr} (${timetable.name}). Phase: ${pm[phase]} | Energy: ${energy}
 Yesterday completed: ${yest} | Mental/spiritual: ${mind} | Blockers: ${block}
+
+TODAY'S TIMETABLE (allocate tasks to these actual slots):
+${timetableStr}
+
+YOUR PROGRESS GAPS (prioritize these — behind on targets):
+${gapCtx}
+
+RECENT TASK HISTORY (rotate away from these — avoid repetition):
+${taskHintStr}
 
 ACTIVITY HISTORY — last 7 days:
 ${histCtx}
 
-Your goal: Create a daily brief that does NOT repeat tasks from the last 3 days. Instead, rotate which products get validated, which ad angles get studied, which prompts get built. Give specific times/slots. Make it actionable and tie it to your schedule.
+RULES FOR TODAY'S BRIEF:
+1. Assign EXACTLY 3 specific business actions tied to slots in the timetable above.
+2. Each action must differ from what was logged in last 3 days (use task history to rotate).
+3. Prioritize your progress gaps — pick actions that move the needle on what you're behind on.
+4. DO NOT repeat "validate product" if done in Mon, Tue, Wed already — maybe do "compare suppliers" or "build product page copy" instead.
+5. Times must be real available slots from the timetable.
 
 Format EXACTLY:
-ASSESSMENT: [2 sentences max. Honest assessment — are they progressing or stagnating?]
+ASSESSMENT: [2 sentences. Are you progressing or stagnating based on gaps vs recent activity?]
 
-BUSINESS (top 3 — MUST be different from last 3 days):
-1. [TIME SLOT] — [Specific NEW action] (duration). Why: [what this closes]
-2. [TIME SLOT] — [Specific NEW action] (duration). Why: [what this closes]
-3. [TIME SLOT] — [Specific NEW action] (duration). Why: [what this closes]
+BUSINESS (top 3 — different from last 3 days, targeting your gaps):
+1. [TIME SLOT] — [Specific action, not repeat] (duration). Why: [which gap this closes]
+2. [TIME SLOT] — [Specific action, not repeat] (duration). Why: [which gap this closes]
+3. [TIME SLOT] — [Specific action, not repeat] (duration). Why: [which gap this closes]
 
-BODY: [One specific action toward 80-85kg today]
-MIND: [One mental/clarity action today]
-SPIRIT: [One specific faith action today]
+BODY: [One action toward 80-85kg today — make it fit your schedule]
+MIND: [One mental/clarity action]
+SPIRIT: [One faith action]
 
-CONSUME TODAY: [One exact resource — rotate, don't repeat last 3 days]
-WATCH OUT FOR: [His most likely sabotage point]
-C63 REMINDER: [One sentence connecting today to C63]`;
+CONSUME TODAY: [One resource to learn from — rotate, don't repeat last 3 days]
+WATCH OUT FOR: [His likely sabotage for this day of week]
+C63 REMINDER: [One sentence connecting today to C63 — make it sharp]`;
 
     const res=await claude(prompt);
     out.textContent=res;out.className="out";
