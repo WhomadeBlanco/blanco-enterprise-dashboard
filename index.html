@@ -149,6 +149,24 @@ select option{background:var(--surface2);}
 .cd-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
 .cd-flow{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:7px;}
 .cd-flow-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;}
+/* GO-LIVE CHECKLIST STYLES */
+.gl-phase{border:0.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.gl-phase-header{background:var(--surface2);padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;user-select:none;transition:background 0.2s;}
+.gl-phase-header:hover{background:var(--surface3);}
+.gl-phase-header-left{display:flex;align-items:center;gap:10px;flex:1;}
+.gl-phase-badge{display:inline-block;font-size:9px;padding:3px 9px;border-radius:20px;border:0.5px solid rgba(210,176,138,0.35);background:rgba(210,176,138,0.08);color:var(--gold-dim);text-transform:uppercase;letter-spacing:0.08em;white-space:nowrap;}
+.gl-phase-title{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--text);letter-spacing:0.06em;}
+.gl-phase-toggle{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--text-muted);transition:transform 0.2s;flex-shrink:0;}
+.gl-phase.open .gl-phase-toggle{transform:rotate(180deg);}
+.gl-phase-content{display:none;padding:12px 14px;background:var(--surface);}
+.gl-phase.open .gl-phase-content{display:block;}
+.gl-task{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--border);font-size:13px;color:var(--text);}
+.gl-task:last-child{border-bottom:none;}
+.gl-task input[type="checkbox"]{accent-color:var(--gold);cursor:pointer;margin-top:3px;flex-shrink:0;}
+.gl-task input[type="checkbox"]:checked+label{text-decoration:line-through;color:var(--green-t);}
+.gl-task label{flex:1;cursor:pointer;user-select:none;}
+.gl-task input[type="checkbox"]:checked~.gl-checkmark{display:inline;color:var(--green-t);}
+.gl-checkmark{display:none;margin-left:6px;font-size:12px;}
 @media (max-width:900px){
   .cd-grid{grid-template-columns:1fr 1fr;}
   .cd-list{grid-template-columns:1fr;}
@@ -232,17 +250,33 @@ select option{background:var(--surface2);}
 .loading-msg{font-size:12px;color:var(--text-muted);letter-spacing:0.1em;}
 .spin{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;}
 @keyframes spin{to{transform:rotate(360deg);}}
+.auth-overlay{position:fixed;inset:0;background:var(--overlay-bg);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:1000;}
+.auth-card{width:100%;max-width:440px;background:linear-gradient(180deg,var(--card-grad-start) 0%,var(--card-grad-end) 100%);border:0.5px solid var(--border);border-radius:12px;padding:1.3rem 1.4rem;box-shadow:0 8px 30px rgba(0,0,0,0.2);}
+.auth-brand{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);letter-spacing:0.1em;line-height:1;margin-bottom:4px;}
+.auth-sub{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;}
+.auth-err{display:none;margin-top:8px;font-size:11px;color:var(--red-t);}
 </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingOverlay">
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <div class="auth-brand">BLANCO ENTERPRISE</div>
+    <div class="auth-sub">Secure access required</div>
+    <div class="fld"><label>Email</label><input type="email" id="authEmail" placeholder="you@example.com" autocomplete="username"></div>
+    <div class="fld"><label>Password</label><input type="password" id="authPassword" placeholder="Enter password" autocomplete="current-password"></div>
+    <button class="btn" style="width:100%;justify-content:center;" onclick="unlockDashboard()">Enter Dashboard</button>
+    <div class="auth-err" id="authError">Invalid email or password.</div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay" style="display:none;">
   <div class="loading-brand">BLANCO ENTERPRISE</div>
   <div class="spin"></div>
   <div class="loading-msg" id="loadingMsg">Syncing your data...</div>
 </div>
 
-<div class="app">
+<div class="app" id="appRoot" style="display:none;">
 <div class="hdr">
   <div class="hdr-top">
     <div><div class="brand">BLANCO ENTERPRISE</div><div class="brand-tag">Enterprise Operating System</div></div>
@@ -285,12 +319,12 @@ select option{background:var(--surface2);}
     <div class="ct">ENTERPRISE SNAPSHOT <small>Live operating pulse</small></div>
     <div class="estate-grid">
       <div class="estate-metric"><div class="estate-label">Active ventures</div><div class="estate-value">3</div><div class="estate-sub">Uber Eats · DS · Core Brand</div></div>
-      <div class="estate-metric"><div class="estate-label">Uber Eats capital</div><div class="estate-value" id="es-capital">R 0</div><div class="estate-sub">Target: R 3,000</div></div>
+      <div class="estate-metric"><div class="estate-label">Dropshipping launch capital</div><div class="estate-value" id="es-capital">R 0</div><div class="estate-sub">Target: R 3,000</div></div>
       <div class="estate-metric"><div class="estate-label">DS build score</div><div class="estate-value" id="es-ds-score">0%</div><div class="estate-sub">Products · Ads · Prompts · Swipe</div></div>
       <div class="estate-metric"><div class="estate-label">Empire branches ready</div><div class="estate-value" id="es-branches">0/6</div><div class="estate-sub">Fashion to Capital rollout</div></div>
     </div>
     <div class="pillar-grid">
-      <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Uber Eats capital</div><div class="pillar-pct" id="ep-capital-t">0%</div></div><div class="bar"><div class="bf" id="ep-capital" style="width:0%"></div></div></div>
+      <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Launch capital</div><div class="pillar-pct" id="ep-capital-t">0%</div></div><div class="bar"><div class="bf" id="ep-capital" style="width:0%"></div></div></div>
       <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Dropshipping build</div><div class="pillar-pct" id="ep-ds-t">0%</div></div><div class="bar"><div class="bf" id="ep-ds" style="width:0%"></div></div></div>
       <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Discipline systems</div><div class="pillar-pct" id="ep-discipline-t">0%</div></div><div class="bar"><div class="bf" id="ep-discipline" style="width:0%;background:var(--green-t)"></div></div></div>
       <div class="pillar-item"><div class="pillar-top"><div class="pillar-name">Empire structure</div><div class="pillar-pct" id="ep-empire-t">0%</div></div><div class="bar"><div class="bf" id="ep-empire" style="width:0%;background:var(--blue-t)"></div></div></div>
@@ -306,7 +340,7 @@ select option{background:var(--surface2);}
       <div class="fld"><label>Business phase</label>
         <select id="bPhase">
           <option value="p0">Phase 0 — Waiting for license</option>
-          <option value="p1">Phase 1 — Uber Eats active</option>
+          <option value="p1">Phase 1 — Capital build active</option>
           <option value="p2">Phase 2 — Store live</option>
           <option value="p3">Phase 3 — Blanco Enterprise launch</option>
         </select>
@@ -349,7 +383,7 @@ select option{background:var(--surface2);}
   <div class="goal-card">
     <div class="goal-title">2021 MERCEDES C63S AMG</div>
     <div class="goal-deadline">Deadline: 15 August 2027 — <span class="countdown" id="c63days"></span></div>
-    <div class="goal-steps">This car costs roughly R900,000–R1.1M in SA. Atelier Blanco needs to be generating serious, consistent revenue well before August 2027. Path: Uber Eats capital → dropshipping profitability → Atelier Blanco brand revenue → reinvest aggressively → C63.<br><br>Your next milestone toward this goal: R3,000 capital. That is all you need to think about right now.</div>
+    <div class="goal-steps">This car costs roughly R900,000–R1.1M in SA. Atelier Blanco needs to be generating serious, consistent revenue well before August 2027. Path: launch capital → dropshipping profitability → Atelier Blanco brand revenue → reinvest aggressively → C63.<br><br>Your next milestone toward this goal: R3,000 capital. That is all you need to think about right now.</div>
     <div class="bar mt8"><div class="bf" id="c63bar" style="width:0%"></div></div>
   </div>
   <div class="goal-card" style="border-left-color:var(--blue-t)">
@@ -422,14 +456,26 @@ select option{background:var(--surface2);}
     </table>
   </div>
   <div class="card">
-    <div class="ct">CLEANDESK EXECUTION CHECKLIST <small>Synced to cloud like your other modules</small></div>
-    <div class="note" style="margin-bottom:10px;">This checklist mirrors your handoff action plan and tracks what is still pending before launch and scale.</div>
+    <div class="ct">GO-LIVE CHECKLIST <small>Launch sequence — do not skip steps</small></div>
+    <div class="note" style="margin-bottom:12px;">6-phase launch sequence for CleanDesk Co. dropshipping store. Track all tasks from foundation through go-live.</div>
+    
+    <!-- Progress stats -->
     <div class="cd-grid">
-      <div class="cd-card"><div class="cd-label">Tasks completed</div><div class="cd-value" id="cd-done">0</div></div>
-      <div class="cd-card"><div class="cd-label">Tasks remaining</div><div class="cd-value" id="cd-left">0</div></div>
-      <div class="cd-card"><div class="cd-label">Execution status</div><div class="cd-value" id="cd-status">Not started</div></div>
+      <div class="cd-card"><div class="cd-label">Total tasks completed</div><div class="cd-value" id="gl-done">0</div></div>
+      <div class="cd-card"><div class="cd-label">Tasks remaining</div><div class="cd-value" id="gl-left">0</div></div>
+      <div class="cd-card"><div class="cd-label">Overall completion</div><div class="cd-value" id="gl-pct">0%</div></div>
     </div>
-    <div class="cd-list" id="cd-checklist"></div>
+    
+    <!-- Overall progress bar -->
+    <div class="bar" style="margin:10px 0 18px;">
+      <div class="bf" id="gl-bar" style="width:0%"></div>
+    </div>
+    
+    <!-- Collapsible phases -->
+    <div id="gl-phases"></div>
+    
+    <!-- Reset button -->
+    <button class="ghost" onclick="resetGoLiveChecklist()" style="margin-top:12px;font-size:0.85rem;padding:7px 14px;">Reset All</button>
   </div>
   <div class="card">
     <div class="ct">CLEANDESK GUARDRAILS <small>Non-negotiables from handoff</small></div>
@@ -571,7 +617,7 @@ select option{background:var(--surface2);}
   <div class="card"><div class="ct">NOW <small>Mission-critical this week</small></div>
     <div class="trk-head">Cashflow + execution</div>
     <div class="mg">
-      <div class="met"><div class="ml">Uber Eats earned</div><div class="mv" id="t-earn">R0</div><div class="ms">Target: R3,000</div><div class="bar"><div class="bf" id="b-earn" style="width:0%"></div></div></div>
+      <div class="met"><div class="ml">Capital raised</div><div class="mv" id="t-earn">R0</div><div class="ms">Target: R3,000</div><div class="bar"><div class="bf" id="b-earn" style="width:0%"></div></div></div>
       <div class="met"><div class="ml">Days to target</div><div class="mv" id="t-days">–</div><div class="ms">At current daily rate</div><div class="bar"><div class="bf" id="b-days" style="width:0%;background:var(--blue-t)"></div></div></div>
       <div class="met"><div class="ml">Products validated</div><div class="mv" id="t-prod">0</div><div class="ms">Target: 10</div><div class="bar"><div class="bf" id="b-prod" style="width:0%"></div></div></div>
       <div class="met"><div class="ml">Ads studied</div><div class="mv" id="t-ads">0</div><div class="ms">Target: 50</div><div class="bar"><div class="bf" id="b-ads" style="width:0%"></div></div></div>
@@ -614,8 +660,8 @@ select option{background:var(--surface2);}
   </div>
   <div class="card"><div class="ct">UPDATE METRICS</div>
     <div class="r2">
-      <div class="fld"><label>Earnings total (R)</label><input type="number" id="u-earn" placeholder="e.g. 1200"></div>
-      <div class="fld"><label>Daily earn rate (R/day)</label><input type="number" id="u-rate" placeholder="e.g. 250"></div>
+      <div class="fld"><label>Capital raised total (R)</label><input type="number" id="u-earn" placeholder="e.g. 1200"></div>
+      <div class="fld"><label>Average daily capital pace (R/day)</label><input type="number" id="u-rate" placeholder="e.g. 250"></div>
     </div>
     <div class="r2">
       <div class="fld"><label>Products validated</label><input type="number" id="u-prod" placeholder="e.g. 4"></div>
@@ -739,7 +785,7 @@ select option{background:var(--surface2);}
     <div class="cs">Business</div>
     <div class="cg">
       <div class="ci" onclick="tick(this)"><div class="dot"></div>1 product validated</div>
-      <div class="ci" onclick="tick(this)"><div class="dot"></div>5 dropshipping ads studied</div>
+      <div class="ci" onclick="tick(this)"><div class="dot"></div>2 dropshipping ads studied</div>
       <div class="ci" onclick="tick(this)"><div class="dot"></div>Dropshipping block (CleanDesk Co.)</div>
       <div class="ci" onclick="tick(this)"><div class="dot"></div>Prompt / build work</div>
     </div>
@@ -1196,7 +1242,8 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">16:30</div><div class="tt-cell"><div class="tt-label">Home / Settle</div><div class="tt-sub">Change, eat snack, protein shake or peanut butter — fuel for evening</div><span class="tt-tag tag-rest">Routine</span></div></div>
       <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">University study block</div><div class="tt-sub">Review today's lecture notes — Business Management or Accountancy focus</div><span class="tt-tag tag-study">Study · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><div class="tt-sub">High protein meal — hit daily target</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
-      <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Product Research + Ad Study</div><div class="tt-sub">Dropshipping: run products through validator · study 5 TikTok/Meta ads · add to swipe file · build prompts (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Product Research + Ad Study</div><div class="tt-sub">Dropshipping: run products through validator · study 2 TikTok/Meta ads · add to swipe file · build prompts (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">20:30</div><div class="tt-cell"><div class="tt-label">Atelier Blanco block</div><div class="tt-sub">Atelier Blanco: brand identity, concept research, and product direction (core brand work)</div><span class="tt-tag tag-creative">Atelier Blanco · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal check-in · Log streak · Tick off non-negotiables · Reflection</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">22:30</div><div class="tt-cell"><div class="tt-label">Wind down</div><div class="tt-sub">No screens, no business — prepare for sleep</div><span class="tt-tag tag-rest">Wind down</span></div></div>
@@ -1209,7 +1256,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><div class="tt-sub">Protein-rich breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
-      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 5 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 2 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
       <div class="tt-row"><div class="tt-time">08:50</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 10:25</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
       <div class="tt-row"><div class="tt-time">10:25</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Break between classes</div><span class="tt-tag tag-rest">Leisure</span></div></div>
       <div class="tt-row"><div class="tt-time">11:15</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Rest or light campus walk</div><span class="tt-tag tag-rest">Leisure</span></div></div>
@@ -1225,6 +1272,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">17:30</div><div class="tt-cell"><div class="tt-label">University study block</div><div class="tt-sub">English or End-User Computing focus</div><span class="tt-tag tag-study">Study · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><div class="tt-sub">High protein meal</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
       <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Ad Script Writing + Prompt Building</div><div class="tt-sub">Dropshipping: write 2 TikTok ad scripts · build or refine 1 prompt · update swipe file (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
+      <div class="tt-row"><div class="tt-time">20:30</div><div class="tt-cell"><div class="tt-label">Atelier Blanco block</div><div class="tt-sub">Atelier Blanco: brand worldbuilding, references, and concept development</div><span class="tt-tag tag-creative">Atelier Blanco · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal · Log streak · Non-negotiables check</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
@@ -1236,7 +1284,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
-      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 5 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 2 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
       <div class="tt-row"><div class="tt-time">08:00</div><div class="tt-cell"><div class="tt-label">Arrive / Settle</div><span class="tt-tag tag-rest">Routine</span></div></div>
       <div class="tt-row"><div class="tt-time">08:30</div><div class="tt-cell"><div class="tt-label">Pre-class Dropshipping block</div><div class="tt-sub">Dropshipping: product validator · competitor research · prompt refinement — 45 min (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">09:15</div><div class="tt-cell"><div class="tt-label">Leisure</div><span class="tt-tag tag-rest">Leisure</span></div></div>
@@ -1249,6 +1297,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">17:00</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: TikTok Script Writing + Store Work</div><div class="tt-sub">Dropshipping: write Clean Desk Bundle video scripts · build product page copy · Shopify learning (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
       <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Rest — you've earned it after a full study + creative day</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">20:30</div><div class="tt-cell"><div class="tt-label">Atelier Blanco block</div><div class="tt-sub">Atelier Blanco: brand bible notes, moodboard direction, and collection thinking</div><span class="tt-tag tag-creative">Atelier Blanco · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal · Log streak · Non-negotiables check</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
@@ -1260,7 +1309,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
-      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or review swipe file (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or review 2 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
       <div class="tt-row"><div class="tt-time">08:50</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 10:25</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
       <div class="tt-row"><div class="tt-time">10:25</div><div class="tt-cell"><div class="tt-label">Leisure</div><span class="tt-tag tag-rest">Leisure</span></div></div>
       <div class="tt-row"><div class="tt-time">11:20</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 12:55</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
@@ -1272,6 +1321,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">16:30</div><div class="tt-cell"><div class="tt-label">Creative — Dropshipping: Supplier Research + Store Ops</div><div class="tt-sub">Dropshipping: CJ Dropshipping research · compare suppliers · Shopify setup · email sequence review (CleanDesk Co.)</div><span class="tt-tag tag-creative">Dropshipping · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">18:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
       <div class="tt-row"><div class="tt-time">18:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><div class="tt-sub">Rest — heavy study day, you need this</div><span class="tt-tag tag-rest">Leisure</span></div></div>
+      <div class="tt-row"><div class="tt-time">20:30</div><div class="tt-cell"><div class="tt-label">Atelier Blanco block</div><div class="tt-sub">Atelier Blanco: positioning, storytelling, and launch architecture planning</div><span class="tt-tag tag-creative">Atelier Blanco · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><div class="tt-sub">Journal · Log streak · Non-negotiables check</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
@@ -1283,7 +1333,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">06:30</div><div class="tt-cell"><div class="tt-label">Morning prayer</div><div class="tt-sub">5–10 minutes — post-workout</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">06:45</div><div class="tt-cell"><div class="tt-label">Proverbs chapter</div><div class="tt-sub">One chapter — read before shower</div><span class="tt-tag tag-faith">Faith · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">07:00</div><div class="tt-cell"><div class="tt-label">Shower / Breakfast</div><span class="tt-tag tag-rest">Routine</span></div></div>
-      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 5 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">07:30</div><div class="tt-cell"><div class="tt-label">Commute to university</div><div class="tt-sub">Dropshipping: validate 1 product or study 2 ad hooks (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
       <div class="tt-row"><div class="tt-time">08:00</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 09:35</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
       <div class="tt-row"><div class="tt-time">09:35</div><div class="tt-cell"><div class="tt-label">Dropshipping study block</div><div class="tt-sub">Dropshipping: product research · Shopify learning · prompt building (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">10:00</div><div class="tt-cell"><div class="tt-label">Class</div><div class="tt-sub">University lecture — ends 12:30</div><span class="tt-tag tag-class">BUS/ACC/ENG/EUC</span></div></div>
@@ -1298,6 +1348,7 @@ select option{background:var(--surface2);}
       <div class="tt-row"><div class="tt-time">17:30</div><div class="tt-cell"><div class="tt-label">Leisure</div><span class="tt-tag tag-rest">Leisure</span></div></div>
       <div class="tt-row"><div class="tt-time">19:00</div><div class="tt-cell"><div class="tt-label">Dinner</div><span class="tt-tag tag-rest">Routine · Protein target</span></div></div>
       <div class="tt-row"><div class="tt-time">19:30</div><div class="tt-cell"><div class="tt-label">Dropshipping wrap-up + Ntobeko check-in</div><div class="tt-sub">Dropshipping: final tasks · log weekly progress · Friday P&L review with Ntobeko (CleanDesk Co.)</div><span class="tt-tag tag-biz">Dropshipping</span></div></div>
+      <div class="tt-row"><div class="tt-time">20:30</div><div class="tt-cell"><div class="tt-label">Atelier Blanco block</div><div class="tt-sub">Atelier Blanco: weekly brand synthesis, strategy notes, and next-week priorities</div><span class="tt-tag tag-creative">Atelier Blanco · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">21:00</div><div class="tt-cell"><div class="tt-label">Reading</div><div class="tt-sub">30–60 min — current book per reading schedule</div><span class="tt-tag tag-read">Reading · Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">22:00</div><div class="tt-cell"><div class="tt-label">Wind down + 5-min reflection</div><span class="tt-tag tag-non">Non-negotiable</span></div></div>
       <div class="tt-row"><div class="tt-time">23:00</div><div class="tt-cell"><div class="tt-label">Sleep</div><span class="tt-tag tag-rest">Sleep</span></div></div>
@@ -1357,6 +1408,9 @@ const SUPABASE_KEY = "sb_publishable_7iHGtagMI5CSQA7IxbOHag_ut7Y9OGi";
 const DATA_TABLE = "Tshego's Estate Data";
 const DATA_TABLE_PATH = encodeURIComponent(DATA_TABLE).replace(/'/g, "%27");
 const USER_ID = "tshego-estate-data";
+const AUTH_EMAIL = "Mabenat791@gmail.com";
+const AUTH_PASSWORD = "Blanco@213#";
+const AUTH_SESSION_KEY = "be_auth_session";
 
 let syncEnabled = false;
 let cloudLoaded = false;
@@ -1365,6 +1419,7 @@ let lastCloudUpdatedAt = null;
 let saveTimer = null;
 let pollTimer = null;
 let isSyncing = false;
+let dashboardStarted = false;
 
 const SB_HEADERS = {
   apikey: SUPABASE_KEY,
@@ -1598,7 +1653,7 @@ const SYS=`You are the ruthless personal PA, life mentor, and accountability par
 FULL PROFILE:
 - Age: 19, turning 20 on 15 August 2026. Location: Johannesburg, South Africa
 - University student, Mon–Fri. Wakes 5:30am, sleeps 11pm
-- Current phase: Phase 0 — waiting for bike license to start Uber Eats deliveries
+- Current phase: Phase 0 — building launch capital for dropshipping
 - Capital target: R3,000 to launch dropshipping store
 - Current weight: ~65kg | Body goal: 80–85kg lean
 - Books read in last 6 months: 0
@@ -1606,16 +1661,16 @@ FULL PROFILE:
 - Known discipline weak points: procrastinating on business tasks, skipping gym, giving up when progress is slow
 
 FIXED DAILY TIMETABLE (use this to avoid clashes when giving briefs):
-MON: 05:30 Gym/Push Day 1 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:30 Pre-class Dropshipping block | 09:15 Leisure | 10:30–12:05 Class | 12:05 Lunch | 14:40–15:25 Class | 15:30 Walk | 16:00 Commute | 17:00 Study | 19:00 Dinner | 19:30 Creative — Dropshipping (product research+ads) | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
-TUE: 05:30 Gym/Pull Day 1 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:50–10:25 Class | 10:25 Leisure | 12:10–12:55 Class | 13:00 Lunch | 13:30 Dropshipping block | 14:30 Walk | 14:40–15:25 Class | 16:30 Commute | 17:30 Study | 19:00 Dinner | 19:30 Creative — Dropshipping (ad scripts+prompts) | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
-WED: 05:30 Gym/Legs Day (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:30 Pre-class Dropshipping block | 09:15 Leisure | 10:30–13:00 Class (long block) | 13:00 Lunch | 13:30 Study | 15:30 Walk | 16:00 Commute | 17:00 Creative — Dropshipping (TikTok scripts+store work) | 19:00 Dinner | 19:30 Leisure | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
-THU: 05:30 Gym/Push Day 2 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:50–10:25 Class | 10:25 Leisure | 11:20–12:55 Class | 13:00 Lunch+Walk | 13:30 Commute | 14:30 Study | 16:30 Creative — Dropshipping (supplier research+store ops) | 18:00 Dinner | 18:30 Leisure | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
-FRI: 05:30 Gym/Pull Day 2 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:00–09:35 Class | 09:35 Dropshipping block | 10:00–12:30 Class | 12:30 Lunch | 13:00 Leisure | 13:30 Walk | 14:30 Dropshipping weekly review | 15:00 Creative — Dropshipping (content creation+swipe file) | 17:00 Dropshipping evening block | 19:00 Dinner | 19:30 Dropshipping wrap-up+Ntobeko check-in | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+MON: 05:30 Gym/Push Day 1 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:30 Pre-class Dropshipping block | 09:15 Leisure | 10:30–12:05 Class | 12:05 Lunch | 14:40–15:25 Class | 15:30 Walk | 16:00 Commute | 17:00 Study | 19:00 Dinner | 19:30 Creative — Dropshipping (product research+ads) | 20:30 Atelier Blanco block | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+TUE: 05:30 Gym/Pull Day 1 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:50–10:25 Class | 10:25 Leisure | 12:10–12:55 Class | 13:00 Lunch | 13:30 Dropshipping block | 14:30 Walk | 14:40–15:25 Class | 16:30 Commute | 17:30 Study | 19:00 Dinner | 19:30 Creative — Dropshipping (ad scripts+prompts) | 20:30 Atelier Blanco block | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+WED: 05:30 Gym/Legs Day (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:30 Pre-class Dropshipping block | 09:15 Leisure | 10:30–13:00 Class (long block) | 13:00 Lunch | 13:30 Study | 15:30 Walk | 16:00 Commute | 17:00 Creative — Dropshipping (TikTok scripts+store work) | 19:00 Dinner | 19:30 Leisure | 20:30 Atelier Blanco block | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+THU: 05:30 Gym/Push Day 2 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:50–10:25 Class | 10:25 Leisure | 11:20–12:55 Class | 13:00 Lunch+Walk | 13:30 Commute | 14:30 Study | 16:30 Creative — Dropshipping (supplier research+store ops) | 18:00 Dinner | 18:30 Leisure | 20:30 Atelier Blanco block | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
+FRI: 05:30 Gym/Pull Day 2 (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 07:30 Commute+Dropshipping | 08:00–09:35 Class | 09:35 Dropshipping block | 10:00–12:30 Class | 12:30 Lunch | 13:00 Leisure | 13:30 Walk | 14:30 Dropshipping weekly review | 15:00 Creative — Dropshipping (content creation+swipe file) | 17:00 Dropshipping evening block | 19:00 Dinner | 19:30 Dropshipping wrap-up+Ntobeko check-in | 20:30 Atelier Blanco block | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
 SAT: 05:30 Gym/Full Body+Core (1hr) | 06:30 Prayer | 06:45 Proverbs | 07:00 Shower/Breakfast | 08:30 Study block | 10:30 Creative — Dropshipping weekly review+planning | 12:30 Leisure | 17:00 Dinner prep | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
 SUN: 05:30 Wake (rest day) | 05:45 Prayer (15 min) | 06:00 Proverbs | 08:00 Church | 12:00 Lunch | 14:00 Goals review | 15:00 Creative (Faith journalling+Week reflection) | 17:00 Dinner prep | 20:00 Weekly accountability | 21:00 Reading | 22:00 Reflection+Journal | 23:00 Sleep
 
 DAILY NON-NEGOTIABLES (always reference these in briefs):
-Gym 05:30–06:30 · Morning prayer 06:30 · Proverbs chapter 06:45 · Shower/Breakfast 07:00 · Dropshipping block (commute+pre-class or scheduled slot) — CleanDesk Co. tasks only · University study block · Protein target daily · 1 dropshipping product validated · 5 dropshipping ads studied · Reading 21:00 (30–60 min) · Journal+streak log 22:00 · Sleep by 23:00
+Gym 05:30–06:30 · Morning prayer 06:30 · Proverbs chapter 06:45 · Shower/Breakfast 07:00 · Dropshipping block (commute+pre-class or scheduled slot) — CleanDesk Co. tasks only · University study block · Protein target daily · 1 dropshipping product validated · 2 dropshipping ads studied · Atelier Blanco block (20:30) · Reading 21:00 (30–60 min) · Journal+streak log 22:00 · Sleep by 23:00
 
 LIFE GOALS: Own a 2021 Mercedes C63S AMG by 21st birthday (15 Aug 2027). Build Atelier Blanco into a multi-million rand empire. Financial freedom. 80–85kg lean body. Buy property after C63. Travel the world. Grow in faith. Read 12 books this year. Be happy as an individual.
 
@@ -1624,7 +1679,7 @@ BUSINESS STRUCTURE — THREE COMPLETELY SEPARATE ENTITIES:
 2. DROPSHIPPING (CleanDesk Co.) — e-commerce business run with Ntobeko to generate capital to fund Atelier Blanco. Has nothing to do with Atelier Blanco. Current focus: Clean Desk Bundle (cable management kit + XL desk mat), USA/Canada/UK market, CJ Dropshipping. Partner: Ntobeko Masemula, 50/50 split.
 3. ATELIER BLANCO — the empire. Completely separate from everything above. A luxury creative house built on the philosophy of "Luxury in Silence." 6 branches: Maison (fashion house — the core and starting point), Home & Lifestyle, Experiences & Interiors, Media & Culture, Foundation (philanthropy), Capital (investment arm). First entry point: Collector's Edition capsule — 10 sample garments to create market desire, followed by pre-order programme. Current status: conceptual — no samples made yet, no business registered, no social handles secured.
 
-CAPITAL FLOW: Uber Eats → funds dropshipping launch → dropshipping profits → fund Atelier Blanco launch. These are stepping stones only. Atelier Blanco is the destination.
+CAPITAL FLOW: Capital sources → fund dropshipping launch → dropshipping profits → fund Atelier Blanco launch. These are stepping stones only. Atelier Blanco is the destination.
 
 YOUR STYLE: Ruthless, direct, zero fluff. Concrete actions only. Short sentences. Always reference the actual timetable when giving daily briefs — tell him exactly WHEN to do each task based on his real schedule that day. Never suggest actions that clash with his class times. Factor in the whole person — body, mind, spirit. Call out excuses.`;
 
@@ -1756,7 +1811,7 @@ async function genBrief(){
   const dateLabel=document.getElementById("briefDateLabel");
   if(dateLabel)dateLabel.textContent=todayStr;
 
-const pm={p0:"Phase 0 — waiting for bike license",p1:"Phase 1 — Uber Eats active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
+const pm={p0:"Phase 0 — capital build",p1:"Phase 1 — capital active",p2:"Phase 2 — store live",p3:"Phase 3 — Blanco Enterprise launch"};
 
   const prompt=`Daily brief for ${todayStr}. Phase: ${pm[phase]} | Energy: ${energy}
 Yesterday completed: ${yest} | Mental/spiritual: ${mind} | Blockers: ${block}
@@ -1915,7 +1970,7 @@ function renderMetrics(d){
   bar("b-weight",weight?((weight-65)/20)*100:0);bar("b-books",(books/12)*100);bar("b-gym",(gym/6)*100);
   bar("bookbar",(books/12)*100);bar("weightbar",weight?((weight-65)/20)*100:0);
   if(rate>0){const rem=3000-earn;const days=rem>0?Math.ceil(rem/rate):0;set("t-days",days>0?days+"d":"Done ✓");bar("b-days",days>0?100-Math.min(100,(days/30)*100):100);}
-  const pill=document.getElementById("phasePill");if(pill)pill.textContent=earn>=3000?"Stage 1 — Uber Eats Active":"Stage 0 — Foundation";
+  const pill=document.getElementById("phasePill");if(pill)pill.textContent=earn>=3000?"Stage 1 — Capital Ready":"Stage 0 — Foundation";
   renderEnterpriseSnapshot();
   renderFinanceFromMetrics();
 }
@@ -2333,7 +2388,7 @@ function buildWeeklyReview(payload){
     `- Finance: income R${f.income.toLocaleString()}, expenses R${f.expense.toLocaleString()}, net R${f.net.toLocaleString()}, runway ${f.runway>0?f.runway+" weeks":"stable"}.`,
     `- Risk flags: ${dueSoon} academic deadlines in next 7 days, journal entries this week ${(journal||[]).filter((_,i)=>i<7).length}.`,
     `Top 3 priorities next week:`,
-    `1) Hit Uber Eats target pace daily and close the R3,000 gap.`,
+    `1) Hit your daily capital pace and close the R3,000 gap.`,
     `2) Complete DS validator/ads/prompt targets before adding new ideas.`,
     `3) Protect sleep, study blocks, and gym consistency as non-negotiables.`
   ];
@@ -3296,6 +3351,238 @@ async function loadCleanDeskOps(){
   renderSupplierSummary(ops.suppliers);
 }
 
+// ── GO-LIVE CHECKLIST ───────────────────────────────────────────
+const GL_PHASES=[
+  {
+    id:'p1',title:'Foundation',week:'Week 1',tasks:[
+      'Agree on store name',
+      'Create Shopify account — use $1/3-month trial',
+      'Purchase domain on Namecheap (~R200)',
+      'Connect domain to Shopify store',
+      'Install CJ Dropshipping app on Shopify',
+      'Install DSers on Shopify',
+      'Create Klaviyo account and connect to Shopify',
+      'Create store TikTok account',
+      'Create store Instagram account',
+      'Both partners confirm R1,750 each is liquid and accessible'
+    ]
+  },
+  {
+    id:'p2',title:'Product & Supplier Setup',week:'Week 2',tasks:[
+      'Search CJ Dropshipping for cable management kit — shortlist top 2 US warehouse suppliers',
+      'Search CJ Dropshipping for XL desk mat — shortlist top 2 US warehouse suppliers',
+      'Order 2 samples from each supplier (4 orders total, ~R800 split)',
+      'Contact CJ agent and request bundle SKU creation',
+      'Confirm US warehouse availability for both products',
+      'Begin building Shopify store using free Dawn or Refresh theme'
+    ]
+  },
+  {
+    id:'p3',title:'Store Build',week:'Week 2–3',tasks:[
+      'Install free Shopify theme (Dawn recommended)',
+      'Build Clean Desk Bundle product listing plus 2 standalone listings',
+      'Add product page copy into Shopify',
+      'Add trust badges — secure checkout, free shipping, 30-day guarantee',
+      'Set up 30-day returns policy (keep product, full refund)',
+      'Set up FAQ page',
+      'Connect Stripe as primary payment processor',
+      'Connect PayPal Business as second payment processor',
+      'Set up all 3 Klaviyo email flows (pre-launch, abandoned cart, post-purchase)',
+      'Add email capture popup with 10% discount offer',
+      'Install Facebook Pixel',
+      'Install TikTok Pixel'
+    ]
+  },
+  {
+    id:'p4',title:'Sample Testing',week:'Week 3',tasks:[
+      'Test cable adhesive clips on wood desk surface',
+      'Test cable adhesive clips on glass desk surface',
+      'Test desk mat stitching along all edges',
+      'Test desk mat non-slip base',
+      'Test desk mat size against standard desk',
+      'Photograph unboxing experience as a customer would',
+      'Score all 4 suppliers on quality, shipping, packaging, communication',
+      'Select primary cable kit supplier',
+      'Select primary desk mat supplier',
+      'Confirm bundle SKU is live with CJ agent'
+    ]
+  },
+  {
+    id:'p5',title:'Content Creation',week:'Week 3–4',tasks:[
+      'Film Script 1 — The Transformation Hook',
+      'Film Script 2 — The Productivity Hook',
+      'Film Script 3 — The Social Proof Hook',
+      'Edit all 3 videos in CapCut with text overlays and captions',
+      'Post first video on TikTok immediately',
+      'Post second video 24–48 hours later',
+      'Post third video 24–48 hours after that',
+      'Commit to 1–2 organic videos per day going forward'
+    ]
+  },
+  {
+    id:'p6',title:'Go Live',week:'Week 4',tasks:[
+      'Remove Shopify password page — store is live',
+      'Activate pre-launch Klaviyo email flow',
+      'Send launch announcement to email list',
+      'Continue daily TikTok content',
+      'Respond to every comment and DM',
+      'Begin weekly Friday P&L review with Ntobeko',
+      'Watch ROAS — organic only until one video hits 5,000+ views',
+      'When 5,000+ views hit — run best organic video as first paid ad at R500 budget'
+    ]
+  }
+];
+
+function getGoLiveChecklistState(){
+  try{
+    const s=localStorage.getItem('cleandesk_checklist');
+    return s?JSON.parse(s):{};
+  }catch(e){return{};}
+}
+
+function saveGoLiveChecklistState(state){
+  try{localStorage.setItem('cleandesk_checklist',JSON.stringify(state));}catch(e){}
+}
+
+function renderGoLiveChecklist(){
+  const container=document.getElementById('gl-phases');
+  const state=getGoLiveChecklistState();
+  container.innerHTML='';
+  
+  GL_PHASES.forEach(phase=>{
+    const phaseEl=document.createElement('div');
+    phaseEl.className='gl-phase open';
+    phaseEl.id='glp-'+phase.id;
+    
+    let tasksHtml='';
+    phase.tasks.forEach((task,idx)=>{
+      const taskId=phase.id+'_'+idx;
+      const isChecked=state[taskId]||false;
+      tasksHtml+=`<div class="gl-task">
+        <input type="checkbox" id="${taskId}" ${isChecked?'checked':''}
+          onchange="toggleGoLiveTask('${taskId}',this.checked)">
+        <label for="${taskId}">${task}</label>
+        <span class="gl-checkmark">✓</span>
+      </div>`;
+    });
+    
+    phaseEl.innerHTML=`
+      <div class="gl-phase-header" onclick="togglePhase('glp-${phase.id}')">
+        <div class="gl-phase-header-left">
+          <span class="gl-phase-badge">${phase.week}</span>
+          <span class="gl-phase-title">${phase.title}</span>
+        </div>
+        <div class="gl-phase-toggle">▼</div>
+      </div>
+      <div class="gl-phase-content">${tasksHtml}</div>
+    `;
+    
+    container.appendChild(phaseEl);
+  });
+  
+  updateGoLiveProgress();
+}
+
+function togglePhase(phaseId){
+  const el=document.getElementById(phaseId);
+  el.classList.toggle('open');
+}
+
+function toggleGoLiveTask(taskId,checked){
+  const state=getGoLiveChecklistState();
+  state[taskId]=checked;
+  saveGoLiveChecklistState(state);
+  updateGoLiveProgress();
+}
+
+function updateGoLiveProgress(){
+  const state=getGoLiveChecklistState();
+  let totalTasks=0;
+  let completedTasks=0;
+  
+  GL_PHASES.forEach(phase=>{
+    phase.tasks.forEach((task,idx)=>{
+      const taskId=phase.id+'_'+idx;
+      totalTasks++;
+      if(state[taskId])completedTasks++;
+    });
+  });
+  
+  const remaining=totalTasks-completedTasks;
+  const pct=totalTasks>0?Math.round((completedTasks/totalTasks)*100):0;
+  
+  document.getElementById('gl-done').textContent=completedTasks;
+  document.getElementById('gl-left').textContent=remaining;
+  document.getElementById('gl-pct').textContent=pct+'%';
+  document.getElementById('gl-bar').style.width=pct+'%';
+}
+
+function resetGoLiveChecklist(){
+  if(confirm('Are you sure? This will reset all checklist progress.')){
+    saveGoLiveChecklistState({});
+    renderGoLiveChecklist();
+  }
+}
+
+async function loadGoLiveChecklist(){
+  renderGoLiveChecklist();
+}
+
+// ── ACCESS CONTROL ───────────────────────────────────────────────
+function bindAuthInputs(){
+  const email=document.getElementById("authEmail");
+  const pass=document.getElementById("authPassword");
+  [email,pass].forEach(el=>{
+    if(!el)return;
+    el.addEventListener("keydown",(e)=>{
+      if(e.key==="Enter")unlockDashboard();
+    });
+  });
+}
+
+function unlockDashboard(){
+  const email=(document.getElementById("authEmail")?.value||"").trim();
+  const password=document.getElementById("authPassword")?.value||"";
+  const err=document.getElementById("authError");
+  if(email.toLowerCase()!==AUTH_EMAIL.toLowerCase()||password!==AUTH_PASSWORD){
+    if(err){
+      err.textContent="Invalid email or password.";
+      err.style.display="block";
+    }
+    return;
+  }
+  if(err)err.style.display="none";
+  try{sessionStorage.setItem(AUTH_SESSION_KEY,"1");}catch(e){}
+  startDashboard();
+}
+
+function startDashboard(){
+  if(dashboardStarted)return;
+  dashboardStarted=true;
+  const auth=document.getElementById("authOverlay");
+  const app=document.getElementById("appRoot");
+  const loader=document.getElementById("loadingOverlay");
+  if(auth)auth.style.display="none";
+  if(app)app.style.display="block";
+  if(loader)loader.style.display="flex";
+  init();
+}
+
+function boot(){
+  initTheme();
+  bindAuthInputs();
+  const auth=document.getElementById("authOverlay");
+  const email=document.getElementById("authEmail");
+  let hasSession=false;
+  try{hasSession=sessionStorage.getItem(AUTH_SESSION_KEY)==="1";}catch(e){}
+  if(hasSession){
+    startDashboard();
+    return;
+  }
+  if(auth)auth.style.display="flex";
+  if(email)email.focus();
+}
+
 // ── INIT ───────────────────────────────────────────────────────
 async function safeLoad(fn){try{await fn();}catch(e){}}
 
@@ -3323,6 +3610,7 @@ async function init(){
       safeLoad(loadABMilestones),
       safeLoad(loadCleanDeskContext),
       safeLoad(loadCleanDeskOps),
+      safeLoad(loadGoLiveChecklist),
       safeLoad(loadFinance),
       safeLoad(loadAgentTasks),
       safeLoad(loadAgentAutopilot),
@@ -3337,7 +3625,7 @@ async function init(){
   }
   document.getElementById("loadingOverlay").style.display="none";
 }
-init();
+boot();
 </script>
 </body>
 </html>
