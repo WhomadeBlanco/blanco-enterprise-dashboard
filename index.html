@@ -3625,20 +3625,52 @@ function bindAuthInputs(){
   });
 }
 
-function unlockDashboard(){
+async function unlockDashboard(){
   const email=(document.getElementById("authEmail")?.value||"").trim();
   const password=document.getElementById("authPassword")?.value||"";
   const err=document.getElementById("authError");
-  if(email.toLowerCase()!==AUTH_EMAIL.toLowerCase()||password!==AUTH_PASSWORD){
+  
+  if(!email||!password){
     if(err){
-      err.textContent="Invalid email or password.";
+      err.textContent="Email and password are required.";
       err.style.display="block";
     }
     return;
   }
-  if(err)err.style.display="none";
-  try{sessionStorage.setItem(AUTH_SESSION_KEY,"1");}catch(e){}
-  startDashboard();
+  
+  try{
+    // Authenticate with Supabase Auth
+    const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
+    
+    if(error){
+      console.error('❌ Supabase auth error:', error.message);
+      if(err){
+        err.textContent = error.message || "Invalid email or password.";
+        err.style.display="block";
+      }
+      return;
+    }
+    
+    if(!data.user){
+      console.error('❌ No user returned from Supabase auth');
+      if(err){
+        err.textContent = "Authentication failed. Please try again.";
+        err.style.display="block";
+      }
+      return;
+    }
+    
+    console.log('✅ Authenticated with Supabase:', data.user.id);
+    if(err)err.style.display="none";
+    try{sessionStorage.setItem(AUTH_SESSION_KEY,"1");}catch(e){}
+    startDashboard();
+  } catch(e){
+    console.error('❌ Unexpected error during auth:', e);
+    if(err){
+      err.textContent = "An unexpected error occurred. Please try again.";
+      err.style.display="block";
+    }
+  }
 }
 
 function startDashboard(){
