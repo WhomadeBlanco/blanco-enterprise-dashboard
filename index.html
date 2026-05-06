@@ -257,6 +257,9 @@ select option{background:var(--surface2);}
 .auth-sub{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;}
 .auth-err{display:none;margin-top:8px;font-size:11px;color:var(--red-t);}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config/env.js"></script>
+<script src="dashboard-auth-fix.js"></script>
 </head>
 <body>
 
@@ -1404,8 +1407,10 @@ select option{background:var(--surface2);}
 
 <script>
 // ── CLOUD STORAGE (SUPABASE) ───────────────────────────────────
-const SUPABASE_URL = "https://romytadgdnpphqzlseaa.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvbXl0YWRnZG5wcGhxemxzZWFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0ODgzMzQsImV4cCI6MjA5MTA2NDMzNH0.ZlWcUjxGnOA-MGrmNz-GBsodxlcmaFTtJRvaadILHOA";
+// Load credentials from config/env.js
+const ESTATE_ENV = window.__ESTATE_ENV || {};
+const SUPABASE_URL = ESTATE_ENV.SUPABASE_URL || "https://ribmywnovgzsmtuaxgrn.supabase.co";
+const SUPABASE_KEY = ESTATE_ENV.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpYm15d25vdmd6c210dWF4Z3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNjc0OTEsImV4cCI6MjA5MzY0MzQ5MX0.cIOgXx-8T_evKrDVvH6f4O-55RgusS1wKxso0xstLjs";
 const DATA_TABLE = "tshego_estate";
 const DATA_TABLE_PATH = "tshego_estate";
 const USER_ID = "tshego-estate-data";
@@ -1413,6 +1418,8 @@ const AUTH_EMAIL = "Mabenat791@gmail.com";
 const AUTH_PASSWORD = "Blanco@213#";
 const AUTH_SESSION_KEY = "be_auth_session";
 
+let sbClient = null;
+let authSession = null;
 let syncEnabled = false;
 let cloudLoaded = false;
 let cloudState = {};
@@ -1421,6 +1428,16 @@ let saveTimer = null;
 let pollTimer = null;
 let isSyncing = false;
 let dashboardStarted = false;
+
+// Initialize Supabase client
+if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
+  try {
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  } catch (err) {
+    console.error('Supabase client initialization failed:', err);
+    sbClient = null;
+  }
+}
 
 const SB_HEADERS = {
   apikey: SUPABASE_KEY,
@@ -3633,6 +3650,15 @@ function startDashboard(){
   if(auth)auth.style.display="none";
   if(app)app.style.display="block";
   if(loader)loader.style.display="flex";
+  
+  // Load user-scoped dashboard data via Supabase auth
+  if (window.DashboardAuth && sbClient) {
+    window.DashboardAuth.completeAuthAndLoadDashboard().catch(err => {
+      console.error('Dashboard auth flow failed:', err.message);
+      // Continue with dashboard anyway using localStorage
+    });
+  }
+  
   init();
 }
 
