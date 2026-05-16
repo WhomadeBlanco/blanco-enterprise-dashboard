@@ -1470,11 +1470,14 @@ async function ensureAuth(){
     try { sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e){ console.error('sbClient init failed', e); return false; }
   }
   try{
-    const { data, error } = await sbClient.auth.signInWithPassword({ email: AUTH_EMAIL, password: AUTH_PASSWORD });
-    if (error || !data) { console.error('Supabase signIn error', error); return false; }
-    const session = data.session || data;
-    saveAuthSession(session);
-    return true;
+    // Use existing authenticated session only; do not silently switch users.
+    const { data, error } = await sbClient.auth.getSession();
+    if (error || !data || !data.session) {
+      console.error('Supabase getSession error', error);
+      return false;
+    }
+    saveAuthSession(data.session);
+    return !!(authSession && (authSession.access_token || authSession.accessToken));
   }catch(e){ console.error('ensureAuth error', e); return false; }
 }
 
@@ -1482,7 +1485,6 @@ function buildSBHeaders(){
   const headers = { apikey: SUPABASE_KEY };
   const token = authSession && (authSession.access_token || authSession.accessToken || authSession?.accessToken);
   if (token) headers.Authorization = `Bearer ${token}`;
-  else headers.Authorization = `Bearer ${SUPABASE_KEY}`;
   return headers;
 }
 
@@ -1605,6 +1607,12 @@ async function cSet(key,val){
 
 async function refreshFromCloudIfChanged(){
   if (!syncEnabled || isSyncing) return;
+  const okAuth = await ensureAuth();
+  if (!okAuth) {
+    syncEnabled = false;
+    setSyncStatus("err");
+    return;
+  }
   try{
     const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=content,updated_at&limit=1`;
     const res = await fetch(url, { headers: buildSBHeaders() });
