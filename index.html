@@ -3723,8 +3723,10 @@ async function unlockDashboard(){
     }
     
     console.log('✅ Authenticated with Supabase:', data.user.id);
+    if (data.session) {
+      saveAuthSession(data.session);
+    }
     if(err)err.style.display="none";
-    try{sessionStorage.setItem(AUTH_SESSION_KEY,"1");}catch(e){}
     startDashboard();
   } catch(e){
     console.error('❌ Unexpected error during auth:', e);
@@ -3756,14 +3758,20 @@ function startDashboard(){
   init();
 }
 
-function boot(){
+async function boot(){
   initTheme();
   bindAuthInputs();
   const auth=document.getElementById("authOverlay");
   const email=document.getElementById("authEmail");
-  let hasSession=false;
-  try{hasSession=sessionStorage.getItem(AUTH_SESSION_KEY)==="1";}catch(e){}
-  if(hasSession){
+  // Prefer stored Supabase session before prompting for login.
+  loadAuthSession();
+  if ((!authSession || !authSession.access_token) && sbClient) {
+    try {
+      const { data } = await sbClient.auth.getSession();
+      if (data && data.session) saveAuthSession(data.session);
+    } catch (e) {}
+  }
+  if(authSession && authSession.access_token){
     startDashboard();
     return;
   }
