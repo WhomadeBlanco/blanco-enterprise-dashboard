@@ -1463,29 +1463,29 @@ function loadAuthSession(){
 }
 
 async function ensureAuth(){
-  // Return true if we already have a session token
-  if (authSession && (authSession.access_token || authSession.accessToken)) return true;
   loadAuthSession();
-  if (authSession && (authSession.access_token || authSession.accessToken)) return true;
   if (!sbClient) {
     try { sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e){ console.error('sbClient init failed', e); return false; }
   }
   try{
-    // Use existing authenticated session only; do not silently switch users.
+    // Always refresh from Supabase so REST requests have a valid JWT.
     const { data, error } = await sbClient.auth.getSession();
     if (error || !data || !data.session) {
       console.error('Supabase getSession error', error);
-      return false;
+      return !!(authSession && (authSession.access_token || authSession.accessToken));
     }
     saveAuthSession(data.session);
     return !!(authSession && (authSession.access_token || authSession.accessToken));
-  }catch(e){ console.error('ensureAuth error', e); return false; }
+  }catch(e){
+    console.error('ensureAuth error', e);
+    return !!(authSession && (authSession.access_token || authSession.accessToken));
+  }
 }
 
 function buildSBHeaders(){
   const headers = { apikey: SUPABASE_KEY };
   const token = authSession && (authSession.access_token || authSession.accessToken || authSession?.accessToken);
-  if (token) headers.Authorization = `Bearer ${token}`;
+  headers.Authorization = `Bearer ${token || SUPABASE_KEY}`;
   return headers;
 }
 
