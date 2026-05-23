@@ -1417,6 +1417,7 @@ const SUPABASE_URL = ESTATE_ENV.SUPABASE_URL || "https://ribmywnovgzsmtuaxgrn.su
 const SUPABASE_KEY = ESTATE_ENV.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpYm15d25vdmd6c210dWF4Z3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNjc0OTEsImV4cCI6MjA5MzY0MzQ5MX0.cIOgXx-8T_evKrDVvH6f4O-55RgusS1wKxso0xstLjs";
 const DATA_TABLE = "personal_items";
 const DATA_TABLE_PATH = "personal_items";
+const DEFAULT_DASHBOARD_KEY = "blanco-enterprise-dashboard";
 let USER_ID = "b87f5fb4-6327-40f1-84b1-94d06e49262d";
 const AUTH_SESSION_KEY = "be_auth_session";
 
@@ -1430,6 +1431,20 @@ let saveTimer = null;
 let pollTimer = null;
 let isSyncing = false;
 let dashboardStarted = false;
+
+function getDashboardKeyForSync(){
+  try{
+    const st = window.DashboardAuth && window.DashboardAuth.getState ? window.DashboardAuth.getState() : null;
+    return (st && st.selectedDashboardKey) ? st.selectedDashboardKey : DEFAULT_DASHBOARD_KEY;
+  }catch(e){
+    return DEFAULT_DASHBOARD_KEY;
+  }
+}
+
+function buildDataTableQuery(){
+  const key = getDashboardKeyForSync();
+  return `${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&dashboard_key=eq.${encodeURIComponent(key)}`;
+}
 
 // Initialize Supabase client
 if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
@@ -1509,7 +1524,7 @@ async function ensureSyncReady(){
     // Ensure we have a valid user JWT for RLS-protected requests
     const okAuth = await ensureAuth();
     if (!okAuth) { syncEnabled = false; return false; }
-    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=updated_at&limit=1`;
+    const url = `${SUPABASE_URL}/rest/v1/${buildDataTableQuery()}&select=updated_at&limit=1`;
     const res = await withTimeout(fetch(url, { headers: buildSBHeaders() }), 7000);
     if (!res.ok) throw new Error(`Supabase ${res.status}`);
     syncEnabled = true;
@@ -1524,7 +1539,7 @@ async function ensureSyncReady(){
 async function pullCloudState(){
   if (!(await ensureSyncReady())) return false;
   try{
-    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=content,updated_at&limit=1`;
+    const url = `${SUPABASE_URL}/rest/v1/${buildDataTableQuery()}&select=content,updated_at&limit=1`;
     const res = await withTimeout(fetch(url, { headers: buildSBHeaders() }), 7000);
     if (!res.ok){
       const txt = await res.text().catch(()=>null);
@@ -1549,8 +1564,8 @@ async function pushCloudState(){
   isSyncing = true;
   setSyncStatus("saving");
   try{
-    const body = { content: cloudState, updated_at: new Date().toISOString() };
-    const patchUrl = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}`;
+    const body = { content: cloudState, updated_at: new Date().toISOString(), dashboard_key: getDashboardKeyForSync() };
+    const patchUrl = `${SUPABASE_URL}/rest/v1/${buildDataTableQuery()}`;
     const patchRes = await withTimeout(fetch(patchUrl, {
       method: "PATCH",
       headers: { ...buildSBHeaders(), "Content-Type": "application/json", Prefer: "return=representation" },
@@ -1615,7 +1630,7 @@ async function refreshFromCloudIfChanged(){
     return;
   }
   try{
-    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=content,updated_at&limit=1`;
+    const url = `${SUPABASE_URL}/rest/v1/${buildDataTableQuery()}&select=content,updated_at&limit=1`;
     const res = await fetch(url, { headers: buildSBHeaders() });
     if (!res.ok){
       const txt = await res.text().catch(()=>null);
