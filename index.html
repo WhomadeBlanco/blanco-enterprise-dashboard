@@ -282,7 +282,7 @@ select option{background:var(--surface2);}
 </div>
 
 <div class="app" id="appRoot" style="display:none;">
-<div class="hdr">
+<header class="hdr">
   <div class="hdr-top">
     <div><div class="brand">BLANCO ENTERPRISE</div><div class="brand-tag">Enterprise Operating System</div></div>
     <div class="dt-block">
@@ -300,9 +300,9 @@ select option{background:var(--surface2);}
     <div class="pill b">Age 19 → Empire</div>
     <div class="pill g" id="c63pill">– days to C63</div>
   </div>
-</div>
+</header>
 
-<div class="nav">
+<nav class="nav" aria-label="Dashboard sections">
   <button class="nb on" onclick="nav('brief',this)">Brief</button>
   <button class="nb" onclick="nav('goals',this)">Goals</button>
   <button class="nb" onclick="nav('roadmap',this)">Roadmap</button>
@@ -316,10 +316,12 @@ select option{background:var(--surface2);}
   <button class="nb" onclick="nav('school',this)">School</button>
   <button class="nb" onclick="nav('gym',this)">Gym</button>
   <button class="nb" onclick="nav('timetable',this)">Timetable</button>
-</div>
+</nav>
+
+<main id="panels">
 
 <!-- BRIEF -->
-<div class="pnl on" id="pnl-brief">
+<div class="pnl on" id="pnl-brief" data-panel="brief">
   <div class="card">
     <div class="ct">ENTERPRISE SNAPSHOT <small>Live operating pulse</small></div>
     <div class="estate-grid">
@@ -380,7 +382,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- GOALS -->
-<div class="pnl" id="pnl-goals">
+<div class="pnl" id="pnl-goals" data-panel="goals">
   <div class="card">
     <div class="ct">YOUR GOALS <small>Every decision runs through these</small></div>
     <div class="qb">"Some may call it delusion. That's where I see it." — You, March 2026. Hold that.</div>
@@ -430,7 +432,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- ROADMAP -->
-<div class="pnl" id="pnl-roadmap">
+<div class="pnl" id="pnl-roadmap" data-panel="roadmap">
   <div class="card"><div class="ct">BLANCO ENTERPRISE ROADMAP <small>UJ Student → Global Empire</small></div><div class="note">This roadmap is sequence-first: earn, build, scale, then institutionalize legacy. Execute each stage fully before forcing the next one.</div></div>
   <div class="phase-block active-phase"><div class="phase-tag">YOU ARE HERE</div><div class="phase-num">Stage 0 — Right Now</div><div class="phase-title">FOUNDATION CASHFLOW ENGINE (UBER EATS)</div><div class="phase-goal"><strong style="color:var(--text)">Context:</strong> 19-year-old University of Johannesburg student building from zero.<br><br><strong style="color:var(--text)">Primary objective:</strong> Complete bike license, start Uber Eats deliveries, and build your R3,000 share of startup capital.<br><br><strong style="color:var(--text)">Support objective:</strong> Uber Eats also funds upkeep (haircuts, hygiene, gym, clothing, campus transport, school lunch).<br><br><strong style="color:var(--text)">Exit condition:</strong> Bike license active + R3,000 ready for deployment.</div></div>
   <div class="phase-block"><div class="phase-tag">Next</div><div class="phase-num">Stage 1 — Venture Engine</div><div class="phase-title">AI COMMERCE DROPSHIPPING (50/50 PARTNERSHIP)</div><div class="phase-goal"><strong style="color:var(--text)">Business structure:</strong> Build dropshipping venture with Ntobeko Masemula (50/50 setup).<br><br><strong style="color:var(--text)">Primary objective:</strong> Turn delivery-funded capital into profitable online cashflow.<br><br><strong style="color:var(--text)">Strategic role:</strong> Profits from dropshipping become the first funding stream for Atelier Blanco Fashion House.</div></div>
@@ -580,7 +582,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- LIFE -->
-<div class="pnl" id="pnl-life">
+<div class="pnl" id="pnl-life" data-panel="life">
   <div class="card">
     <div class="ct">LIFE SCORE <small>Rate yourself 1–10</small></div>
     <div class="lsg">
@@ -618,7 +620,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- TRACKER -->
-<div class="pnl" id="pnl-tracker">
+<div class="pnl" id="pnl-tracker" data-panel="tracker">
   <div class="card"><div class="ct">NOW <small>Mission-critical this week</small></div>
     <div class="trk-head">Cashflow + execution</div>
     <div class="mg">
@@ -687,7 +689,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- FINANCE -->
-<div class="pnl" id="pnl-finance">
+<div class="pnl" id="pnl-finance" data-panel="finance">
   <div class="card">
     <div class="ct">FINANCE HQ <small>Runway · burn · control</small></div>
     <div class="mg3">
@@ -723,7 +725,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- AGENTS -->
-<div class="pnl" id="pnl-agents">
+<div class="pnl" id="pnl-agents" data-panel="agents">
   <div class="card">
     <div class="ct">AGENT CONSOLE <small>Delegate and monitor</small></div>
     <div class="agent-list">
@@ -777,7 +779,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- CHECKIN -->
-<div class="pnl" id="pnl-checkin">
+<div class="pnl" id="pnl-checkin" data-panel="checkin">
   <div class="card">
     <div class="ct">DAILY NON-NEGOTIABLES <small>Tap to mark done</small></div>
     <div class="cs">Body</div>
@@ -822,7 +824,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- JOURNAL -->
-<div class="pnl" id="pnl-journal">
+<div class="pnl" id="pnl-journal" data-panel="journal">
   <div class="card">
     <div class="ct">DAILY JOURNAL <small>Your private record</small></div>
     <div class="note" style="margin-bottom:11px;">The man building the empire needs to know himself. Write freely.</div>
@@ -842,7 +844,7 @@ select option{background:var(--surface2);}
 </div>
 
 <!-- FEED -->
-<div class="pnl" id="pnl-feed">
+<div class="pnl" id="pnl-feed" data-panel="feed">
   <div class="card">
     <div class="ct">WHAT TO CONSUME TODAY <small>Phase 0 — Pre Launch</small></div>
     <div class="fi"><div class="fc">Product Research</div><div class="ft">TikTok Creative Center — daily non-negotiable</div><div class="fd">ads.tiktok.com/business/creativecenter — best performing filter. One niche. 5 hooks written word for word. Every single day.</div></div>
@@ -859,7 +861,7 @@ select option{background:var(--surface2);}
   </div>
 </div>
 <!-- SCHOOL -->
-<div class="pnl" id="pnl-school">
+<div class="pnl" id="pnl-school" data-panel="school">
 
   <!-- MODULE TABS -->
   <div class="card">
@@ -975,7 +977,7 @@ select option{background:var(--surface2);}
 </div><!-- end school panel -->
 
 <!-- GYM -->
-<div class="pnl" id="pnl-gym">
+<div class="pnl" id="pnl-gym" data-panel="gym">
 
   <div class="card">
     <div class="ct">WORKOUT PLAN <small>Calisthenics · Build muscle & size · 6 days/week</small></div>
@@ -1205,7 +1207,7 @@ select option{background:var(--surface2);}
 .tt-leg-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;}
 </style>
 <!-- TIMETABLE -->
-<div class="pnl" id="pnl-timetable">
+<div class="pnl" id="pnl-timetable" data-panel="timetable">
   <div class="card">
     <div class="ct">WEEKLY TIMETABLE <small>Tweaked & fully allocated</small></div>
     <div class="tt-legend">
@@ -1398,6 +1400,7 @@ select option{background:var(--surface2);}
 
   </div>
 </div>
+</main>
 
 <div class="q-actions">
   <button class="qa-btn" onclick="quickAction('income')">+ income</button>
@@ -1415,8 +1418,6 @@ const SUPABASE_KEY = ESTATE_ENV.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cC
 const DATA_TABLE = "personal_items";
 const DATA_TABLE_PATH = "personal_items";
 let USER_ID = "b87f5fb4-6327-40f1-84b1-94d06e49262d";
-const AUTH_EMAIL = "Mabenat791@gmail.com";
-const AUTH_PASSWORD = "Spitjosaid213";
 const AUTH_SESSION_KEY = "be_auth_session";
 
 let sbClient = null;
@@ -1690,20 +1691,107 @@ function getAiErrorMessage(err){
   return msg||"Connection failed.";
 }
 
-function localBriefResponse(){
-  return `ASSESSMENT: You are moving, but inconsistent execution is still slowing momentum. Win today by finishing high-value blocks, not just starting them.
+function parseSection(prompt, startLabel, endLabel){
+  if(!prompt)return"";
+  const startIndex=prompt.indexOf(startLabel);
+  if(startIndex<0)return"";
+  const from=startIndex+startLabel.length;
+  const endIndex=endLabel?prompt.indexOf(endLabel, from):-1;
+  const chunk=endIndex>=0?prompt.slice(from, endIndex):prompt.slice(from);
+  return chunk.trim();
+}
 
-BUSINESS (top 3 — must be different from last 3 days):
-1. 07:30–08:15 — Validate one CleanDesk product angle and write your decision (45 min).
-2. 13:30–14:15 — Build or improve one product page section (45 min).
-3. 19:30–20:15 — Create one ad script + one creative concept and save both (45 min).
+function pickBusinessSlots(slots){
+  const isBusiness=slot=>{
+    const s=slot.toLowerCase();
+    return s.includes("dropshipping")||s.includes(" ds ")||s.includes("ds ")||s.includes(" ds")||s.includes("creative — ds")||s.includes("ds block")||s.includes("dropshipping block")||s.includes("weekly review");
+  };
+  const isBlocked=slot=>{
+    const s=slot.toLowerCase();
+    return s.includes("class")||s.includes("gym")||s.includes("prayer")||s.includes("proverbs")||s.includes("breakfast")||s.includes("dinner")||s.includes("reading")||s.includes("sleep")||s.includes("walk")||s.includes("church")||s.includes("leisure")||s.includes("reflection")||s.includes("journal")||s.includes("commute")||s.includes("atelier blanco");
+  };
+  const business=slots.filter(isBusiness);
+  if(business.length>=3)return business.slice(0,3);
+  const open=slots.filter(s=>!isBlocked(s));
+  if(open.length>=3)return open.slice(0,3);
+  return slots.slice(0,3);
+}
 
-BODY: Hit full session intensity in your next gym block and complete your protein target.
-MIND: 10-minute reset walk + 5-minute written focus plan before your evening work block.
-SPIRIT: Prayer + one Proverbs chapter before first deep work block.
+function pickTaskTypes(gaps, taskHist, count){
+  const gapToTypes={
+    capital:["capital","supplier"],
+    products:["validate","supplier"],
+    ads:["ads","scripts"],
+    prompts:["prompts","scripts"],
+    swipe:["swipe","ads"],
+    general:["validate","supplier","scripts","prompts","swipe","ads"]
+  };
+  const chosen=[];
+  const getCount=t=>taskHist[t]||0;
+  gaps.forEach(gap=>{
+    const types=(gapToTypes[gap]||gapToTypes.general).filter(t=>!chosen.includes(t));
+    types.sort((a,b)=>getCount(a)-getCount(b));
+    types.forEach(t=>{if(chosen.length<count && !chosen.includes(t))chosen.push(t);});
+  });
+  if(chosen.length<count){
+    const fallback=gapToTypes.general.filter(t=>!chosen.includes(t)).sort((a,b)=>getCount(a)-getCount(b));
+    fallback.forEach(t=>{if(chosen.length<count)chosen.push(t);});
+  }
+  return chosen.slice(0,count);
+}
 
-CONSUME TODAY: Watch one practical dropshipping breakdown and extract 3 actions to execute tonight.
-WATCH OUT FOR: Drifting into “planning” instead of shipping output.
+function localBriefResponse(prompt){
+  const timetableRaw=parseSection(prompt,"TODAY'S TIMETABLE (allocate tasks to these actual slots):","YOUR PROGRESS GAPS");
+  const gapsRaw=parseSection(prompt,"YOUR PROGRESS GAPS (prioritize these — behind on targets):","RECENT TASK HISTORY");
+  const taskHistRaw=parseSection(prompt,"RECENT TASK HISTORY (rotate away from these — avoid repetition):","ACTIVITY HISTORY");
+  const energyMatch=prompt&&prompt.match(/Energy:\s*([A-Za-z]+)/i);
+  const energy=(energyMatch&&energyMatch[1])?energyMatch[1].toLowerCase():"med";
+  const dayMatch=prompt&&prompt.match(/Daily brief for\s+([A-Za-z]+)/);
+  const dayName=dayMatch?dayMatch[1]:"Today";
+
+  const slots=timetableRaw?timetableRaw.split(" | ").map(s=>s.trim()).filter(Boolean):[];
+  const gaps=gapsRaw?gapsRaw.split(",").map(s=>s.trim()).filter(Boolean):["general"];
+  let taskHist={};
+  try{ if(taskHistRaw) taskHist=JSON.parse(taskHistRaw); }catch(e){ taskHist={}; }
+
+  const selectedSlots=pickBusinessSlots(slots);
+  const taskTypes=pickTaskTypes(gaps, taskHist, 3);
+  const taskText={
+    validate:"Validate one CleanDesk product angle and decide yes/no",
+    supplier:"Compare two CJ suppliers for the bundle and record cost/shipping",
+    scripts:"Write 2 ad scripts + 1 hook variant and save them",
+    prompts:"Create 5 creative prompts and save to prompt bank",
+    swipe:"Add 5 swipe file examples with notes",
+    ads:"Study 2 top ads and extract 3 hooks",
+    capital:"Update launch capital tracker and list the next R target"
+  };
+  const durations=["45 min","45 min","45 min"];
+  const tasks=taskTypes.map((t,i)=>{
+    const slot=selectedSlots[i]||selectedSlots[0]||"Open slot";
+    const action=taskText[t]||"Execute one high-impact business action";
+    const why=gaps[0]&&gaps[0]!=="general"?gaps[0]:"momentum";
+    return `${i+1}. ${slot} — ${action} (${durations[i]}). Why: ${why}`;
+  });
+
+  const assessment=gaps.includes("general")?`ASSESSMENT: You are moving, but the plan still needs sharper execution. Win today by finishing three clean outputs.`:
+    `ASSESSMENT: You are behind on ${gaps.join(", ")}. Today must close those gaps with focused execution.`;
+
+  const energyBody=energy==="low"?"Keep intensity steady and hit your protein target without skipping the session.":"Hit full session intensity and complete your protein target.";
+  const mindAction=energy==="high"?"5-minute plan + 10-minute deep focus block before your main business slot.":"10-minute reset walk + 5-minute written focus plan before your evening work block.";
+  const sabotageMap={Monday:"front-loading easy tasks",Tuesday:"drifting into planning",Wednesday:"skipping the mid-day block",Thursday:"slow starts after class",Friday:"ending early",Saturday:"low urgency",Sunday:"treating the day like a free pass"};
+  const sabotage=sabotageMap[dayName]||"drifting into planning instead of shipping output";
+
+  return `${assessment}
+
+BUSINESS (top 3 — different from last 3 days, targeting your gaps):
+${tasks.join("\n")}
+
+BODY: ${energyBody}
+MIND: ${mindAction}
+SPIRIT: Prayer + one Proverbs chapter before your first deep work block.
+
+CONSUME TODAY: Study one practical dropshipping breakdown and extract 3 actions to execute tonight.
+WATCH OUT FOR: ${sabotage}.
 C63 REMINDER: A real C63 timeline is built by finished tasks, not good intentions.`;
 }
 
@@ -1724,7 +1812,7 @@ function localGenericResponse(){
 }
 
 function localClaudeResponse(prompt){
-  if(prompt.includes("Format EXACTLY:"))return localBriefResponse();
+  if(prompt.includes("Format EXACTLY:"))return localBriefResponse(prompt);
   if(prompt.startsWith("Life check-in:"))return localLifeResponse();
   if(prompt.startsWith("Weekly check-in."))return localWeeklyResponse();
   if(prompt.startsWith("Stuck on or wants to learn:"))return localFeedResponse();
