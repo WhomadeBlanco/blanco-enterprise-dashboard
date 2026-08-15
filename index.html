@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Blanco Enterprise — Life OS</title>
-<link rel="icon" type="image/x-icon" href="/blanco-enterprise-dashboard/favicon.ico">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -59,6 +59,7 @@ body.dark{
 .sync-label{font-size:9px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;}
 .theme-btn{margin-top:7px;background:transparent;border:0.5px solid var(--border-b);color:var(--gold);border-radius:20px;padding:4px 10px;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;}
 .theme-btn:hover{background:var(--gold-bg);}
+.hdr-btns{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;}
 .pills{display:flex;gap:6px;flex-wrap:wrap;}
 .pill{font-size:9px;padding:3px 9px;border-radius:20px;border:0.5px solid var(--border-b);color:var(--gold);letter-spacing:0.1em;text-transform:uppercase;}
 .pill.b{border-color:rgba(91,155,213,0.35);color:var(--blue-t);}
@@ -207,7 +208,18 @@ select option{background:var(--surface2);}
   .estate-grid{grid-template-columns:repeat(2,1fr);}
   .pillar-grid{grid-template-columns:1fr;}
   .agent-list{grid-template-columns:1fr;}
-  .q-actions{display:flex;}
+  /* Was a floating column pinned bottom-right, which sat on top of the right
+     third of every card and clipped the text. Now a proper bottom bar. */
+  .q-actions{
+    display:flex;flex-direction:row;justify-content:space-around;align-items:center;
+    left:0;right:0;bottom:0;gap:4px;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+    background:var(--surface);border-top:0.5px solid var(--border);
+    box-shadow:0 -2px 12px rgba(0,0,0,0.08);
+  }
+  .qa-btn{flex:1;text-align:center;padding:9px 4px;font-size:9px;}
+  /* Keep the last card clear of the bar. */
+  main{padding-bottom:76px;}
 }
 /* SCHOOL */
 .mod-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;}
@@ -292,7 +304,10 @@ select option{background:var(--surface2);}
         <div class="sync-dot" id="syncDot"></div>
         <div class="sync-label" id="syncLabel">Loading...</div>
       </div>
-      <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">Dark mode</button>
+      <div class="hdr-btns">
+        <button class="theme-btn" id="themeBtn" type="button" aria-label="Toggle dark mode">Dark mode</button>
+        <button class="theme-btn" id="signOutBtn" type="button" aria-label="Sign out">Sign out</button>
+      </div>
     </div>
   </div>
   <div class="pills">
@@ -461,6 +476,12 @@ select option{background:var(--surface2);}
         <tr><td>XL Desk Mat (solo)</td><td>$28</td><td>~$7</td><td>~$21</td><td>75%</td></tr>
       </tbody>
     </table>
+    <div class="cd-grid" style="margin-top:12px;">
+      <div class="cd-card"><div class="cd-label">Milestones done</div><div class="cd-value" id="cd-done">0</div></div>
+      <div class="cd-card"><div class="cd-label">Milestones left</div><div class="cd-value" id="cd-left">0</div></div>
+      <div class="cd-card"><div class="cd-label">Status</div><div class="cd-value" id="cd-status">Not started</div></div>
+    </div>
+    <div class="cd-list" id="cd-checklist" style="margin-top:10px;"></div>
   </div>
   <div class="card">
     <div class="ct">GO-LIVE CHECKLIST <small>Launch sequence — do not skip steps</small></div>
@@ -1411,14 +1432,34 @@ select option{background:var(--surface2);}
 
 <script>
 // ── CLOUD STORAGE (SUPABASE) ───────────────────────────────────
-// Load credentials from config/env.js
+// Credentials come from config/env.js and nowhere else. There is deliberately
+// no hardcoded fallback: a misconfigured deploy should announce itself, not
+// quietly connect to whatever project was baked in at build time.
 const ESTATE_ENV = window.__ESTATE_ENV || {};
-const SUPABASE_URL = ESTATE_ENV.SUPABASE_URL || "https://ribmywnovgzsmtuaxgrn.supabase.co";
-const SUPABASE_KEY = ESTATE_ENV.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpYm15d25vdmd6c210dWF4Z3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNjc0OTEsImV4cCI6MjA5MzY0MzQ5MX0.cIOgXx-8T_evKrDVvH6f4O-55RgusS1wKxso0xstLjs";
+const SUPABASE_URL = ESTATE_ENV.SUPABASE_URL || "";
+const SUPABASE_KEY = ESTATE_ENV.SUPABASE_ANON_KEY || "";
+// Identifies this dashboard's row within the project. Everything the dashboard
+// stores is scoped by (user_id, dashboard_key), so one account can hold several
+// dashboards without them overwriting each other.
+const DASHBOARD_KEY = ESTATE_ENV.DASHBOARD_KEY || "blanco-enterprise-dashboard";
 const DATA_TABLE = "personal_items";
 const DATA_TABLE_PATH = "personal_items";
-let USER_ID = "b87f5fb4-6327-40f1-84b1-94d06e49262d";
+
+function envIsConfigured(){
+  return !!SUPABASE_URL && !!SUPABASE_KEY &&
+         !/^PASTE_/.test(SUPABASE_URL) && !/^PASTE_/.test(SUPABASE_KEY);
+}
+
+// The row this dashboard owns, as a PostgREST filter.
+function scopeFilter(){
+  return `user_id=eq.${encodeURIComponent(USER_ID)}&dashboard_key=eq.${encodeURIComponent(DASHBOARD_KEY)}`;
+}
+// Never fall back to a hardcoded id — an unknown user must re-authenticate
+// rather than silently read/write another account's row.
+let USER_ID = null;
 const AUTH_SESSION_KEY = "be_auth_session";
+// Refresh the access token this many ms before it actually expires.
+const TOKEN_REFRESH_MARGIN_MS = 60 * 1000;
 
 let sbClient = null;
 let authSession = null;
@@ -1429,10 +1470,38 @@ let lastCloudUpdatedAt = null;
 let saveTimer = null;
 let pollTimer = null;
 let isSyncing = false;
+let pendingPush = false;
+let pullPromise = null;
 let dashboardStarted = false;
 
+// Escape user-entered text before it goes into innerHTML.
+function esc(v){
+  if(v==null) return "";
+  return String(v).replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  })[c]);
+}
+
+// "YYYY-MM-DD" must be read as a LOCAL date. new Date("2026-08-11") parses as
+// UTC midnight, which is a day ahead of local midnight everywhere east of UTC.
+function parseLocalDate(value){
+  if(value instanceof Date) return value;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value||""));
+  if(m) return new Date(Number(m[1]), Number(m[2])-1, Number(m[3]));
+  return new Date(value);
+}
+
+// Whole days from local midnight today to the local date given.
+function daysUntil(value){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = parseLocalDate(value); due.setHours(0,0,0,0);
+  return Math.round((due - today) / 86400000);
+}
+
 // Initialize Supabase client
-if (window.supabase && SUPABASE_URL && SUPABASE_KEY) {
+if (!envIsConfigured()) {
+  console.error('config/env.js has not been filled in — set SUPABASE_URL and SUPABASE_ANON_KEY.');
+} else if (window.supabase) {
   try {
     sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   } catch (err) {
@@ -1462,24 +1531,93 @@ function loadAuthSession(){
   }catch(e){}
 }
 
+function sessionToken(s){
+  return s && (s.access_token || s.accessToken) || null;
+}
+
+// A token is only usable if it exists AND has not (nearly) expired.
+// Supabase access tokens last ~1 hour; without this check the dashboard
+// happily skips the login screen with a dead token and 401s on every call.
+function sessionIsFresh(s){
+  if(!sessionToken(s)) return false;
+  const expSec = s.expires_at || s.expiresAt || null;
+  if(!expSec) return true; // no expiry info — assume usable, refresh on 401
+  return (Number(expSec) * 1000) - Date.now() > TOKEN_REFRESH_MARGIN_MS;
+}
+
+function clearAuthSession(){
+  authSession = null;
+  USER_ID = null;
+  syncEnabled = false;
+  try{ localStorage.removeItem(AUTH_SESSION_KEY); }catch(e){}
+}
+
 async function ensureAuth(){
-  // Return true if we already have a session token
-  if (authSession && (authSession.access_token || authSession.accessToken)) return true;
-  loadAuthSession();
-  if (authSession && (authSession.access_token || authSession.accessToken)) return true;
+  if (sessionIsFresh(authSession)) return true;
+  if (!authSession) loadAuthSession();
+  if (sessionIsFresh(authSession)) return true;
+
   if (!sbClient) {
+    // Guard here too: this is a second place a client could be constructed, and
+    // without the check it would happily point at an unconfigured placeholder URL.
+    if (!envIsConfigured()) { console.error('config/env.js is not configured'); return false; }
+    if (!window.supabase) { console.error('Supabase library unavailable'); return false; }
     try { sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e){ console.error('sbClient init failed', e); return false; }
   }
+
   try{
+    // We have a token but it is expired (or nearly so) — refresh it rather than
+    // letting every subsequent request fail with a 401.
+    if (sessionToken(authSession)) {
+      const { data: rData, error: rErr } = await sbClient.auth.refreshSession();
+      if (!rErr && rData && rData.session) {
+        saveAuthSession(rData.session);
+        return true;
+      }
+      console.warn('Token refresh failed, falling back to stored session', rErr && rErr.message);
+    }
+
     // Use existing authenticated session only; do not silently switch users.
     const { data, error } = await sbClient.auth.getSession();
     if (error || !data || !data.session) {
       console.error('Supabase getSession error', error);
+      requireSignIn();
       return false;
     }
     saveAuthSession(data.session);
-    return !!(authSession && (authSession.access_token || authSession.accessToken));
+    return sessionIsFresh(authSession);
   }catch(e){ console.error('ensureAuth error', e); return false; }
+}
+
+// Drop back to the login overlay when the session can no longer be recovered.
+function requireSignIn(message){
+  clearAuthSession();
+  dashboardStarted = false;
+  clearInterval(pollTimer);
+  const app = document.getElementById("appRoot");
+  const auth = document.getElementById("authOverlay");
+  const loader = document.getElementById("loadingOverlay");
+  const err = document.getElementById("authError");
+  if(loader) loader.style.display = "none";
+  if(app) app.style.display = "none";
+  if(auth) auth.style.display = "flex";
+  if(err && message){ err.textContent = message; err.style.display = "block"; }
+  const email = document.getElementById("authEmail");
+  if(email) email.focus();
+}
+
+function bindSignOut(){
+  const btn=document.getElementById("signOutBtn");
+  if(btn && !btn.dataset.bound){ btn.dataset.bound="1"; btn.addEventListener("click", signOut); }
+}
+
+async function signOut(){
+  if(!confirm("Sign out of this dashboard?")) return;
+  try{ if(sbClient) await sbClient.auth.signOut(); }catch(e){}
+  const pass = document.getElementById("authPassword");
+  if(pass) pass.value = "";
+  cloudState = {}; cloudLoaded = false; pullPromise = null; lastCloudUpdatedAt = null;
+  requireSignIn();
 }
 
 function buildSBHeaders(){
@@ -1509,8 +1647,10 @@ async function ensureSyncReady(){
     // Ensure we have a valid user JWT for RLS-protected requests
     const okAuth = await ensureAuth();
     if (!okAuth) { syncEnabled = false; return false; }
-    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=updated_at&limit=1`;
+    if (!USER_ID) { syncEnabled = false; console.error('ensureSyncReady: no user id on session'); return false; }
+    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?${scopeFilter()}&select=updated_at&limit=1`;
     const res = await withTimeout(fetch(url, { headers: buildSBHeaders() }), 7000);
+    if (res.status === 401 || res.status === 403) { syncEnabled = false; requireSignIn("Your session expired. Please sign in again."); return false; }
     if (!res.ok) throw new Error(`Supabase ${res.status}`);
     syncEnabled = true;
     return true;
@@ -1524,7 +1664,7 @@ async function ensureSyncReady(){
 async function pullCloudState(){
   if (!(await ensureSyncReady())) return false;
   try{
-    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=content,updated_at&limit=1`;
+    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?${scopeFilter()}&select=content,updated_at&limit=1`;
     const res = await withTimeout(fetch(url, { headers: buildSBHeaders() }), 7000);
     if (!res.ok){
       const txt = await res.text().catch(()=>null);
@@ -1545,12 +1685,17 @@ async function pullCloudState(){
 
 async function pushCloudState(){
   if (!(await ensureSyncReady())) return false;
-  if (isSyncing) return false;
+  // A push landing mid-flight used to be dropped and never retried, so the
+  // edit only ever reached localStorage. Queue it instead.
+  if (isSyncing) { pendingPush = true; return false; }
   isSyncing = true;
   setSyncStatus("saving");
   try{
-    const body = { content: cloudState, updated_at: new Date().toISOString() };
-    const patchUrl = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}`;
+    // updated_at is deliberately NOT sent — a database trigger stamps it, so
+    // every row is timestamped by one clock rather than by whichever device
+    // happened to save last. The poller compares those timestamps.
+    const body = { content: cloudState };
+    const patchUrl = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?${scopeFilter()}`;
     const patchRes = await withTimeout(fetch(patchUrl, {
       method: "PATCH",
       headers: { ...buildSBHeaders(), "Content-Type": "application/json", Prefer: "return=representation" },
@@ -1566,7 +1711,7 @@ async function pushCloudState(){
       const postRes = await withTimeout(fetch(`${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}`, {
         method: "POST",
         headers: { ...buildSBHeaders(), "Content-Type": "application/json", Prefer: "return=representation" },
-        body: JSON.stringify({ user_id: USER_ID, ...body })
+        body: JSON.stringify({ user_id: USER_ID, dashboard_key: DASHBOARD_KEY, ...body })
       }), 7000);
       if (!postRes.ok){
         const txt = await postRes.text().catch(()=>null);
@@ -1585,16 +1730,28 @@ async function pushCloudState(){
     return false;
   }finally{
     isSyncing = false;
+    // Flush anything that was queued while this push was in flight.
+    if (pendingPush) { pendingPush = false; scheduleCloudPush(); }
   }
 }
 
 function scheduleCloudPush(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => { pushCloudState(); }, 700);
+  saveTimer = setTimeout(() => { saveTimer = null; pushCloudState(); }, 700);
+}
+
+// True while a local edit has not yet reached the server.
+function hasUnsavedChanges(){
+  return !!saveTimer || isSyncing || pendingPush;
 }
 
 async function cGet(key){
-  if (!cloudLoaded) await pullCloudState();
+  if (!cloudLoaded) {
+    // init() fires 15 loaders at once; without this they each kicked off their
+    // own pull (and their own 7s timeout) when the first one failed.
+    if (!pullPromise) pullPromise = pullCloudState().finally(() => { pullPromise = null; });
+    await pullPromise;
+  }
   if (Object.prototype.hasOwnProperty.call(cloudState, key)) return cloudState[key];
   return localGet(key);
 }
@@ -1608,6 +1765,9 @@ async function cSet(key,val){
 
 async function refreshFromCloudIfChanged(){
   if (!syncEnabled || isSyncing) return;
+  // Never overwrite cloudState while an edit is still on its way to the server —
+  // that merge used to silently discard whatever the user had just typed.
+  if (hasUnsavedChanges()) return;
   const okAuth = await ensureAuth();
   if (!okAuth) {
     syncEnabled = false;
@@ -1615,7 +1775,7 @@ async function refreshFromCloudIfChanged(){
     return;
   }
   try{
-    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?user_id=eq.${encodeURIComponent(USER_ID)}&select=content,updated_at&limit=1`;
+    const url = `${SUPABASE_URL}/rest/v1/${DATA_TABLE_PATH}?${scopeFilter()}&select=content,updated_at&limit=1`;
     const res = await fetch(url, { headers: buildSBHeaders() });
     if (!res.ok){
       const txt = await res.text().catch(()=>null);
@@ -1626,6 +1786,8 @@ async function refreshFromCloudIfChanged(){
     if (!rows || !rows.length) return;
     const changed = rows[0].updated_at && rows[0].updated_at !== lastCloudUpdatedAt;
     if (!changed) return;
+    // Re-check: an edit may have started while this request was in flight.
+    if (hasUnsavedChanges()) return;
     cloudState = (rows[0].content && typeof rows[0].content === "object") ? rows[0].content : {};
     lastCloudUpdatedAt = rows[0].updated_at || null;
     Object.keys(cloudState).forEach(k => localSet(k, cloudState[k]));
@@ -1633,7 +1795,11 @@ async function refreshFromCloudIfChanged(){
       safeLoad(loadMetrics), safeLoad(loadStreak), safeLoad(loadJournal),
       safeLoad(loadDeadlines), safeLoad(loadSessions), safeLoad(loadGym),
       safeLoad(loadBriefHistory), safeLoad(loadABMilestones), safeLoad(loadFinance),
-      safeLoad(loadAgentTasks), safeLoad(loadWeeklyReviews)
+      safeLoad(loadAgentTasks), safeLoad(loadWeeklyReviews),
+      // These were missing, so cross-device updates to them never showed
+      // until a full page reload.
+      safeLoad(loadCleanDeskContext), safeLoad(loadCleanDeskOps),
+      safeLoad(loadGoLiveChecklist)
     ]);
     setSyncStatus("live");
   }catch(e){}
@@ -1647,6 +1813,7 @@ function startCloudPolling(){
 function setSyncStatus(state){
   const dot=document.getElementById("syncDot");
   const lbl=document.getElementById("syncLabel");
+  if(!dot||!lbl)return;
   if(state==="live"){dot.className="sync-dot live";lbl.textContent="Synced";}
   else if(state==="saving"){dot.className="sync-dot saving";lbl.textContent="Saving...";}
   else if(state==="err"){dot.className="sync-dot err";lbl.textContent="Sync error";}
@@ -1912,10 +2079,10 @@ function renderBriefHistory(history){
   if(list)list.innerHTML=history.slice(0,10).map((h,idx)=>`
     <div style="background:var(--surface2);border-radius:8px;padding:9px 13px;margin-bottom:7px;border-left:2px solid var(--border-b);">
       <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;display:flex;justify-content:space-between;">
-        <span style="font-weight:500;color:var(--text);">${h.date}</span>
-        <span>${h.day}</span>
+        <span style="font-weight:500;color:var(--text);">${esc(h.date)}</span>
+        <span>${esc(h.day)}</span>
       </div>
-      <div style="font-size:12px;color:var(--text-muted);line-height:1.6;white-space:pre-wrap;">${h.summary||h.brief.substring(0,300)+"..."}</div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.6;white-space:pre-wrap;">${esc(h.summary||(h.brief||"").substring(0,300)+"...")}</div>
       <div class="item-actions">
         <button class="mini-btn" onclick="editBriefLog('${String(h.ts??idx)}')">Edit</button>
         <button class="mini-btn" onclick="deleteBriefLog('${String(h.ts??idx)}')">Delete</button>
@@ -1957,7 +2124,7 @@ function renderRecentActivity(history){
   const list=document.getElementById("recentActivityList");
   if(!history||!history.length){if(bar)bar.style.display="none";return;}
   if(bar)bar.style.display="block";
-  if(list)list.innerHTML=history.slice(0,7).map(h=>`<div><strong style="color:var(--text);">${h.date} (${h.day}):</strong> ${h.completed||"No tasks logged"}</div>`).join("");
+  if(list)list.innerHTML=history.slice(0,7).map(h=>`<div><strong style="color:var(--text);">${esc(h.date)} (${esc(h.day)}):</strong> ${esc(h.completed||"No tasks logged")}</div>`).join("");
 }
 
 function buildHistoryContext(history){
@@ -2250,8 +2417,8 @@ function renderFinance(f){
     const txns=(financeCache.txns||[]).slice(0,20);
     if(!txns.length)list.innerHTML='<div class="note">No transactions logged yet.</div>';
     else list.innerHTML=txns.map((t,idx)=>`<div class="txn-item ${t.type}">
-      <div class="txn-meta">${new Date(t.ts).toLocaleDateString("en-ZA")} · ${t.type.toUpperCase()}</div>
-      <div class="txn-title">${t.title||"Untitled"} · R${(t.amount||0).toLocaleString()}</div>
+      <div class="txn-meta">${new Date(t.ts).toLocaleDateString("en-ZA")} · ${esc(String(t.type||"").toUpperCase())}</div>
+      <div class="txn-title">${esc(t.title||"Untitled")} · R${(t.amount||0).toLocaleString()}</div>
       <div class="item-actions">
         <button class="mini-btn" onclick="editFinanceTxn('${String(t.id??t.ts??idx)}')">Edit</button>
         <button class="mini-btn" onclick="deleteFinanceTxn('${String(t.id??t.ts??idx)}')">Delete</button>
@@ -2344,8 +2511,8 @@ function renderAgentTasks(tasks){
   const active=document.getElementById("agActive");
   const done=document.getElementById("agDone");
   const mk=(t)=>`<div class="txn-item">
-    <div class="txn-meta">${t.agent} · ${t.priority} · ${new Date(t.ts).toLocaleDateString("en-ZA")} · ${t.auto?"AUTO":"MANUAL"}</div>
-    <div class="txn-title">${t.task}</div>
+    <div class="txn-meta">${esc(t.agent)} · ${esc(t.priority)} · ${new Date(t.ts).toLocaleDateString("en-ZA")} · ${t.auto?"AUTO":"MANUAL"}</div>
+    <div class="txn-title">${esc(t.task)}</div>
     <div class="item-actions">
       ${t.done?"" : `<button class="mini-btn" onclick="toggleAgentTask(${t.id})">Mark done</button>`}
       <button class="mini-btn" onclick="editAgentTask(${t.id})">Edit</button>
@@ -2497,7 +2664,7 @@ function buildAgentAutopilotOutputs(ctx){
   const now=Date.now();
   const pendingTasks=CLEANDESK_TASKS.filter(t=>!(cleandeskCtx?.done||{})[t.id]).slice(0,3);
   const dueSoon=(deadlines||[]).filter(d=>{
-    const diff=Math.ceil((new Date(d.date)-new Date())/(1000*60*60*24));
+    const diff=daysUntil(d.date);
     return diff>=0&&diff<=7;
   }).slice(0,2);
   const latestRoas=(cleandeskOps?.roas||[])[0];
@@ -2620,7 +2787,7 @@ function buildWeeklyReview(payload){
   const streakHits=(streak||[]).filter(s=>s.hit).length;
   const gymWeek=(gym?.sessions||[]).filter(s=>s.ts&&Date.now()-s.ts<=7*24*60*60*1000).length;
   const studyWeek=(sessions||[]).filter(s=>new Date(s.id)>=new Date(Date.now()-7*24*60*60*1000)).reduce((a,s)=>a+(s.dur||0),0);
-  const dueSoon=(deadlines||[]).filter(d=>{const diff=Math.ceil((new Date(d.date)-new Date())/(1000*60*60*24));return diff>=0&&diff<=7;}).length;
+  const dueSoon=(deadlines||[]).filter(d=>{const diff=daysUntil(d.date);return diff>=0&&diff<=7;}).length;
   const f=calcFinance(finance||{});
   const dsPct=Math.round((((m.prod||0)/10)+((m.ads||0)/50)+((m.prompts||1)/6)+((m.swipe||0)/30))/4*100);
   const lines=[
@@ -2665,7 +2832,7 @@ function renderWeeklyReviews(reviews){
   if(!reviews||!reviews.length){list.innerHTML='<div class="note">No weekly reviews yet.</div>';return;}
   list.innerHTML=reviews.slice(0,6).map(r=>`<div class="txn-item">
     <div class="txn-meta">${new Date(r.ts).toLocaleDateString("en-ZA")}</div>
-    <div class="txn-title" style="white-space:pre-wrap;">${r.summary.substring(0,240)}${r.summary.length>240?"...":""}</div>
+    <div class="txn-title" style="white-space:pre-wrap;">${esc((r.summary||"").substring(0,240))}${(r.summary||"").length>240?"...":""}</div>
     <div class="item-actions">
       <button class="mini-btn" onclick="editWeeklyReview(${r.id})">Edit</button>
       <button class="mini-btn" onclick="deleteWeeklyReview(${r.id})">Delete</button>
@@ -2778,9 +2945,9 @@ function renderJournal(entries){
   if(!entries.length){list.innerHTML='<div class="note">No entries yet. Start tonight.</div>';return;}
   list.innerHTML=entries.slice(0,6).map((e,idx)=>`
     <div class="je">
-      <div class="jd">${e.date}${e.happy?' · '+e.happy:''}${e.grat?' · Grateful: '+e.grat:''}</div>
-      <div class="jt">${e.text.substring(0,200)}${e.text.length>200?"...":""}</div>
-      ${e.dont?`<div style="font-size:11px;color:var(--red-t);margin-top:4px;">Won't repeat: ${e.dont}</div>`:""}
+      <div class="jd">${esc(e.date)}${e.happy?' · '+esc(e.happy):''}${e.grat?' · Grateful: '+esc(e.grat):''}</div>
+      <div class="jt">${esc((e.text||"").substring(0,200))}${(e.text||"").length>200?"...":""}</div>
+      ${e.dont?`<div style="font-size:11px;color:var(--red-t);margin-top:4px;">Won't repeat: ${esc(e.dont)}</div>`:""}
       <div class="item-actions">
         <button class="mini-btn" onclick="editJournalEntry('${String(e.id??e.ts??idx)}')">Edit</button>
         <button class="mini-btn" onclick="deleteJournalEntry('${String(e.id??e.ts??idx)}')">Delete</button>
@@ -2834,19 +3001,26 @@ function nav(name,el){
 }
 
 // ── DATE / COUNTDOWN ──────────────────────────────────────────
+// C63 countdown: goal date and the date the countdown started from.
+const C63_GOAL_DATE="2027-08-15";
+const C63_START_DATE="2026-03-12";
+
 function setDate(){
   const d=new Date();
   const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
   document.getElementById("dtMain").textContent=days[d.getDay()].toUpperCase();
   document.getElementById("dtSub").textContent=d.getDate()+" "+months[d.getMonth()]+" "+d.getFullYear();
-  const c63=new Date("2027-08-15");const now=new Date();
-  const diff=Math.ceil((c63-now)/(1000*60*60*24));
+  // Derive the countdown span from the two dates instead of a magic 521, so
+  // changing the goal date keeps the progress bars correct.
+  const diff=daysUntil(C63_GOAL_DATE);
+  const totalDays=Math.max(1,Math.round((parseLocalDate(C63_GOAL_DATE)-parseLocalDate(C63_START_DATE))/86400000));
+  const pct=Math.min(100,Math.max(0,((totalDays-diff)/totalDays)*100));
   const pill=document.getElementById("c63pill");if(pill)pill.textContent=diff+" days to C63";
   const cc=document.getElementById("c63days");if(cc)cc.textContent=diff+" days remaining";
-  const cb=document.getElementById("c63bar");if(cb)cb.style.width=Math.min(100,Math.max(0,((521-diff)/521)*100))+"%";
+  const cb=document.getElementById("c63bar");if(cb)cb.style.width=pct+"%";
   const tc=document.getElementById("t-c63");if(tc)tc.textContent=diff>0?diff+"d":"Goal date passed";
-  const bc=document.getElementById("b-c63");if(bc)bc.style.width=Math.min(100,Math.max(0,((521-diff)/521)*100))+"%";
+  const bc=document.getElementById("b-c63");if(bc)bc.style.width=pct+"%";
 }
 
 // ── SCHOOL ─────────────────────────────────────────────────────
@@ -2871,7 +3045,7 @@ async function addDeadline(){
   setSyncStatus("saving");
   const dl=(await cGet("ab_deadlines"))||[];
   dl.push({id:Date.now(),name,mod,date,type});
-  dl.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  dl.sort((a,b)=>parseLocalDate(a.date)-parseLocalDate(b.date));
   await cSet("ab_deadlines",dl);
   setSyncStatus("live");
   document.getElementById("dl-name").value="";
@@ -2881,6 +3055,7 @@ async function addDeadline(){
 }
 
 async function deleteDeadline(id){
+  if(!confirm("Delete this deadline?"))return;
   setSyncStatus("saving");
   let dl=(await cGet("ab_deadlines"))||[];
   dl=dl.filter(d=>d.id!==id);
@@ -2918,15 +3093,16 @@ async function loadDeadlines(){
 function renderDeadlines(dl){
   const list=document.getElementById("deadlineList");
   if(!dl.length){list.innerHTML='<div class="note">No deadlines yet. Add your first one above.</div>';return;}
-  const today=new Date();today.setHours(0,0,0,0);
-  list.innerHTML=dl.map(d=>{
-    const due=new Date(d.date);const diff=Math.ceil((due-today)/(1000*60*60*24));
-    const cls=diff<=3?"urgent":diff<=7?"soon":"ok";
-    const label=diff<0?"Overdue":diff===0?"Today":diff===1?"Tomorrow":diff+" days";
+  // Sort on render too — editDeadline can change a date without re-sorting.
+  const rows=[...dl].sort((a,b)=>parseLocalDate(a.date)-parseLocalDate(b.date));
+  list.innerHTML=rows.map(d=>{
+    const diff=daysUntil(d.date);
+    const cls=diff<0?"urgent":diff<=3?"urgent":diff<=7?"soon":"ok";
+    const label=diff<0?(diff===-1?"Overdue by 1 day":`Overdue by ${Math.abs(diff)} days`):diff===0?"Today":diff===1?"Tomorrow":diff+" days";
     return`<div class="deadline-item">
       <div class="deadline-left">
-        <div class="deadline-title">${d.type} — ${d.name}</div>
-        <div class="deadline-mod">${MOD_NAMES[d.mod]}</div>
+        <div class="deadline-title">${esc(d.type)} — ${esc(d.name)}</div>
+        <div class="deadline-mod">${esc(MOD_NAMES[d.mod]||d.mod||"")}</div>
       </div>
       <div class="deadline-date ${cls}">${label}</div>
       <button class="mini-btn" onclick="editDeadline(${d.id})">Edit</button>
@@ -2963,8 +3139,8 @@ function renderSessions(sessions){
   if(!sessions.length){list.innerHTML='<div class="note">No sessions logged yet. Log your first study session above.</div>';return;}
   list.innerHTML=sessions.slice(0,10).map(s=>`
     <div class="session-item">
-      <div class="session-date">${s.date} · ${MOD_NAMES[s.mod]} · ${s.dur} min</div>
-      <div class="session-detail">${s.topic}</div>
+      <div class="session-date">${esc(s.date)} · ${esc(MOD_NAMES[s.mod]||s.mod||"")} · ${esc(s.dur)} min</div>
+      <div class="session-detail">${esc(s.topic)}</div>
       <div class="item-actions">
         <button class="mini-btn" onclick="editStudySession(${s.id})">Edit</button>
         <button class="mini-btn" onclick="deleteStudySession(${s.id})">Delete</button>
@@ -3013,11 +3189,14 @@ async function updateOverview(){
   const thisWeek=sessions.filter(s=>new Date(s.id)>=weekAgo);
   const totalSessions=thisWeek.length;
   const totalHours=Math.round(thisWeek.reduce((a,s)=>a+s.dur,0)/60*10)/10;
-  const dueSoon=dl.filter(d=>{const diff=Math.ceil((new Date(d.date)-today)/(1000*60*60*24));return diff>=0&&diff<=7;}).length;
+  const dueSoon=dl.filter(d=>{const diff=daysUntil(d.date);return diff>=0&&diff<=7;}).length;
   const modCounts={BM:0,AA:0,EN:0,EC:0};
   thisWeek.forEach(s=>modCounts[s.mod]=(modCounts[s.mod]||0)+s.dur);
   const minMod=Object.entries(modCounts).sort((a,b)=>a[1]-b[1])[0];
-  const neglected=minMod[1]===0?MOD_NAMES[minMod[0]]:MOD_NAMES[minMod[0]];
+  // Both branches of this used to be identical. If nothing has been studied at
+  // all there is no "most neglected" module to single out.
+  const studiedAny=Object.values(modCounts).some(v=>v>0);
+  const neglected=studiedAny?MOD_NAMES[minMod[0]]:"All";
   const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   set("s-total",totalSessions);
   set("s-hours",totalHours+"h");
@@ -3197,9 +3376,9 @@ function renderGymLog(sessions){
   if(!sessions||!sessions.length){list.innerHTML='<div class="note">No sessions logged yet.</div>';return;}
   list.innerHTML=sessions.slice(0,8).map(s=>`
     <div class="gym-log-item">
-      <div class="gym-log-date">${s.date} · ${s.day} · ${s.dur} min · Feel: ${s.feel}/10</div>
-      ${s.prog?`<div class="gym-log-detail" style="color:var(--green-t);font-style:italic;">${s.prog}</div>`:""}
-      ${s.hard?`<div class="gym-log-detail">Hardest: ${s.hard}</div>`:""}
+      <div class="gym-log-date">${esc(s.date)} · ${esc(s.day)} · ${esc(s.dur)} min · Feel: ${esc(s.feel)}/10</div>
+      ${s.prog?`<div class="gym-log-detail" style="color:var(--green-t);font-style:italic;">${esc(s.prog)}</div>`:""}
+      ${s.hard?`<div class="gym-log-detail">Hardest: ${esc(s.hard)}</div>`:""}
       <div class="item-actions">
         <button class="mini-btn" onclick="editGymSession(${s.ts})">Edit</button>
         <button class="mini-btn" onclick="deleteGymSession(${s.ts})">Delete</button>
@@ -3248,8 +3427,8 @@ function renderGymProgressList(sessions){
   if(!sessions||!sessions.length){list.innerHTML='<div class="note">No sessions logged yet.</div>';return;}
   list.innerHTML=sessions.slice(0,10).map(s=>`
     <div class="gym-log-item">
-      <div class="gym-log-date">${s.date} · ${s.day} · ${s.dur} min</div>
-      ${s.prog?`<div class="gym-log-detail" style="color:var(--green-t);">${s.prog}</div>`:""}
+      <div class="gym-log-date">${esc(s.date)} · ${esc(s.day)} · ${esc(s.dur)} min</div>
+      ${s.prog?`<div class="gym-log-detail" style="color:var(--green-t);">${esc(s.prog)}</div>`:""}
       <div class="item-actions">
         <button class="mini-btn" onclick="editGymSession(${s.ts})">Edit</button>
         <button class="mini-btn" onclick="deleteGymSession(${s.ts})">Delete</button>
@@ -3676,15 +3855,26 @@ const GL_PHASES=[
   }
 ];
 
+// This checklist was the only feature storing state in localStorage alone, so
+// launch progress never followed the user between phone and laptop. It now
+// writes through to the same cloud state as everything else, with a synchronous
+// cache so the existing render path doesn't have to become async.
+const GOLIVE_KEY='cleandesk_checklist';
+let goLiveCache=null;
+
 function getGoLiveChecklistState(){
+  if(goLiveCache) return goLiveCache;
   try{
-    const s=localStorage.getItem('cleandesk_checklist');
-    return s?JSON.parse(s):{};
-  }catch(e){return{};}
+    const s=localStorage.getItem(GOLIVE_KEY);
+    goLiveCache = s?JSON.parse(s):{};
+  }catch(e){ goLiveCache={}; }
+  return goLiveCache;
 }
 
 function saveGoLiveChecklistState(state){
-  try{localStorage.setItem('cleandesk_checklist',JSON.stringify(state));}catch(e){}
+  goLiveCache=state||{};
+  try{localStorage.setItem(GOLIVE_KEY,JSON.stringify(goLiveCache));}catch(e){}
+  cSet(GOLIVE_KEY, goLiveCache);
 }
 
 function renderGoLiveChecklist(){
@@ -3768,6 +3958,9 @@ function resetGoLiveChecklist(){
 }
 
 async function loadGoLiveChecklist(){
+  // Hydrate from cloud first so progress ticked on another device shows up here.
+  const cloud=await cGet(GOLIVE_KEY);
+  if(cloud && typeof cloud==="object") goLiveCache=cloud;
   renderGoLiveChecklist();
 }
 
@@ -3795,7 +3988,31 @@ async function unlockDashboard(){
     }
     return;
   }
-  
+
+  if(!envIsConfigured()){
+    if(err){
+      err.textContent="This dashboard isn't connected to a Supabase project yet — fill in config/env.js.";
+      err.style.display="block";
+    }
+    return;
+  }
+
+  // The Supabase library comes from a CDN. If that request failed, sbClient is
+  // null and signInWithPassword throws an opaque TypeError — say so plainly
+  // instead of showing "an unexpected error occurred" forever.
+  if(!sbClient){
+    if(window.supabase){
+      try{ sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); }catch(e){}
+    }
+    if(!sbClient){
+      if(err){
+        err.textContent="Can't reach the sync service. Check your connection and reload.";
+        err.style.display="block";
+      }
+      return;
+    }
+  }
+
   try{
     // Authenticate with Supabase Auth
     const { data, error } = await sbClient.auth.signInWithPassword({ email, password });
@@ -3842,7 +4059,8 @@ function startDashboard(){
   if(auth)auth.style.display="none";
   if(app)app.style.display="block";
   if(loader)loader.style.display="flex";
-  
+  bindSignOut();
+
   // Load user-scoped dashboard data via Supabase auth
   if (window.DashboardAuth && sbClient) {
     window.DashboardAuth.completeAuthAndLoadDashboard().catch(err => {
@@ -3861,16 +4079,27 @@ async function boot(){
   const email=document.getElementById("authEmail");
   // Prefer stored Supabase session before prompting for login.
   loadAuthSession();
-  if ((!authSession || !authSession.access_token) && sbClient) {
+  if (!sessionIsFresh(authSession) && sbClient) {
     try {
-      const { data } = await sbClient.auth.getSession();
-      if (data && data.session) saveAuthSession(data.session);
+      // Expired-but-present token: try a refresh before falling back to login.
+      if (sessionToken(authSession)) {
+        const { data: rData } = await sbClient.auth.refreshSession();
+        if (rData && rData.session) saveAuthSession(rData.session);
+      }
+      if (!sessionIsFresh(authSession)) {
+        const { data } = await sbClient.auth.getSession();
+        if (data && data.session) saveAuthSession(data.session);
+      }
     } catch (e) {}
   }
-  if(authSession && authSession.access_token){
+  // Only skip the login screen for a session that is actually still valid —
+  // a stale token here meant every request 401'd with no way to recover.
+  if (sessionIsFresh(authSession) && USER_ID) {
     startDashboard();
     return;
   }
+  if (sessionToken(authSession)) clearAuthSession();
+  bindSignOut();
   if(auth)auth.style.display="flex";
   if(email)email.focus();
 }

@@ -9,6 +9,11 @@
 // 4. Loading items from public.personal_items with proper RLS/auth context
 // ═══════════════════════════════════════════════════════════════════════════
 
+// The dashboard key comes from config/env.js so there is exactly one place to
+// change it. Falls back to the historical value if env.js predates this field.
+const AUTH_DASHBOARD_KEY =
+  (window.__ESTATE_ENV && window.__ESTATE_ENV.DASHBOARD_KEY) || 'blanco-enterprise-dashboard';
+
 // Global state for dashboard-specific user context
 let currentUserId = null;           // From auth.uid() — never expose in UI
 let allowedDashboardKeys = [];      // User's assigned dashboard keys
@@ -60,7 +65,7 @@ async function fetchUserDashboardKeys(userId) {
  * Select which dashboard this user wants to view
  * For Blanco dashboard, we prioritize 'blanco-enterprise-dashboard'
  */
-function selectDashboard(preferredKey = 'blanco-enterprise-dashboard') {
+function selectDashboard(preferredKey = AUTH_DASHBOARD_KEY) {
   if (!allowedDashboardKeys || allowedDashboardKeys.length === 0) {
     console.warn('⚠️ No dashboard keys available');
     selectedDashboardKey = null;
@@ -144,7 +149,7 @@ async function completeAuthAndLoadDashboard() {
     }
 
     // Step 2: Select Blanco dashboard
-    selectDashboard('blanco-enterprise-dashboard');
+    selectDashboard(AUTH_DASHBOARD_KEY);
     if (!selectedDashboardKey) {
       console.error('❌ Could not select any dashboard');
       throw new Error('Failed to select dashboard');
