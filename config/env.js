@@ -1,16 +1,28 @@
 // Blanco Enterprise Dashboard — Runtime configuration
-// ============================================================
-// Supabase configuration for Blanco Enterprise Dashboard
-// Shared project with Masemula Estate Dashboard
+// ============================================================================
+// This is the ONLY place the Supabase project is configured. The dashboard has
+// no hardcoded fallback: if these values are wrong, it says so on the login
+// screen rather than silently talking to the wrong project.
 //
-// SUPABASE_URL  → Project URL  (https://ribmywnovgzsmtuaxgrn.supabase.co)
-// SUPABASE_ANON_KEY → anon/public key (safe to expose in browser, RLS enforced)
+// Where to find these:
+//   Supabase Dashboard → your project → Settings → API
+//     SUPABASE_URL      → "Project URL"
+//     SUPABASE_ANON_KEY → "Project API keys" → anon / public
 //
-// ⚠️  WARNING: Do NOT commit real credentials to version control.
-//     This file uses the shared anon key which is safe for browser.
-//     RLS policies enforce per-user data access.
-// ============================================================
+// The anon key is designed to be public and is safe in the browser — but ONLY
+// because Row Level Security is switched on. Run supabase/schema.sql before
+// putting this live. Without those policies the anon key can read every row.
+//
+// Never put the service_role key here. It bypasses RLS entirely.
+// ============================================================================
+
 window.__ESTATE_ENV = {
-  SUPABASE_URL: 'https://ribmywnovgzsmtuaxgrn.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpYm15d25vdmd6c210dWF4Z3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNjc0OTEsImV4cCI6MjA5MzY0MzQ5MX0.cIOgXx-8T_evKrDVvH6f4O-55RgusS1wKxso0xstLjs'
+  SUPABASE_URL: 'https://hqmtzqgqhqdgzzkcwraf.supabase.co',
+
+  // anon / public key — role is "anon", verified against the project ref above.
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhxbXR6cWdxaHFkZ3p6a2N3cmFmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0NDc5NjcsImV4cCI6MjEwMjAyMzk2N30.SEoLorMdpJjCFuwccfTcbtjd2yRXTQqlWQlqA-UXUy8',
+
+  // Identifies this dashboard's data within the project. Only change this if
+  // you also change it in supabase/schema.sql — they must match.
+  DASHBOARD_KEY: 'blanco-enterprise-dashboard'
 };

@@ -1,128 +1,61 @@
-# 🔄 Blanco Dashboard Cross-Device Sync Setup
+# Using Your Dashboard Across Devices
 
-**For: Your friend (Tshegofatso)**  
-**Status**: Copy and paste this to fix your Supabase sync
+Short guide to how syncing works now, and what to do if something looks off.
 
----
-
-## Your Dashboard Configuration
-
-| Setting | Value |
-|---------|-------|
-| **Dashboard URL** | https://whomadeblanco.github.io/blanco-enterprise-dashboard/ |
-| **Supabase Project** | `ribmywnovgzsmtuaxgrn` |
-| **Dashboard Key** | `blanco-enterprise-dashboard` |
-| **Your Email** | `whomadeblanco@gmail.com` |
-| **Your User ID (UUID)** | `b87f5fb4-6327-40f1-84b1-94d06e49262d` |
-| **Tables Used** | `user_dashboards`, `personal_items` |
+No setup needed — if you can log in, sync is already working. For the one-time project setup, see `SUPABASE-SETUP.md`.
 
 ---
 
-## What to Fix
+## How it works
 
-### 1. **Enable API Access on Tables** (Supabase Console)
-Go to: https://app.supabase.com/project/ribmywnovgzsmtuaxgrn/
+Log in with the same email and password on any device and you get the same dashboard. Everything you enter — journal entries, deadlines, gym logs, finances, checklists — is saved to your account, not to the browser you happened to be using.
 
-For each table, enable PostgREST access:
-- **Table**: `user_dashboards`
-  - ⚙ → "Expose to API"
-  - Enable: `SELECT`, `INSERT`, `UPDATE`
+The indicator under the date tells you where things stand:
 
-- **Table**: `personal_items`
-  - ⚙ → "Expose to API"
-  - Enable: `SELECT`, `INSERT`, `UPDATE`, `DELETE`
+| Indicator | Meaning |
+|---|---|
+| **Synced** | Everything is saved |
+| **Saving…** | A change is on its way up, usually under a second |
+| **Sync error** | Can't reach the server — see below |
 
-- **Table**: `user_preferences` (if using)
-  - ⚙ → "Expose to API"
-  - Enable: `SELECT`, `INSERT`, `UPDATE`
+Changes save automatically about three-quarters of a second after you stop typing. There's no save button.
 
-### 2. **Verify Your Database Entry** (SQL Console)
-Go to: https://app.supabase.com/project/ribmywnovgzsmtuaxgrn/sql/new
-
-Run this query:
-```sql
-SELECT * FROM public.user_dashboards 
-WHERE user_id = 'b87f5fb4-6327-40f1-84b1-94d06e49262d' 
-  AND dashboard_key = 'blanco-enterprise-dashboard';
-```
-
-**Expected**: 1 row returned ✅
-
-If **no rows** → Run this INSERT:
-```sql
-INSERT INTO public.user_dashboards (user_id, dashboard_key, created_at)
-VALUES ('b87f5fb4-6327-40f1-84b1-94d06e49262d', 'blanco-enterprise-dashboard', now());
-```
-
-### 3. **Check Your Frontend Configuration**
-
-In your **`config/env.js`**, verify:
-```javascript
-window.__ESTATE_ENV = {
-  SUPABASE_URL: 'https://ribmywnovgzsmtuaxgrn.supabase.co',
-  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpYm15d25vdmd6c210dWF4Z3JuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNjc0OTEsImV4cCI6MjA5MzY0MzQ5MX0.cIOgXx-8T_evKrDVvH6f4O-55RgusS1wKxso0xstLjs'
-};
-```
-
-### 4. **Hard Refresh & Test**
-1. Press: **Ctrl+Shift+F5** (or Cmd+Shift+R on Mac)
-2. **Login** with: `whomadeblanco@gmail.com`
-3. **Open DevTools** (F12) → Console
-4. Look for these success messages:
-   ```
-   ✅ Authenticated user ID: b87f5fb4-6327-40f1-84b1-94d06e49262d
-   ✅ Allowed dashboard keys: ["blanco-enterprise-dashboard"]
-   ✅ Selected dashboard: blanco-enterprise-dashboard
-   ✅ Loaded X items for blanco-enterprise-dashboard
-   ```
+If you have the dashboard open on two devices at once, each one checks for updates from the other every 12 seconds. Add something on your laptop, and it appears on your phone shortly after without a refresh.
 
 ---
 
-## Common Issues & Fixes
+## Signing out
 
-### ❌ 403 Forbidden on `user_dashboards` or `personal_items`
-**Cause**: Table not exposed to PostgREST API  
-**Fix**: Enable "Expose to API" for that table (see Step 1)
+The **Sign out** button sits next to the dark mode toggle in the top right.
 
-### ❌ 404 Not Found on REST endpoint
-**Cause**: Table name is wrong in frontend code  
-**Fix**: Use exact table names:
-- `user_dashboards` ✅
-- `personal_items` ✅
-- NOT `user_dashboard` (no 's')
-- NOT `items` (must be `personal_items`)
-
-### ❌ "No dashboards assigned to this user"
-**Cause**: Row missing in `user_dashboards` table  
-**Fix**: Run the INSERT SQL from Step 2
-
-### ❌ Console shows auth errors but dashboard still works
-**This is OK** — localStorage fallback will keep things working while you fix the API issues
+Worth using if you're on a shared or borrowed computer. On your own devices you can stay logged in — your session refreshes itself in the background, so you shouldn't get kicked out.
 
 ---
 
-## Testing Cross-Device Sync
+## If something looks wrong
 
-Once setup is complete:
+**"Sync error" in the header**
 
-1. **Add data** on your desktop browser (e.g., create a task)
-2. **Click "Sync"** button in dashboard
-3. **Open same dashboard on phone** or different browser
-4. **Refresh page**
-5. **Verify** the data you created on desktop appears ✅
+Usually just the connection. Check you're online and reload. If it persists after a reload on a good connection, something on the server side needs attention.
 
----
+**A change I made isn't showing on my other device**
 
-## Need Help?
+Give it 15 seconds or so — the other device polls on an interval rather than instantly. If it still hasn't appeared, reload that device.
 
-If you still see errors after these steps:
-1. Share your **console error messages** (F12 → Console tab)
-2. Run this SQL and share the result:
-   ```sql
-   SELECT * FROM public.user_dashboards WHERE user_id = 'b87f5fb4-6327-40f1-84b1-94d06e49262d';
-   ```
-3. Verify tables are exposed in Supabase: Table Editor → each table → ⚙ icon
+**I'm being asked to log in again**
+
+Normal if you haven't opened it in a while, or if you signed out. Log back in and everything is where you left it.
+
+**A deadline looks like it's on the wrong day**
+
+That was a real bug and it's fixed. Dates were being read in UTC instead of your local time, so everything showed a day late and things due today read as "Tomorrow". If you added deadlines before the fix, the stored dates are correct — only the display was wrong, so they'll read right now.
 
 ---
 
-**Status**: Ready to sync! 🚀
+## What's stored
+
+Everything on the dashboard: morning briefs, journal entries, school deadlines and study sessions, gym logs, finances, agent tasks, weekly reviews, and both CleanDesk checklists.
+
+It's stored under your account and only your account can read it. If you're curious about the guarantees behind that, the row-level security policies are in `supabase/schema.sql`.
+
+Your data also stays cached in each browser you use, so a brief connection drop won't lose your work — it syncs up when you're back online.
