@@ -1,0 +1,5 @@
+chore: add MCP client config example and setup docs
+
+Adds an example MCP config and a short guide to configure the Copilot MCP client for Supabase.
+
+Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
