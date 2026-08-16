@@ -743,8 +743,8 @@ select option{background:var(--surface2);}
       <div class="met"><div class="ml">Savings account</div><div class="mv" id="f-savings">R0</div><div class="ms">Emergency buffer</div></div>
     </div>
     <div class="mg">
-      <div class="met"><div class="ml">Weekly income</div><div class="mv" id="f-income" style="color:var(--green-t)">R0</div><div class="ms">Last 7 days</div></div>
-      <div class="met"><div class="ml">Weekly expenses</div><div class="mv" id="f-expense" style="color:var(--red-t)">R0</div><div class="ms">Last 7 days</div></div>
+      <div class="met"><div class="ml">Monthly income</div><div class="mv" id="f-income" style="color:var(--green-t)">R0</div><div class="ms">This month</div></div>
+      <div class="met"><div class="ml">Monthly expenses</div><div class="mv" id="f-expense" style="color:var(--red-t)">R0</div><div class="ms">This month</div></div>
       <div class="met"><div class="ml">Net position</div><div class="mv" id="f-net">R0</div><div class="ms">Income - expenses</div></div>
       <div class="met"><div class="ml">Runway</div><div class="mv" id="f-runway">0 weeks</div><div class="ms">Using current weekly burn</div></div>
     </div>
@@ -2676,12 +2676,17 @@ let financeCache={primary:0,business:0,savings:0,txns:[]};
 let agentTasksCache=[];
 
 function calcFinance(f){
-  const txns=(f.txns||[]).filter(t=>Date.now()-(t.ts||0)<=7*24*60*60*1000);
-  const income=txns.filter(t=>t.type==="income").reduce((a,t)=>a+(t.amount||0),0);
-  const expense=txns.filter(t=>t.type==="expense").reduce((a,t)=>a+(t.amount||0),0);
+  const now=new Date();
+  const monthStart=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const txnsMonth=(f.txns||[]).filter(t=>(t.ts||0)>=monthStart);
+  const txnsWeek=(f.txns||[]).filter(t=>Date.now()-(t.ts||0)<=7*24*60*60*1000);
+  const income=txnsMonth.filter(t=>t.type==="income").reduce((a,t)=>a+(t.amount||0),0);
+  const expense=txnsMonth.filter(t=>t.type==="expense").reduce((a,t)=>a+(t.amount||0),0);
   const net=income-expense;
   const total=(f.primary||0)+(f.business||0)+(f.savings||0);
-  const burn=Math.max(0,expense-income);
+  const weeklyIncome=txnsWeek.filter(t=>t.type==="income").reduce((a,t)=>a+(t.amount||0),0);
+  const weeklyExpense=txnsWeek.filter(t=>t.type==="expense").reduce((a,t)=>a+(t.amount||0),0);
+  const burn=Math.max(0,weeklyExpense-weeklyIncome);
   const runway=burn>0?Math.floor(total/burn):0;
   return{income,expense,net,total,runway};
 }
