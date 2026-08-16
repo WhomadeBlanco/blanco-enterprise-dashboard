@@ -99,6 +99,19 @@ select option{background:var(--surface2);}
 .goal-title{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--text);letter-spacing:0.06em;margin-bottom:4px;}
 .goal-deadline{font-size:11px;color:var(--gold-dim);margin-bottom:6px;}
 .goal-steps{font-size:12px;color:var(--text-muted);line-height:1.8;}
+.reading-add-box{margin-top:10px;padding:10px;border-radius:8px;border:0.5px solid var(--border);background:var(--surface);}
+.reading-book-list{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px;}
+.reading-book{background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;}
+.reading-book-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:5px;}
+.reading-book-title{font-size:13px;font-weight:500;color:var(--text);}
+.reading-book-title span{display:block;font-size:11px;font-weight:400;color:var(--text-muted);}
+.reading-book-pct{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.05em;color:var(--gold);white-space:nowrap;}
+.reading-book-meta{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;}
+.reading-book-notes{margin-top:8px;display:grid;grid-template-columns:1fr;gap:6px;}
+.reading-note-item{background:var(--surface2);border:0.5px solid var(--border);border-radius:7px;padding:7px 9px;}
+.reading-note-head{font-size:10px;color:var(--gold-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;}
+.reading-note-body{font-size:12px;color:var(--text-muted);line-height:1.55;white-space:pre-wrap;}
+.reading-action{margin-top:7px;}
 .countdown{font-family:'Bebas Neue',sans-serif;font-size:0.85rem;color:var(--amber-t);letter-spacing:0.06em;}
 .cg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;}
 .ci{background:var(--surface2);border:0.5px solid var(--border);border-radius:8px;padding:9px 11px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted);user-select:none;}
@@ -421,9 +434,20 @@ select option{background:var(--surface2);}
   </div>
   <div class="goal-card" style="border-left-color:var(--amber-t)">
     <div class="goal-title">READ 12 BOOKS THIS YEAR</div>
-    <div class="goal-deadline">0 books in last 6 months → 1 book per month from today</div>
-    <div class="goal-steps">You read zero books in 6 months. Reading is the cheapest form of mentorship. Your next 3 months:<br><br>April: The Lean Startup — Eric Ries<br>May: $100M Offers — Alex Hormozi<br>June: Rich Dad Poor Dad — Robert Kiyosaki<br><br>21:00–22:00 is your reading block. It's already in your schedule. Use it.</div>
+    <div class="goal-deadline"><span id="booksGoalCount">0</span>/<span id="booksGoalTotal">12</span> completed · Track progress chapter-by-chapter</div>
+    <div class="goal-steps">Use this tracker for every book: set total chapters, log chapters completed, and keep chapter notes. Add new books anytime and they will automatically use the same progress + notes system.</div>
     <div class="bar mt8"><div class="bf" id="bookbar" style="width:0%;background:var(--amber-t)"></div></div>
+    <div class="reading-add-box">
+      <div class="ct" style="margin:10px 0 8px;">READING TRACKER <small>Reusable for all current and future books</small></div>
+      <div class="r3">
+        <div class="fld"><label>Book title</label><input id="rb-new-title" placeholder="e.g. Deep Work"></div>
+        <div class="fld"><label>Author</label><input id="rb-new-author" placeholder="e.g. Cal Newport"></div>
+        <div class="fld"><label>Total chapters</label><input type="number" id="rb-new-total" min="1" placeholder="e.g. 12"></div>
+      </div>
+      <div class="fld"><label>Brief background</label><textarea id="rb-new-background" placeholder="A short summary of why this book matters..."></textarea></div>
+      <button class="ghost" onclick="addReadingBook()">Add Book</button>
+    </div>
+    <div id="readingBookList" class="reading-book-list"><div class="note">Loading books...</div></div>
   </div>
   <div class="goal-card" style="border-left-color:var(--red-t)">
     <div class="goal-title">FIRST APARTMENT</div>
@@ -438,9 +462,9 @@ select option{background:var(--surface2);}
   <div class="card mt">
     <div class="ct">UPDATE GOAL PROGRESS</div>
     <div class="r2">
-      <div class="fld"><label>Books read this year</label><input type="number" id="u-books" placeholder="e.g. 1" min="0" max="12"></div>
       <div class="fld"><label>Current weight (kg)</label><input type="number" id="u-weight" placeholder="e.g. 67"></div>
     </div>
+    <div class="note" style="margin-bottom:8px;">Books completed are now auto-calculated from your reading tracker.</div>
     <button class="btn" onclick="saveGoalProgress()">Update</button>
     <div id="goalSaved" style="display:none;font-size:12px;color:var(--green-t);margin-top:8px;">Synced to cloud.</div>
   </div>
@@ -870,7 +894,7 @@ select option{background:var(--surface2);}
     <div class="ct">WHAT TO CONSUME TODAY <small>Phase 0 — Pre Launch</small></div>
     <div class="fi"><div class="fc">Product Research</div><div class="ft">TikTok Creative Center — daily non-negotiable</div><div class="fd">ads.tiktok.com/business/creativecenter — best performing filter. One niche. 5 hooks written word for word. Every single day.</div></div>
     <div class="fi"><div class="fc">Competitor Intelligence</div><div class="ft">Facebook Ad Library — your proof of concept</div><div class="fd">facebook.com/ads/library — search your product. Active ads only. Ads running 30+ days = profitable. Study structure, headline, hook, offer.</div></div>
-    <div class="fi"><div class="fc">Business Education</div><div class="ft">This month: The Lean Startup — Eric Ries</div><div class="fd">Your 21:00 reading slot. 20 pages per night. Write one takeaway per session in your journal.</div></div>
+    <div class="fi"><div class="fc">Business Education</div><div class="ft">Current queue starts with Atomic Habits — James Clear</div><div class="fd">Use the Goals reading tracker to log chapter progress and notes. Your 21:00 reading slot remains non-negotiable.</div></div>
     <div class="fi"><div class="fc">Faith</div><div class="ft">Proverbs — one chapter daily</div><div class="fd">31 chapters, 31 days. Start tonight. Wisdom is the foundation everything else is built on.</div></div>
     <div class="fi"><div class="fc">Business Mindset</div><div class="ft">YouTube: Alex Hormozi — "How I would start over with $0"</div><div class="fd">Watch during lunch. Not for motivation — for frameworks. One sentence on how it applies to your dropshipping business specifically.</div></div>
   </div>
@@ -2042,6 +2066,7 @@ FULL PROFILE:
 - Capital target: R3,000 to launch dropshipping store
 - Current weight: ~65kg | Body goal: 80–85kg lean
 - Books read in last 6 months: 0
+- Reading queue: Atomic Habits, Meditations, Letters from a Stoic, Can't Hurt Me, 12 Rules for Life, Man's Search for Meaning, How to Win Friends and Influence People, Never Split the Difference, Thinking, Fast and Slow, The Laws of Human Nature, The Psychology of Money, The Almanack of Naval Ravikant
 - Faith: Church + occasional prayer — wants to grow intentionally
 - Known discipline weak points: procrastinating on business tasks, skipping gym, giving up when progress is slow
 
@@ -2391,9 +2416,227 @@ async function saveMetrics(){
   const s=document.getElementById("mSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2000);
 }
 
+const READING_TRACKER_KEY="ab_reading_tracker";
+const READING_BASE_BOOKS=[
+  {id:"atomic-habits",title:"Atomic Habits",author:"James Clear",totalChapters:20,background:"A practical framework for building good habits and breaking bad ones through small, repeatable systems."},
+  {id:"meditations",title:"Meditations",author:"Marcus Aurelius",totalChapters:12,background:"A Stoic reflection journal on discipline, perspective, and focusing only on what is in your control."},
+  {id:"letters-from-a-stoic",title:"Letters from a Stoic",author:"Seneca",totalChapters:124,background:"A collection of letters that turns Stoic philosophy into practical guidance for daily life."},
+  {id:"cant-hurt-me",title:"Can't Hurt Me",author:"David Goggins",totalChapters:11,background:"A mindset book on mental toughness, accountability, and expanding personal limits through discomfort."},
+  {id:"12-rules-for-life",title:"12 Rules for Life",author:"Jordan Peterson",totalChapters:12,background:"Twelve principles for building order, responsibility, and meaning in modern life."},
+  {id:"mans-search-for-meaning",title:"Man's Search for Meaning",author:"Viktor Frankl",totalChapters:9,background:"A powerful exploration of purpose, suffering, and choosing meaning even under extreme hardship."},
+  {id:"how-to-win-friends-and-influence-people",title:"How to Win Friends and Influence People",author:"Dale Carnegie",totalChapters:30,background:"Classic communication principles for building trust, influence, and stronger relationships."},
+  {id:"never-split-the-difference",title:"Never Split the Difference",author:"Chris Voss",totalChapters:10,background:"Negotiation tactics from an FBI hostage negotiator focused on empathy, calibrated questions, and leverage."},
+  {id:"thinking-fast-and-slow",title:"Thinking, Fast and Slow",author:"Daniel Kahneman",totalChapters:38,background:"A deep look at two thinking systems and how cognitive biases shape judgment and decision-making."},
+  {id:"the-laws-of-human-nature",title:"The Laws of Human Nature",author:"Robert Greene",totalChapters:18,background:"A strategic guide to understanding motives, behavior patterns, and social dynamics."},
+  {id:"the-psychology-of-money",title:"The Psychology of Money",author:"Morgan Housel",totalChapters:20,background:"Timeless lessons on behavior, risk, compounding, and how people actually make money decisions."},
+  {id:"the-almanack-of-naval-ravikant",title:"The Almanack of Naval Ravikant",author:"Eric Jorgenson",totalChapters:12,background:"A curated set of Naval's principles on wealth creation, leverage, judgment, and long-term happiness."}
+];
+let readingTrackerCache={books:[]};
+
+function makeReadingId(v){
+  return String(v||"")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,"-")
+    .replace(/^-+|-+$/g,"")
+    .slice(0,80) || ("book-"+Date.now());
+}
+
+function normalizeReadingBook(raw,fallback={}){
+  const title=String(raw?.title||fallback.title||"Untitled").trim();
+  const author=String(raw?.author||fallback.author||"Unknown author").trim();
+  const background=String(raw?.background||fallback.background||"").trim();
+  const totalRaw=parseInt(raw?.totalChapters ?? fallback.totalChapters ?? 1,10);
+  const totalChapters=Math.max(1,Math.min(500,Number.isFinite(totalRaw)?totalRaw:1));
+  const readRaw=parseInt(raw?.chaptersRead ?? fallback.chaptersRead ?? 0,10);
+  const chaptersRead=Math.max(0,Math.min(totalChapters,Number.isFinite(readRaw)?readRaw:0));
+  const notesRaw=Array.isArray(raw?.notes)?raw.notes:[];
+  const notes=notesRaw
+    .map(n=>({
+      chapter:Math.max(1,parseInt(n?.chapter,10)||1),
+      note:String(n?.note||"").trim(),
+      ts:Number(n?.ts)||Date.now()
+    }))
+    .filter(n=>n.note)
+    .sort((a,b)=>b.chapter-a.chapter)
+    .slice(0,120);
+  return {
+    id:String(raw?.id||fallback.id||makeReadingId(title+"-"+author)),
+    title,
+    author,
+    background,
+    totalChapters,
+    chaptersRead,
+    notes,
+    custom:Boolean(raw?.custom ?? fallback.custom ?? false)
+  };
+}
+
+function normalizeReadingTracker(data){
+  const stored=Array.isArray(data?.books)?data.books:[];
+  const storedById=new Map(stored.map(b=>[String(b.id||""),b]));
+  const base=READING_BASE_BOOKS.map(t=>normalizeReadingBook(storedById.get(t.id)||{},t));
+  const baseIds=new Set(READING_BASE_BOOKS.map(b=>b.id));
+  const custom=stored
+    .filter(b=>b && !baseIds.has(String(b.id||"")) && (b.custom || b.title))
+    .map(b=>normalizeReadingBook({...b,custom:true}));
+  return {books:[...base,...custom]};
+}
+
+function readingPercent(book){
+  return Math.min(100,Math.max(0,Math.round(((book.chaptersRead||0)/(book.totalChapters||1))*100)));
+}
+
+function readingStatus(book){
+  const pct=readingPercent(book);
+  if(pct<=0)return "Not started";
+  if(pct>=100)return "Completed";
+  return "In progress";
+}
+
+function countCompletedBooks(books){
+  return (books||[]).filter(b=>readingPercent(b)>=100).length;
+}
+
+function setReadingGoalHeader(books){
+  const total=(books||[]).length||1;
+  const done=countCompletedBooks(books);
+  const doneEl=document.getElementById("booksGoalCount");
+  const totalEl=document.getElementById("booksGoalTotal");
+  const bar=document.getElementById("bookbar");
+  if(doneEl)doneEl.textContent=String(done);
+  if(totalEl)totalEl.textContent=String(total);
+  if(bar)bar.style.width=Math.min(100,Math.max(0,(done/total)*100))+"%";
+}
+
+function renderReadingNotes(book){
+  if(!book.notes.length)return '<div class="note">No chapter notes yet.</div>';
+  return book.notes
+    .slice()
+    .sort((a,b)=>b.chapter-a.chapter)
+    .slice(0,8)
+    .map(n=>`<div class="reading-note-item"><div class="reading-note-head">Chapter ${n.chapter}</div><div class="reading-note-body">${esc(n.note)}</div></div>`)
+    .join("");
+}
+
+function renderReadingTracker(state){
+  const books=state?.books||[];
+  setReadingGoalHeader(books);
+  const list=document.getElementById("readingBookList");
+  if(!list)return;
+  if(!books.length){
+    list.innerHTML='<div class="note">No books yet. Add your first book above.</div>';
+    return;
+  }
+  list.innerHTML=books.map(book=>{
+    const pct=readingPercent(book);
+    const status=readingStatus(book);
+    return `<div class="reading-book">
+      <div class="reading-book-head">
+        <div class="reading-book-title">${esc(book.title)}<span>${esc(book.author)}</span></div>
+        <div class="reading-book-pct">${pct}%</div>
+      </div>
+      <div class="note">${esc(book.background)}</div>
+      <div class="bar mt8"><div class="bf" style="width:${pct}%;background:var(--amber-t)"></div></div>
+      <div class="reading-book-meta">${book.chaptersRead}/${book.totalChapters} chapters · ${status}</div>
+      <div class="r3 reading-action">
+        <div class="fld"><label>Chapters read</label><input type="number" id="rb-read-${book.id}" min="0" max="${book.totalChapters}" value="${book.chaptersRead}"></div>
+        <div class="fld"><label>Total chapters</label><input type="number" id="rb-total-${book.id}" min="1" value="${book.totalChapters}"></div>
+        <div class="fld" style="display:flex;align-items:flex-end;"><button class="ghost" style="width:100%;" onclick="updateReadingProgress('${book.id}')">Update</button></div>
+      </div>
+      <div class="fld"><label>Chapter note</label>
+        <div class="r2">
+          <input type="number" id="rb-chapter-${book.id}" min="1" max="${book.totalChapters}" placeholder="Chapter #">
+          <button class="ghost" onclick="saveReadingChapterNote('${book.id}')">Save Note</button>
+        </div>
+        <textarea id="rb-note-${book.id}" placeholder="What did you learn in this chapter?"></textarea>
+      </div>
+      <div class="reading-book-notes">${renderReadingNotes(book)}</div>
+    </div>`;
+  }).join("");
+}
+
+async function syncBooksMetricFromReading(books){
+  const done=countCompletedBooks(books);
+  const d=(await cGet("ab_metrics"))||{};
+  if((d.books||0)===done)return;
+  d.books=done;
+  await cSet("ab_metrics",d);
+  renderMetrics(d);
+}
+
+async function saveReadingTracker(state){
+  readingTrackerCache=normalizeReadingTracker(state||readingTrackerCache);
+  setSyncStatus("saving");
+  await cSet(READING_TRACKER_KEY,readingTrackerCache);
+  await syncBooksMetricFromReading(readingTrackerCache.books);
+  setSyncStatus("live");
+  renderReadingTracker(readingTrackerCache);
+}
+
+async function loadReadingTracker(){
+  const state=(await cGet(READING_TRACKER_KEY))||{};
+  readingTrackerCache=normalizeReadingTracker(state);
+  renderReadingTracker(readingTrackerCache);
+  await syncBooksMetricFromReading(readingTrackerCache.books);
+}
+
+async function addReadingBook(){
+  const title=(document.getElementById("rb-new-title")?.value||"").trim();
+  const author=(document.getElementById("rb-new-author")?.value||"").trim();
+  const background=(document.getElementById("rb-new-background")?.value||"").trim();
+  const total=parseInt(document.getElementById("rb-new-total")?.value||"0",10);
+  if(!title){alert("Book title is required.");return;}
+  if(!author){alert("Author is required.");return;}
+  if(!(total>0)){alert("Total chapters must be at least 1.");return;}
+  const existingIds=new Set((readingTrackerCache.books||[]).map(b=>b.id));
+  const baseId=makeReadingId(`${title}-${author}`);
+  let id=baseId;
+  let n=2;
+  while(existingIds.has(id)){id=`${baseId}-${n}`;n++;}
+  const next={...readingTrackerCache,books:[...(readingTrackerCache.books||[]),{
+    id,title,author,background,totalChapters:total,chaptersRead:0,notes:[],custom:true
+  }]};
+  await saveReadingTracker(next);
+  ["rb-new-title","rb-new-author","rb-new-total","rb-new-background"].forEach(i=>{const el=document.getElementById(i);if(el)el.value="";});
+}
+
+async function updateReadingProgress(id){
+  const books=[...(readingTrackerCache.books||[])];
+  const idx=books.findIndex(b=>b.id===id);
+  if(idx<0)return;
+  const total=parseInt(document.getElementById(`rb-total-${id}`)?.value||"0",10);
+  const read=parseInt(document.getElementById(`rb-read-${id}`)?.value||"0",10);
+  if(!(total>0)){alert("Total chapters must be at least 1.");return;}
+  if(read<0){alert("Chapters read cannot be negative.");return;}
+  books[idx].totalChapters=Math.max(1,Math.min(500,total));
+  books[idx].chaptersRead=Math.max(0,Math.min(books[idx].totalChapters,read));
+  await saveReadingTracker({books});
+}
+
+async function saveReadingChapterNote(id){
+  const books=[...(readingTrackerCache.books||[])];
+  const idx=books.findIndex(b=>b.id===id);
+  if(idx<0)return;
+  const chapter=parseInt(document.getElementById(`rb-chapter-${id}`)?.value||"0",10);
+  const note=(document.getElementById(`rb-note-${id}`)?.value||"").trim();
+  if(!(chapter>0)){alert("Enter a valid chapter number.");return;}
+  if(chapter>books[idx].totalChapters){alert("Chapter number is above total chapters.");return;}
+  if(!note){alert("Write a note before saving.");return;}
+  books[idx].notes=(books[idx].notes||[]).filter(n=>n.chapter!==chapter);
+  books[idx].notes.unshift({chapter,note,ts:Date.now()});
+  books[idx].chaptersRead=Math.max(books[idx].chaptersRead||0,chapter);
+  await saveReadingTracker({books});
+  const chapterEl=document.getElementById(`rb-chapter-${id}`);
+  const noteEl=document.getElementById(`rb-note-${id}`);
+  if(chapterEl)chapterEl.value="";
+  if(noteEl)noteEl.value="";
+}
+
 async function saveGoalProgress(){
-  const books=document.getElementById("u-books").value;
-  const weight=document.getElementById("u-weight").value;
+  const booksEl=document.getElementById("u-books");
+  const weightEl=document.getElementById("u-weight");
+  const books=booksEl?booksEl.value:"";
+  const weight=weightEl?weightEl.value:"";
   setSyncStatus("saving");
   const d=(await cGet("ab_metrics"))||{};
   if(books)d.books=parseInt(books);
@@ -2401,7 +2644,8 @@ async function saveGoalProgress(){
   await cSet("ab_metrics",d);
   setSyncStatus("live");
   renderMetrics(d);
-  document.getElementById("u-books").value="";document.getElementById("u-weight").value="";
+  if(booksEl)booksEl.value="";
+  if(weightEl)weightEl.value="";
   const s=document.getElementById("goalSaved");s.style.display="block";setTimeout(()=>s.style.display="none",2000);
 }
 
@@ -2420,7 +2664,7 @@ function renderMetrics(d){
   bar("b-earn",(earn/3000)*100);bar("b-prod",(prod/10)*100);bar("b-ads",(ads/50)*100);
   bar("b-prompts",(prompts/6)*100);bar("b-swipe",(swipe/30)*100);
   bar("b-weight",weight?((weight-65)/20)*100:0);bar("b-books",(books/12)*100);bar("b-gym",(gym/6)*100);
-  bar("bookbar",(books/12)*100);bar("weightbar",weight?((weight-65)/20)*100:0);
+  bar("weightbar",weight?((weight-65)/20)*100:0);
   if(rate>0){const rem=3000-earn;const days=rem>0?Math.ceil(rem/rate):0;set("t-days",days>0?days+"d":"Done ✓");bar("b-days",days>0?100-Math.min(100,(days/30)*100):100);}
   const pill=document.getElementById("phasePill");if(pill)pill.textContent=earn>=3000?"Stage 1 — Capital Ready":"Stage 0 — Foundation";
   renderEnterpriseSnapshot();
@@ -4166,6 +4410,7 @@ async function init(){
   try{
     await Promise.all([
       safeLoad(loadMetrics),
+      safeLoad(loadReadingTracker),
       safeLoad(loadStreak),
       safeLoad(loadJournal),
       safeLoad(loadDeadlines),
